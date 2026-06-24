@@ -113,9 +113,9 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100
 @media(max-width:700px){.g2,.g3,.g4,.g13{grid-template-columns:1fr;}}
 .kpi{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px;position:relative;overflow:hidden;}
 .kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--ac));}
-.kpi-lbl{font-family:var(--mono);font-size:8px;color:var(--tx2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
-.kpi-val{font-family:var(--mono);font-size:20px;font-weight:600;line-height:1;margin-bottom:3px;}
-.kpi-sub{font-size:9px;color:var(--tx2);}
+.kpi-lbl{font-family:var(--mono);font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+.kpi-val{font-family:var(--mono);font-size:26px;font-weight:600;line-height:1;margin-bottom:3px;}
+.kpi-sub{font-size:10px;color:var(--tx2);}
 .card{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:13px;}
 .card-t{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--tx2);margin-bottom:10px;}
 .cr{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--bg3);font-size:11px;}
@@ -207,112 +207,68 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100
     <div class="kpi" style="--kc:#f687b3"><div class="kpi-lbl">Dones 2023</div><div class="kpi-val" id="d-dones" style="color:#f687b3">&#8212;</div><div class="kpi-sub">% poblaci&oacute; &middot; INE Padr&oacute;</div></div>
     <div class="kpi" style="--kc:#fbd38d"><div class="kpi-lbl">Espanyola 2023</div><div class="kpi-val" id="d-esp" style="color:#fbd38d">&#8212;</div><div class="kpi-sub">% pob. nacional &middot; INE</div></div>
     <!-- Fila 2: Població · Menors 18 · Majors 65 · Edat mitjana -->
-    <div class="kpi" style="--kc:#4fd1c5"><div class="kpi-lbl">Poblaci&oacute; 2023</div><div class="kpi-val" id="d-pob" style="color:var(--ac)">&#8212;</div><div class="kpi-sub">habitants &middot; INE Padr&oacute;</div></div>
+    <div class="kpi" style="--kc:#4fd1c5"><div class="kpi-lbl">Poblaci&oacute; 2023</div><div class="kpi-val" id="d-pob" style="color:var(--ac)">&#8212;</div><div class="kpi-sub">INE Padr&oacute;</div></div>
     <div class="kpi" style="--kc:#68d391"><div class="kpi-lbl">Menors 18 2023</div><div class="kpi-val" id="d-men18" style="color:var(--good)">&#8212;</div><div class="kpi-sub">% poblaci&oacute; &middot; INE</div></div>
     <div class="kpi" style="--kc:#76e4f7"><div class="kpi-lbl">Majors 65 2023</div><div class="kpi-val" id="d-maj65" style="color:#76e4f7">&#8212;</div><div class="kpi-sub">% poblaci&oacute; &middot; INE</div></div>
     <div class="kpi" style="--kc:#4fd1c5"><div class="kpi-lbl">Edat mitjana 2023</div><div class="kpi-val" id="d-edat" style="color:var(--ac)">&#8212;</div><div class="kpi-sub">anys &middot; INE Padr&oacute;</div></div>
   </div>
-  <!-- Fila 3: Zona 2fr + Eleccions 2fr + Piràmide 1fr + Participació 0.7fr -->
-  <div style="display:grid;grid-template-columns:2fr 2fr 1fr 0.7fr;gap:10px;margin-bottom:12px;">
-      <div class="card">
-        <div class="card-t">Zona educativa</div>
-        <div class="zbadge"><div class="zdot" id="d-zdot"></div><span id="d-znom">&#8212;</span></div>
-        <div class="cr"><span class="cr-l">Escola m&eacute;s propera</span><span class="cr-v" id="d-escola">&#8212;</span></div>
-        <div id="d-escola-pill" style="margin:3px 0;"></div>
-        <div class="cr"><span class="cr-l">Dist. vi&agrave;ria</span><span class="cr-v" id="d-dist">&#8212;</span></div>
-        <div class="cr"><span class="cr-l">Dist. euclidiana</span><span class="cr-v" id="d-eucl">&#8212;</span></div>
-        <div class="cr"><span class="cr-l">FCP (&Delta;IST&gt;30)</span><span class="cr-v" id="d-fcp30">&#8212;</span></div>
-      </div>
+  <!-- Fila 3: Eleccions 1/2 + Piràmide 1/2 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
       <div class="card">
         <div class="card-t">Eleccions Municipals 2023 &middot; % vots</div>
         <div class="vot-grid" id="d-vot-bars"></div>
         <p class="nota">Valents: local 2023. VOX: des de 2019.</p>
       </div>
       <div class="card" style="padding:8px;">
-        <div class="card-t" style="margin-bottom:4px;">Pir&agrave;mide 2023</div>
-        <canvas id="cv-piramide" style="width:100%;height:160px;display:block;"></canvas>
+        <div class="card-t" style="margin-bottom:4px;">Pir&agrave;mide de poblaci&oacute; 2023</div>
+        <canvas id="cv-piramide" style="width:100%;height:180px;display:block;"></canvas>
         <div style="display:flex;justify-content:space-between;margin-top:3px;">
-          <span style="font-size:9px;color:#4fd1c5;">◀ H</span>
-          <span style="font-size:9px;color:#f687b3;">D ▶</span>
+          <span style="font-size:9px;color:#4fd1c5;">&#9664; H</span>
+          <span style="font-size:9px;color:#f687b3;">D &#9654;</span>
         </div>
-      </div>
-      <div class="card" style="padding:8px;">
-        <div class="card-t" style="font-size:9px;">Participaci&oacute;</div>
-        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
-          <span id="d-part23" style="font-family:var(--mono);font-size:22px;font-weight:600;color:var(--ac)">&#8212;</span>
-          <span style="font-size:9px;color:var(--tx2);">%·23</span>
-        </div>
-        <div class="cr"><span class="cr-l">2019</span><span class="cr-v" id="d-part19">&#8212;</span></div>
-        <div class="cr"><span class="cr-l">2015</span><span class="cr-v" id="d-part15">&#8212;</span></div>
-        <div class="cr"><span class="cr-l">2011</span><span class="cr-v" id="d-part11">&#8212;</span></div>
-        <div class="cr"><span class="cr-l">2007</span><span class="cr-v" id="d-part07">&#8212;</span></div>
       </div>
   </div>
-</div>
+  </div>
 
-<!-- EVOLUCIÓ — 3 files × 2 col -->
+<!-- EVOLUCIÓ -->
 <div class="page" id="page-evo">
   <div class="sh">
     <div class="sh-cusec" id="e-cusec">&#8212;</div>
     <div class="sh-barri" id="e-barri"></div>
     <div class="sh-muni">Terrassa &middot; Evoluci&oacute; 2015&#8211;2023</div>
   </div>
+  <!-- 1A IST + 1B Comparació IST -->
+  <div class="g2">
+    <div class="evo-wrap" style="margin-bottom:0;">
+      <div class="evo-t"><span>IST (Idescat)</span><span id="ev-ist-d" style="font-size:10px;"></span></div>
+      <svg id="sv-ist" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
+      <p class="nota">Homogeni des de 2021. 3 punts.</p>
+    </div>
+    <div class="evo-wrap" style="margin-bottom:0;">
+      <div class="evo-t"><span>Comparaci&oacute; IST: secci&oacute; vs zona vs municipi (2023)</span></div>
+      <svg id="sv-zona" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
+    </div>
+  </div>
+  <div style="margin-top:10px;"></div>
+  <!-- 2A Renda + 2B Gini -->
   <div class="g2">
     <div class="evo-wrap" style="margin-bottom:0;">
       <div class="evo-t"><span>Renda neta (&euro;/persona) &middot; INE</span><span id="ev-renda-d" style="font-size:10px;"></span></div>
       <svg id="sv-renda" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
     </div>
     <div class="evo-wrap" style="margin-bottom:0;">
-      <div class="evo-t"><span>IST (Idescat)</span><span id="ev-ist-d2" style="font-size:10px;"></span></div>
-      <svg id="sv-ist2" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
-    </div>
-  </div>
-  <div style="margin-top:10px;"></div>
-  <div class="g2">
-    <div class="evo-wrap" style="margin-bottom:0;">
-      <div class="evo-t"><span>IST (Idescat)</span><span id="ev-ist-d" style="font-size:10px;"></span></div>
-      <svg id="sv-ist" class="evo-svg" viewBox="0 0 600 90" style="height:90px;"></svg>
-      <p class="nota">Homogeni des de 2021. 3 punts.</p>
-    </div>
-    <div class="evo-wrap" style="margin-bottom:0;">
-      <div class="evo-t"><span>Edat mitjana (anys) &middot; INE Padr&oacute;</span><span id="ev-edat-d" style="font-size:10px;"></span></div>
-      <svg id="sv-edat" class="evo-svg" viewBox="0 0 600 90" style="height:90px;"></svg>
-    </div>
-  </div>
-  <div style="margin-top:10px;"></div>
-  <div class="g2">
-    <div class="evo-wrap" style="margin-bottom:0;">
       <div class="evo-t"><span>&Iacute;ndex de Gini &middot; INE</span><span id="ev-gini-d" style="font-size:10px;"></span></div>
-      <svg id="sv-gini" class="evo-svg" viewBox="0 0 600 90" style="height:90px;"></svg>
+      <svg id="sv-gini" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
       <p class="nota">0=igualtat total, 100=desigualtat m&agrave;xima.</p>
     </div>
-    <div class="evo-wrap" style="margin-bottom:0;">
-      <div class="evo-t"><span>Rati P80/P20 &middot; INE</span><span id="ev-p8020-d" style="font-size:10px;"></span></div>
-      <svg id="sv-p8020" class="evo-svg" viewBox="0 0 600 90" style="height:90px;"></svg>
-      <p class="nota">Renda del 20% m&eacute;s ric / 20% m&eacute;s pobre.</p>
-    </div>
   </div>
   <div style="margin-top:10px;"></div>
-  <div class="g2">
-  <div class="evo-wrap" style="margin-bottom:0;">
-    <div class="evo-t"><span>Participaci&oacute; Municipals 2007&#8211;2023</span></div>
-    <svg id="sv-part2" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
-  </div>
-  <div class="evo-wrap" style="margin-bottom:0;">
-    <div class="evo-t">
-      <span>Vot per partits 2007&#8211;2023</span>
-      <span style="font-size:9px;color:var(--tx3);">VOX des 2019 · Valents exclòs</span>
-    </div>
-    <svg id="sv-vot" class="evo-svg" viewBox="0 0 600 160" style="height:160px;"></svg>
-    <p class="nota">JxC=CiU/Junts. Comuns=ICV/TEC. VOX des 2019.</p>
-  </div>
-  </div>
-  <div style="margin-top:10px;"></div>
+  <!-- 3A Població total + 3B Població estrangera -->
   <div class="g2">
     <div class="evo-wrap" style="margin-bottom:0;">
       <div class="evo-t"><span>Poblaci&oacute; total &middot; INE Padr&oacute;</span><span id="ev-pob-d" style="font-size:10px;"></span></div>
       <svg id="sv-pob" class="evo-svg" viewBox="0 0 600 90" style="height:90px;"></svg>
-      <p class="nota">Canvis bruscos poden indicar redefinici&oacute; de l&apos;Iacute;mbit censal, no canvi real de poblaci&oacute;.</p>
+      <p class="nota">Canvis bruscos poden indicar redefinici&oacute; de l&apos;&agrave;mbit censal.</p>
     </div>
     <div class="evo-wrap" style="margin-bottom:0;">
       <div class="evo-t"><span>% Poblaci&oacute; estrangera &middot; INE</span><span id="ev-est-d" style="font-size:10px;"></span></div>
@@ -320,9 +276,20 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100
     </div>
   </div>
   <div style="margin-top:10px;"></div>
-  <div class="evo-wrap">
-    <div class="evo-t"><span>Comparaci&oacute; IST: secci&oacute; vs zona vs municipi (2023)</span></div>
-    <svg id="sv-zona" class="evo-svg" viewBox="0 0 600 100" style="height:100px;"></svg>
+  <!-- 4A Eleccions + 4B Participació -->
+  <div class="g2">
+    <div class="evo-wrap" style="margin-bottom:0;">
+      <div class="evo-t">
+        <span>Vot per partits 2007&#8211;2023</span>
+        <span style="font-size:9px;color:var(--tx3);">VOX des 2019 &middot; Valents exclòs</span>
+      </div>
+      <svg id="sv-vot" class="evo-svg" viewBox="0 0 600 160" style="height:160px;"></svg>
+      <p class="nota">JxC=CiU/Junts. Comuns=ICV/TEC. VOX des 2019.</p>
+    </div>
+    <div class="evo-wrap" style="margin-bottom:0;">
+      <div class="evo-t"><span>Participaci&oacute; Municipals 2007&#8211;2023</span></div>
+      <svg id="sv-part2" class="evo-svg" viewBox="0 0 600 160" style="height:160px;"></svg>
+    </div>
   </div>
 </div>
 
@@ -362,48 +329,49 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100
         <td style="color:var(--tx2);font-size:10px;">Mesura de desigualtat interna de la secció. 0=tots guanyen igual, 100=una persona ho té tot. Per seccions petites pot ser inestable.</td>
       </tr>
       <tr>
-        <td><span class="tag">P80/P20</span></td>
-        <td style="font-weight:400;">Ràtio P80/P20</td>
-        <td class="font">INE ADRH</td>
-        <td class="font" style="white-space:nowrap;">2015–2023</td>
-        <td class="font" style="white-space:nowrap;">×</td>
-        <td style="color:var(--tx2);font-size:10px;">Quant guanya el percentil 80 respecte el percentil 20. P80/P20=3× significa que els del percentil 80 guanyen 3 vegades més que els del 20.</td>
-      </tr>
-      <tr>
         <td><span class="tag">Edat mitjana</span></td>
         <td style="font-weight:400;">Edat mitjana de la població</td>
         <td class="font">INE Padró</td>
-        <td class="font" style="white-space:nowrap;">2015–2023</td>
+        <td class="font" style="white-space:nowrap;">2023</td>
         <td class="font" style="white-space:nowrap;">anys</td>
         <td style="color:var(--tx2);font-size:10px;">Edat aritmètica mitjana dels habitants empadronats. Seccions amb molta immigració recent tendeixen a tenir edat mitjana baixa.</td>
       </tr>
-    </tbody>
-  </table>
-
-  <div class="glos-sec" style="margin-top:16px;">Educaci&oacute; i territori</div>
-  <table class="glos-table">
-    <thead><tr><th>Indicador</th><th>Nom complet</th><th>Font</th><th>Per&iacute;ode</th><th>Unitat</th><th>Descripci&oacute; i limitacions</th></tr></thead>
-    <tbody>
       <tr>
-        <td><span class="tag">FCP</span></td>
-        <td>Fracció de contacte potencial (arestes)</td>
-        <td class="font">Càlcul propi</td>
+        <td><span class="tag">Menors 18</span></td>
+        <td style="font-weight:400;">% població menor de 18 anys</td>
+        <td class="font">INE Padró (t.30904)</td>
         <td class="font" style="white-space:nowrap;">2023</td>
         <td class="font" style="white-space:nowrap;">%</td>
-        <td style="color:var(--tx2);font-size:10px;">% d'arestes del graf de veïnatge (seccions adjacents dins la mateixa zona educativa) amb ΔIST>20 (o >30). Mesura la diversitat socioeconòmica dels contactes escolars potencials. FCP=0% = secció completament aïllada, =100% = totes les veïnes són diverses.</td>
+        <td style="color:var(--tx2);font-size:10px;">Proporció de menors d'edat sobre la població total. Indicador de joventut i demanda de serveis educatius.</td>
       </tr>
       <tr>
-        <td><span class="tag">Participació</span></td>
-        <td>% participació electoral</td>
-        <td class="font">opendata.terrassa.cat</td>
-        <td class="font" style="white-space:nowrap;">2007–2023</td>
+        <td><span class="tag">Majors 65</span></td>
+        <td style="font-weight:400;">% població de 65 anys o més</td>
+        <td class="font">INE Padró (t.30904)</td>
+        <td class="font" style="white-space:nowrap;">2023</td>
         <td class="font" style="white-space:nowrap;">%</td>
-        <td style="color:var(--tx2);font-size:10px;">Percentatge d'electors que han votat en les eleccions municipals. Indicador de compromís cívic. Terrassa 2023: ~45% de mitjana.</td>
+        <td style="color:var(--tx2);font-size:10px;">Proporció de persones grans sobre la població total. Indicador d'envelliment i demanda de serveis socials.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Dones</span></td>
+        <td style="font-weight:400;">% dones sobre la població total</td>
+        <td class="font">INE Padró (t.69129)</td>
+        <td class="font" style="white-space:nowrap;">2023</td>
+        <td class="font" style="white-space:nowrap;">%</td>
+        <td style="color:var(--tx2);font-size:10px;">Percentatge de dones empadronades. La mitjana Catalunya és ~50,7%. Desequilibris notables poden indicar migració selectiva per sexe.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">Espanyola</span></td>
+        <td style="font-weight:400;">% població amb nacionalitat espanyola</td>
+        <td class="font">INE Padró (t.30904)</td>
+        <td class="font" style="white-space:nowrap;">2023</td>
+        <td class="font" style="white-space:nowrap;">%</td>
+        <td style="color:var(--tx2);font-size:10px;">Inclou naturalitzats. El complement (100% − espanyola) aproxima la població estrangera, però no coincideix exactament amb el % d'estrangers per diferències de registre.</td>
       </tr>
     </tbody>
   </table>
 
-  <div class="glos-sec" style="margin-top:16px;">Eleccions municipals · codis de partits per convocatòria</div>
+  <div class="glos-sec" style="margin-top:16px;">Eleccions municipals &middot; codis de partits per convocatòria</div>
   <table class="glos-table">
     <thead><tr><th>Indicador</th><th>Nom complet</th><th>Font</th><th>Per&iacute;ode</th><th>Unitat</th><th>Codis i not es</th></tr></thead>
     <tbody>
@@ -492,6 +460,8 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100
   <div class="nota" style="margin-top:16px;">
     <strong>Nota metodol&ograve;gica general:</strong> Les dades per secci&oacute; censal s&oacute;n susceptibles d&apos;inestabilitat estad&iacute;stica quan la poblaci&oacute; &eacute;s petita (&lt;500 hab.). El Gini i el P80/P20 s&oacute;n especialment sensibles. L&apos;IST t&eacute; un sostre comprimit per als valors &gt;125 (no capta b&eacute; municipis molt rics com Sant Cugat). La correlaci&oacute; IST&#8211;renda IRPF &eacute;s r=0.857 a la prov&iacute;ncia de Barcelona (n=3.637 seccions).
   </div>
+</div>
+
 </div>
 
 <div class="footer">
@@ -645,9 +615,9 @@ function drawPiramide(d){
 function drawEvo(d){
   const r=d.renda_series||{},g=d.gini_series||{},p=d.p8020_series||{},e=d.edat_series||{},ps=d.part_series||{};
   lineSVG("sv-renda",r,"#f6ad55");istSVG(d);
-  const istS={};if(d.IST_2021&&d.IST_2021!=".."){istS["2021"]=parseFloat(d.IST_2021);}if(d.IST_2022&&d.IST_2022!=".."){istS["2022"]=parseFloat(d.IST_2022);}if(d.IST_2023){istS["2023"]=parseFloat(d.IST_2023);}lineSVG("sv-ist2",istS,"#4fd1c5");
+  const istS={};if(d.IST_2021&&d.IST_2021!=".."){istS["2021"]=parseFloat(d.IST_2021);}if(d.IST_2022&&d.IST_2022!=".."){istS["2022"]=parseFloat(d.IST_2022);}if(d.IST_2023){istS["2023"]=parseFloat(d.IST_2023);}lineSVG("sv-ist",istS,"#4fd1c5");
   lineSVG("sv-edat",e,"#b794f4");lineSVG("sv-gini",g,"#fc8181");
-  lineSVG("sv-p8020",p,"#4fd1c5");lineSVG("sv-part2",ps,"#4fd1c5",ANYSMU);
+  lineSVG("sv-part2",ps,"#4fd1c5",ANYSMU);
   votLiniesSVG(d);
   // Població i % estrangers (2021-2025)
   const ANYS5=["2021","2022","2023","2024","2025"];
@@ -674,7 +644,7 @@ function update(cusec){
   setEl("d-gini",g["2023"]?g["2023"].toFixed(1):"—");
   setEl("d-p8020",p["2023"]?p["2023"].toFixed(1)+"×":"—");
   setEl("d-edat",e["2023"]?e["2023"].toFixed(1)+" a":"—");
-  setEl("d-pob",d.poblacio?d.poblacio.toLocaleString("ca")+" hab.":"—");
+  setEl("d-pob",d.poblacio?d.poblacio.toLocaleString("ca"):"—");
   setEl("d-fcp20",d.fcp_20!=null?d.fcp_20.toFixed(1)+" %":"—");
   setEl("d-fcpn",d.fcp_n!=null?d.fcp_n:"—");
   setEl("d-dones",d.pct_dones_2023!=null?d.pct_dones_2023.toFixed(1)+" %":"—");
