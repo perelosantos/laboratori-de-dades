@@ -5,5 +5,12 @@
     "file": "terrassa_v9.json",
     "seccions": 141,
     "any_dades": 2024
+  },
+  {
+    "nom": "Sabadell",
+    "codi": "08187",
+    "file": "sabadell_v1.json",
+    "seccions": 158,
+    "any_dades": 2024
   }
 ]
