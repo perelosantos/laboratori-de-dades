@@ -285,7 +285,7 @@ canvas.chart { width: 100%; display: block; border-radius: 3px; }
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const BASE = 'https://raw.githubusercontent.com/perelosantos/laboratori-de-dades/main/data/';
-const IST_MIN = 46, IST_MAX = 154;
+const IST_MIN = 40, IST_MAX = 154;
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 let DATA = [], GEO = null, currentSection = null;
@@ -377,8 +377,8 @@ async function loadMuni(sel) {
 
 // ── DRAW MAP ──────────────────────────────────────────────────────────────────
 function istColor(ist) {
-  if (ist == null || isNaN(ist)) return '#4a5568';
-  const t = (ist - IST_MIN) / (IST_MAX - IST_MIN);
+  if (ist == null || ist === undefined || isNaN(Number(ist))) return '#4a5568';
+  const t = Math.max(0, Math.min(1, (ist - IST_MIN) / (IST_MAX - IST_MIN)));
   // gradient: red → orange → yellow → green → blue → purple
   const stops = [
     [197,48,48],[221,107,32],[214,158,46],[39,103,73],[43,108,176],[107,70,193]
@@ -474,13 +474,16 @@ document.getElementById('search-addr').addEventListener('input', e => {
 });
 
 async function geocode(q) {
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&countrycodes=es`;
+  const sel = document.getElementById('sel-muni');
+  const muniNom = sel.options[sel.selectedIndex]?.textContent ?? '';
+  const query = muniNom ? `${q}, ${muniNom}` : q;
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=es`;
   try {
-    const res = await fetch(url, { headers: { 'Accept-Language': 'ca' } });
+    const res = await fetch(url, { headers: { 'Accept-Language': 'ca', 'User-Agent': 'VisorSeccions/1.0' } });
+    if (!res.ok) { setStatus('Error Nominatim', 'err'); return; }
     const data = await res.json();
-    if (!data.length) return;
+    if (!data.length) { setStatus('Adreça no trobada', ''); return; }
     const lat = parseFloat(data[0].lat), lon = parseFloat(data[0].lon);
-    // Find nearest centroid
     let best = null, bestD = Infinity;
     DATA.forEach(s => {
       const slat = s.location?.lat, slon = s.location?.lon;
@@ -488,11 +491,9 @@ async function geocode(q) {
       const d = (lat-slat)**2 + (lon-slon)**2;
       if (d < bestD) { bestD = d; best = s.cusec; }
     });
-    if (best) {
-      document.getElementById('sel-sec').value = best;
-      showSection(best);
-    }
-  } catch(e) {}
+    if (best) { document.getElementById('sel-sec').value = best; showSection(best); }
+    else setStatus('Adreça fora del municipi', '');
+  } catch(e) { setStatus('Error de cerca', 'err'); }
 }
 
 // ── SHOW SECTION ──────────────────────────────────────────────────────────────
@@ -614,30 +615,33 @@ function renderCards(s) {
     </div>`;
 
   // Education (Terrassa only)
-  if (edu.zona_nom) {
-    document.getElementById('card-edu').style.display = 'block';
-    document.getElementById('card-edu').innerHTML = `
+  const eduCard = document.getElementById('card-edu');
+  if (edu.zona_nom && edu.zona_nom !== 'n/d') {
+    eduCard.style.display = 'block';
+    eduCard.innerHTML = `
       <div class="card">
         <div class="card-title">Educació</div>
         ${kv('Zona educativa', edu.zona_nom)}
         ${kv('Escola principal', edu.escola_principal)}
-        ${kv('Escola pública', edu.escola_publica)}
+        ${kv('Escola pública', edu.escola_publica === true ? 'Sí' : edu.escola_publica === false ? 'No' : edu.escola_publica)}
         ${kv('Tipus escola', edu.escola_tipus)}
         ${kv('Naturalesa', edu.escola_naturalesa)}
       </div>`;
+  } else {
+    eduCard.style.display = 'none';
   }
 
   // FCP (Terrassa only)
-  if (edu.fcp) {
-    document.getElementById('card-fcp').style.display = 'block';
+  const fcpCard = document.getElementById('card-fcp');
+  if (edu.fcp && edu.zona_nom) {
     const dplus  = gr.elevation?.gain ?? null;
     const dminus = gr.elevation?.loss ?? null;
     document.getElementById('card-fcp').innerHTML = `
       <div class="card">
         <div class="card-title">Gradient IST (∇IST)</div>
         ${kv('Veïns FCP', edu.fcp.n)}
-        ${kv('FCP20', edu.fcp.clf20 != null ? (edu.fcp.clf20*100).toFixed(0) : null, '%')}
-        ${kv('FCP30', edu.fcp.clf30 != null ? (edu.fcp.clf30*100).toFixed(0) : null, '%')}
+        ${kv('FCP20', edu.fcp.clf20 != null ? edu.fcp.clf20.toFixed(1) : null, '%')}
+        ${kv('FCP30', edu.fcp.clf30 != null ? edu.fcp.clf30.toFixed(1) : null, '%')}
         ${kv('D+ (guany)', dplus?.toFixed(1))}
         ${kv('D− (pèrdua)', dminus?.toFixed(1))}
       </div>`;
@@ -654,44 +658,41 @@ function renderPyramid(s) {
     return n(a) - n(b);
   });
 
-  canvas.width = canvas.offsetWidth * devicePixelRatio || 380;
-  canvas.height = 180;
-  ctx.scale(devicePixelRatio > 1 ? devicePixelRatio : 1, 1);
-  const W = canvas.offsetWidth || 380, H = 180;
+  const W = canvas.parentElement.clientWidth - 28 || 360;
+  const H = 200;
+  canvas.width = W; canvas.height = H;
   ctx.clearRect(0,0,W,H);
 
   if (!bands.length) {
     ctx.fillStyle = '#4a5568'; ctx.font = '11px IBM Plex Mono';
-    ctx.fillText('Piràmide no disponible', W/2 - 80, H/2); return;
+    ctx.fillText('Piràmide no disponible', 10, H/2); return;
   }
 
-  const maxVal = Math.max(...bands.map(b => Math.max(pyr[b].h||0, pyr[b].d||0)));
-  const rowH = Math.floor(H / bands.length);
+  const maxVal = Math.max(...bands.map(b => Math.max(pyr[b].h||0, pyr[b].d||0)), 1);
+  const labelW = 28;
   const midX = W / 2;
-  const scale = (midX - 55) / (maxVal || 1);
+  const availW = midX - labelW - 4;
+  const rowH = Math.floor((H - 14) / bands.length);
+  const scale = availW / maxVal;
 
   bands.forEach((band, i) => {
-    const y = i * rowH + rowH/2;
-    const h = (pyr[band].h||0) * scale;
-    const d = (pyr[band].d||0) * scale;
+    const y = 14 + i * rowH;
+    const h = Math.min((pyr[band].h||0) * scale, availW);
+    const d = Math.min((pyr[band].d||0) * scale, availW);
 
-    // Bars
     ctx.fillStyle = '#2b6cb0';
-    ctx.fillRect(midX - h - 0.5, y - rowH/2 + 1, h, rowH - 2);
+    ctx.fillRect(midX - labelW - h, y + 1, h, rowH - 2);
     ctx.fillStyle = '#b83280';
-    ctx.fillRect(midX + 0.5, y - rowH/2 + 1, d, rowH - 2);
+    ctx.fillRect(midX + labelW, y + 1, d, rowH - 2);
 
-    // Label
-    ctx.fillStyle = '#8892a4'; ctx.font = `${Math.min(rowH-2,9)}px IBM Plex Mono`;
+    ctx.fillStyle = '#4a5568'; ctx.font = `${Math.min(rowH-1,8)}px IBM Plex Mono`;
     ctx.textAlign = 'center';
-    ctx.fillText(band, midX, y + 3);
+    ctx.fillText(band, midX, y + rowH - 2);
   });
 
-  // Axis labels
-  ctx.fillStyle = '#4fd1c5'; ctx.font = '9px IBM Plex Mono'; ctx.textAlign = 'left';
-  ctx.fillText('Homes', 4, 10);
-  ctx.textAlign = 'right';
-  ctx.fillText('Dones', W - 4, 10);
+  ctx.fillStyle = '#4fd1c5'; ctx.font = '9px IBM Plex Mono';
+  ctx.textAlign = 'left'; ctx.fillText('Homes', 4, 10);
+  ctx.textAlign = 'right'; ctx.fillText('Dones', W - 4, 10);
 }
 
 // ── LINE CHART ────────────────────────────────────────────────────────────────
