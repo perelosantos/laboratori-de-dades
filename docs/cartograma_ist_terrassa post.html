@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartograma IST Terrassa</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; padding: 1rem; background: transparent; }
+.title { text-align: center; font-size: 14px; font-weight: 500; color: #333; margin-bottom: 8px; }
+#canvas-wrap { display: flex; justify-content: center; }
+canvas { display: block; }
+.legend { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #666; }
+.legend-box { width: 16px; height: 16px; border-radius: 2px; }
+@media (prefers-color-scheme: dark) {
+  .title { color: #ddd; }
+  .legend-item { color: #aaa; }
+}
+</style>
+</head>
+<body>
+<div class="title">Topografia socioeconòmica de Terrassa · IST 2023 · Catalunya = 100</div>
+<div id="canvas-wrap"><canvas id="c"></canvas></div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-box" style="background:#b22222"></div> &lt;60 (molt baix)</div>
+  <div class="legend-item"><div class="legend-box" style="background:#e05c00"></div> 60–75</div>
+  <div class="legend-item"><div class="legend-box" style="background:#f0a500"></div> 75–90</div>
+  <div class="legend-item"><div class="legend-box" style="background:#d4c84a"></div> 90–100</div>
+  <div class="legend-item"><div class="legend-box" style="background:#8ab55a"></div> 100–110</div>
+  <div class="legend-item"><div class="legend-box" style="background:#4a9a4a"></div> 110–120</div>
+  <div class="legend-item"><div class="legend-box" style="background:#1a7a1a"></div> &gt;120</div>
+</div>
+
+<script>
+const sections = [{"col": 5, "row": 8, "ist": 124.5}, {"col": 6, "row": 8, "ist": 116.8}, {"col": 6, "row": 7, "ist": 122.5}, {"col": 7, "row": 7, "ist": 121.3}, {"col": 5, "row": 7, "ist": 124.1}, {"col": 5, "row": 9, "ist": 119.2}, {"col": 6, "row": 8, "ist": 117.5}, {"col": 6, "row": 9, "ist": 120.1}, {"col": 7, "row": 8, "ist": 119.7}, {"col": 7, "row": 9, "ist": 103.3}, {"col": 8, "row": 7, "ist": 102.7}, {"col": 9, "row": 7, "ist": 87.3}, {"col": 8, "row": 6, "ist": 90.7}, {"col": 8, "row": 8, "ist": 98.7}, {"col": 7, "row": 6, "ist": 110.1}, {"col": 6, "row": 6, "ist": 113.1}, {"col": 7, "row": 7, "ist": 114.7}, {"col": 8, "row": 8, "ist": 102.0}, {"col": 7, "row": 8, "ist": 120.5}, {"col": 7, "row": 7, "ist": 104.4}, {"col": 5, "row": 6, "ist": 114.5}, {"col": 4, "row": 7, "ist": 123.2}, {"col": 4, "row": 8, "ist": 122.4}, {"col": 6, "row": 9, "ist": 116.2}, {"col": 9, "row": 6, "ist": 65.3}, {"col": 9, "row": 7, "ist": 46.2}, {"col": 8, "row": 7, "ist": 47.0}, {"col": 10, "row": 6, "ist": 66.2}, {"col": 8, "row": 8, "ist": 75.5}, {"col": 11, "row": 8, "ist": 81.4}, {"col": 9, "row": 8, "ist": 74.7}, {"col": 9, "row": 9, "ist": 84.6}, {"col": 9, "row": 8, "ist": 51.4}, {"col": 10, "row": 8, "ist": 104.4}, {"col": 10, "row": 9, "ist": 56.2}, {"col": 10, "row": 7, "ist": 111.3}, {"col": 12, "row": 8, "ist": 85.0}, {"col": 8, "row": 9, "ist": 101.9}, {"col": 8, "row": 10, "ist": 97.6}, {"col": 7, "row": 10, "ist": 89.3}, {"col": 7, "row": 11, "ist": 87.7}, {"col": 7, "row": 9, "ist": 106.0}, {"col": 6, "row": 10, "ist": 116.0}, {"col": 5, "row": 10, "ist": 109.4}, {"col": 8, "row": 13, "ist": 92.5}, {"col": 8, "row": 11, "ist": 76.0}, {"col": 9, "row": 10, "ist": 95.3}, {"col": 8, "row": 8, "ist": 50.6}, {"col": 9, "row": 11, "ist": 75.2}, {"col": 11, "row": 11, "ist": 92.3}, {"col": 8, "row": 12, "ist": 69.2}, {"col": 7, "row": 9, "ist": 91.2}, {"col": 4, "row": 9, "ist": 115.5}, {"col": 4, "row": 10, "ist": 105.6}, {"col": 3, "row": 9, "ist": 110.0}, {"col": 3, "row": 10, "ist": 104.4}, {"col": 5, "row": 11, "ist": 101.9}, {"col": 3, "row": 8, "ist": 94.7}, {"col": 5, "row": 12, "ist": 95.7}, {"col": 3, "row": 11, "ist": 99.7}, {"col": 2, "row": 8, "ist": 87.7}, {"col": 3, "row": 7, "ist": 56.6}, {"col": 2, "row": 9, "ist": 102.9}, {"col": 4, "row": 6, "ist": 112.0}, {"col": 5, "row": 8, "ist": 114.1}, {"col": 5, "row": 8, "ist": 109.2}, {"col": 4, "row": 8, "ist": 109.9}, {"col": 4, "row": 8, "ist": 116.0}, {"col": 4, "row": 8, "ist": 103.7}, {"col": 2, "row": 7, "ist": 99.6}, {"col": 2, "row": 10, "ist": 68.9}, {"col": 3, "row": 9, "ist": 82.0}, {"col": 1, "row": 9, "ist": 108.8}, {"col": 1, "row": 10, "ist": 108.7}, {"col": 3, "row": 12, "ist": 110.7}, {"col": 6, "row": 11, "ist": 97.5}, {"col": 3, "row": 6, "ist": 110.8}, {"col": 6, "row": 5, "ist": 112.5}, {"col": 6, "row": 4, "ist": 94.6}, {"col": 7, "row": 5, "ist": 101.1}, {"col": 8, "row": 5, "ist": 108.5}, {"col": 5, "row": 5, "ist": 105.5}, {"col": 6, "row": 6, "ist": 110.0}, {"col": 4, "row": 5, "ist": 108.6}, {"col": 5, "row": 6, "ist": 106.8}, {"col": 4, "row": 7, "ist": 109.8}, {"col": 4, "row": 6, "ist": 80.8}, {"col": 4, "row": 6, "ist": 104.2}, {"col": 4, "row": 4, "ist": 98.6}, {"col": 3, "row": 5, "ist": 104.5}, {"col": 4, "row": 7, "ist": 92.7}, {"col": 2, "row": 6, "ist": 98.6}, {"col": 5, "row": 4, "ist": 104.2}, {"col": 7, "row": 4, "ist": 116.0}, {"col": 6, "row": 3, "ist": 97.5}, {"col": 5, "row": 6, "ist": 110.7}, {"col": 4, "row": 6, "ist": 107.3}, {"col": 3, "row": 4, "ist": 104.2}, {"col": 5, "row": 6, "ist": 115.6}, {"col": 5, "row": 5, "ist": 112.6}, {"col": 5, "row": 5, "ist": 114.1}, {"col": 5, "row": 6, "ist": 110.4}, {"col": 7, "row": 6, "ist": 112.6}, {"col": 5, "row": 3, "ist": 114.3}, {"col": 4, "row": 3, "ist": 114.9}, {"col": 1, "row": 7, "ist": 88.6}, {"col": 2, "row": 5, "ist": 93.2}, {"col": 4, "row": 6, "ist": 97.2}, {"col": 8, "row": 4, "ist": 88.9}, {"col": 9, "row": 5, "ist": 88.1}, {"col": 9, "row": 4, "ist": 80.3}, {"col": 8, "row": 6, "ist": 71.4}, {"col": 8, "row": 6, "ist": 92.0}, {"col": 11, "row": 6, "ist": 107.2}, {"col": 7, "row": 6, "ist": 99.0}, {"col": 6, "row": 5, "ist": 92.9}, {"col": 7, "row": 5, "ist": 101.6}, {"col": 7, "row": 3, "ist": 80.6}, {"col": 8, "row": 6, "ist": 86.4}, {"col": 8, "row": 3, "ist": 85.4}, {"col": 10, "row": 5, "ist": 72.0}, {"col": 11, "row": 3, "ist": 79.4}, {"col": 8, "row": 5, "ist": 71.9}, {"col": 10, "row": 4, "ist": 61.6}, {"col": 11, "row": 5, "ist": 87.9}, {"col": 9, "row": 6, "ist": 91.1}, {"col": 7, "row": 5, "ist": 88.7}, {"col": 9, "row": 6, "ist": 91.3}, {"col": 9, "row": 5, "ist": 83.4}, {"col": 11, "row": 4, "ist": 104.1}, {"col": 11, "row": 7, "ist": 101.3}, {"col": 12, "row": 6, "ist": 107.0}, {"col": 6, "row": 5, "ist": 83.6}, {"col": 10, "row": 6, "ist": 113.9}, {"col": 10, "row": 6, "ist": 120.2}, {"col": 11, "row": 15, "ist": 108.6}, {"col": 10, "row": 13, "ist": 87.3}, {"col": 12, "row": 12, "ist": 77.0}, {"col": 12, "row": 14, "ist": 101.4}, {"col": 9, "row": 16, "ist": 116.4}];
+
+function istColor(ist) {
+  if (ist < 60)  return '#b22222';
+  if (ist < 75)  return '#e05c00';
+  if (ist < 90)  return '#f0a500';
+  if (ist < 100) return '#d4c84a';
+  if (ist < 110) return '#8ab55a';
+  if (ist < 120) return '#4a9a4a';
+  return '#1a7a1a';
+}
+
+const CELL = 28, GAP = 2, S = CELL + GAP;
+const maxCol = Math.max(...sections.map(s=>s.col));
+const maxRow = Math.max(...sections.map(s=>s.row));
+const W = (maxCol+1)*S + 4;
+const H = (maxRow+1)*S + 4;
+
+const canvas = document.getElementById('c');
+canvas.width = W; canvas.height = H;
+const ctx = canvas.getContext('2d');
+
+const dk = matchMedia('(prefers-color-scheme:dark)').matches;
+const textCol = dk ? '#fff' : '#000';
+
+sections.forEach(s => {
+  const x = s.col * S + 2;
+  const y = s.row * S + 2;
+  ctx.fillStyle = istColor(s.ist);
+  ctx.beginPath();
+  ctx.roundRect(x, y, CELL, CELL, 3);
+  ctx.fill();
+  ctx.fillStyle = s.ist < 90 ? '#fff' : (s.ist > 110 ? '#fff' : '#333');
+  ctx.font = `bold 9px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(Math.round(s.ist), x + CELL/2, y + CELL/2);
+});
+</script>
+</body>
+</html>
