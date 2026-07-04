@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil IST Terrassa Nord–Sud</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  body { margin: 0; padding: 1rem; font-family: sans-serif; background: transparent; }
+  .label { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 4px; }
+  .title { text-align: center; font-weight: 500; font-size: 14px; color: #333; margin-bottom: 8px; }
+  .axis-labels { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-top: 4px; }
+  @media (prefers-color-scheme: dark) { .title{color:#ddd;} .label,.axis-labels{color:#aaa;} }
+</style>
+</head>
+<body>
+<div class="title">Perfil IST · Tall Nord → Sud · Terrassa</div>
+<div class="label"><span>Can Roca (IST 115)</span><span>Centre (IST 124)</span><span>Segle XX (IST 106)</span></div>
+<div style="position:relative;height:220px;">
+  <canvas id="perfil"></canvas>
+</div>
+<div class="axis-labels"><span>0 km · Nord</span><span>3.3 km · Sud</span></div>
+<script>
+const distRaw=[0.0,0.067,0.242,0.286,0.497,0.655,0.68,0.777,1.048,1.123,1.17,1.209,1.244,1.298,1.527,1.735,1.75,1.832,2.014,2.072,2.26,2.499,2.533,2.705,2.771,3.171,3.277,3.331];
+const istRaw=[114.9,94.6,114.3,97.5,116,112.6,114.1,112.5,110.4,106.8,101.1,105.5,110,108.6,123.2,122.5,121.3,124.1,122.4,116.8,124.5,117.5,120.1,119.2,116.2,106,116,109.4];
+const annots=[
+  {d:0.0,label:"Can Roca",yAdj:-28},
+  {d:0.65,label:"Poble Nou",yAdj:-28},
+  {d:1.83,label:"Centre",yAdj:-28},
+  {d:3.17,label:"Segle XX",yAdj:18},
+];
+const N=200,dMax=3.331;
+const distI=Array.from({length:N},(_,i)=>i*dMax/(N-1));
+function lerp(x,xs,ys){if(x<=xs[0])return ys[0];if(x>=xs[xs.length-1])return ys[xs.length-1];let i=xs.findIndex(v=>v>x)-1;return ys[i]+(x-xs[i])/(xs[i+1]-xs[i])*(ys[i+1]-ys[i]);}
+function sm(a,w){return a.map((v,i)=>{let s=0,c=0;for(let j=Math.max(0,i-w);j<=Math.min(a.length-1,i+w);j++){s+=a[j];c++;}return s/c;});}
+const ist=sm(sm(distI.map(d=>lerp(d,distRaw,istRaw)),3),3);
+const dk=matchMedia('(prefers-color-scheme:dark)').matches;
+const lc=dk?'#AFA9EC':'#534AB7',fc=dk?'rgba(83,74,183,0.25)':'rgba(83,74,183,0.15)',gc=dk?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)',tc=dk?'#aaa':'#888';
+const plug={id:'a',afterDraw(ch){
+  const{ctx,scales:{x,y}}=ch;
+  annots.forEach(a=>{
+    const xi=Math.round(a.d/dMax*(N-1)),px=x.getPixelForValue(xi),py=y.getPixelForValue(ist[xi]);
+    ctx.save();ctx.beginPath();ctx.arc(px,py,4,0,2*Math.PI);ctx.fillStyle=lc;ctx.fill();ctx.strokeStyle=dk?'#222':'#fff';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle=dk?'#ddd':'#333';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.label,px,py+a.yAdj);ctx.fillStyle=tc;ctx.fillText('IST '+Math.round(ist[xi]),px,py+a.yAdj+13);ctx.restore();
+  });
+  const yc=y.getPixelForValue(80);ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=dk?'rgba(200,100,100,0.5)':'rgba(180,50,50,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x.left,yc);ctx.lineTo(x.right,yc);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=dk?'rgba(200,100,100,0.7)':'rgba(180,50,50,0.6)';ctx.font='10px sans-serif';ctx.fillText('IST 80 (llindar CMC)',x.left+4,yc-5);ctx.restore();
+}};
+new Chart(document.getElementById('perfil'),{type:'line',data:{labels:distI.map(d=>d.toFixed(2)),datasets:[{data:ist,borderColor:lc,borderWidth:2,fill:{target:'origin',above:fc},pointRadius:0,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>c[0].label+' km',label:c=>'IST '+c.parsed.y.toFixed(1)}}},scales:{x:{ticks:{maxTicksLimit:7,callback:(v,i)=>distI[i]!==undefined?distI[i].toFixed(1)+' km':'',color:tc,font:{size:11}},grid:{color:gc}},y:{min:40,max:135,ticks:{stepSize:20,callback:v=>'IST '+v,color:tc,font:{size:11}},grid:{color:gc}}}},plugins:[plug]});
+</script>
+</body>
+</html>

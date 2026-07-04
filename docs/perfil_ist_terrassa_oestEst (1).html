@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil IST Terrassa Oest–Est</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  body { margin: 0; padding: 1rem; font-family: sans-serif; background: transparent; }
+  .label { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 4px; }
+  .title { text-align: center; font-weight: 500; font-size: 14px; color: #333; margin-bottom: 8px; }
+  .axis-labels { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-top: 4px; }
+  @media (prefers-color-scheme: dark) { .title{color:#ddd;} .label,.axis-labels{color:#aaa;} }
+</style>
+</head>
+<body>
+<div class="title">Perfil IST · Tall Oest → Est · Terrassa</div>
+<div class="label"><span>La Maurina (IST 57)</span><span>Centre (IST 124)</span><span>Ca n'Anglada (IST 46)</span></div>
+<div style="position:relative;height:220px;">
+  <canvas id="perfil"></canvas>
+</div>
+<div class="axis-labels"><span>0 km · Oest</span><span>5.5 km · Est</span></div>
+<script>
+const distRaw=[0.0,0.302,0.483,0.602,0.683,0.732,0.759,0.83,0.847,0.952,0.998,1.062,1.202,1.221,1.229,1.393,1.404,1.451,1.525,1.572,1.596,1.62,1.746,1.837,1.886,1.911,1.982,2.078,2.105,2.141,2.313,2.354,2.36,2.573,2.579,2.727,2.744,2.835,2.957,2.968,3.05,3.066,3.08,3.227,3.286,3.348,3.442,3.507,3.577,3.582,3.628,3.674,3.684,4.007,4.046,4.247,4.299,4.346,4.376,4.446,4.567,5.52];
+const istRaw=[88.6,108.8,87.7,68.9,56.6,82,98.6,99.6,94.7,102.9,103.7,92.7,112,116,110,109.9,105.6,110.8,114.1,115.5,109.2,114.5,124.1,119.2,122.4,124.5,123.2,121.3,117.5,116.2,122.5,116.8,120.1,119.7,114.7,113.1,120.5,102.7,103.3,110.1,104.4,102,98.7,90.7,87.3,65.3,75.5,47,66.2,74.7,84.6,81.4,46.2,51.4,91.3,107,104.4,56.2,111.3,113.9,120.2,85];
+const annots=[
+  {d:0.68,label:"La Maurina",yAdj:18},
+  {d:1.91,label:"Centre",yAdj:-28},
+  {d:3.51,label:"Ca n'Anglada",yAdj:18},
+  {d:4.01,label:"Montserrat",yAdj:36},
+];
+const N=200,dMax=5.52;
+const distI=Array.from({length:N},(_,i)=>i*dMax/(N-1));
+function lerp(x,xs,ys){if(x<=xs[0])return ys[0];if(x>=xs[xs.length-1])return ys[xs.length-1];let i=xs.findIndex(v=>v>x)-1;return ys[i]+(x-xs[i])/(xs[i+1]-xs[i])*(ys[i+1]-ys[i]);}
+function sm(a,w){return a.map((v,i)=>{let s=0,c=0;for(let j=Math.max(0,i-w);j<=Math.min(a.length-1,i+w);j++){s+=a[j];c++;}return s/c;});}
+const ist=sm(sm(distI.map(d=>lerp(d,distRaw,istRaw)),4),4);
+const dk=matchMedia('(prefers-color-scheme:dark)').matches;
+const lc=dk?'#EF9F27':'#BA7517',fc=dk?'rgba(186,117,23,0.25)':'rgba(186,117,23,0.15)',gc=dk?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)',tc=dk?'#aaa':'#888';
+const plug={id:'a',afterDraw(ch){
+  const{ctx,scales:{x,y}}=ch;
+  annots.forEach(a=>{
+    const xi=Math.round(a.d/dMax*(N-1)),px=x.getPixelForValue(xi),py=y.getPixelForValue(ist[xi]);
+    ctx.save();ctx.beginPath();ctx.arc(px,py,4,0,2*Math.PI);ctx.fillStyle=lc;ctx.fill();ctx.strokeStyle=dk?'#222':'#fff';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle=dk?'#ddd':'#333';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.label,px,py+a.yAdj);ctx.fillStyle=tc;ctx.fillText('IST '+Math.round(ist[xi]),px,py+a.yAdj+13);ctx.restore();
+  });
+  const yc=y.getPixelForValue(80);ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=dk?'rgba(200,100,100,0.5)':'rgba(180,50,50,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x.left,yc);ctx.lineTo(x.right,yc);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=dk?'rgba(200,100,100,0.7)':'rgba(180,50,50,0.6)';ctx.font='10px sans-serif';ctx.fillText('IST 80 (llindar CMC)',x.left+4,yc-5);ctx.restore();
+}};
+new Chart(document.getElementById('perfil'),{type:'line',data:{labels:distI.map(d=>d.toFixed(2)),datasets:[{data:ist,borderColor:lc,borderWidth:2,fill:{target:'origin',above:fc},pointRadius:0,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:c=>c[0].label+' km',label:c=>'IST '+c.parsed.y.toFixed(1)}}},scales:{x:{ticks:{maxTicksLimit:7,callback:(v,i)=>distI[i]!==undefined?distI[i].toFixed(1)+' km':'',color:tc,font:{size:11}},grid:{color:gc}},y:{min:40,max:135,ticks:{stepSize:20,callback:v=>'IST '+v,color:tc,font:{size:11}},grid:{color:gc}}}},plugins:[plug]});
+</script>
+</body>
+</html>
