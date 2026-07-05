@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dinàmica IST 2015–2023 · 66 municipis BCN</title>
+<title>Dinàmica IST 2015–2024 · 66 municipis BCN</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0e1117; color: #e8e6e0; font-family: 'Georgia', serif; min-height: 100vh; padding: 32px 24px 48px; }
@@ -12,7 +12,7 @@
   h1 { font-size: clamp(22px, 4vw, 32px); font-weight: normal; line-height: 1.25; color: #f0ede6; margin-bottom: 10px; }
   h1 em { font-style: italic; color: #a78bfa; }
   .subtitle { font-size: 14px; color: #9ca3af; line-height: 1.6; max-width: 560px; }
-  .chart-wrap { max-width: 860px; margin: 0 auto; position: relative; border: 1px solid #1f2937; border-radius: 4px; overflow: hidden; cursor: grab; }
+  .chart-wrap { max-width: 860px; margin: 0 auto; position: relative; border: 1px solid #1f2937; border-radius: 4px; overflow: hidden; cursor: grab; user-select: none; }
   .chart-wrap:active { cursor: grabbing; }
   #scatter-svg { display: block; width: 100%; touch-action: none; }
   .legend { max-width: 860px; margin: 20px auto 0; display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 12px; font-family: 'Courier New', monospace; }
@@ -37,19 +37,13 @@
   canvas.sparkline { display: block; width: 100%; height: 60px; }
   .note { max-width: 860px; margin: 24px auto 0; font-size: 11px; color: #6b7280; font-family: 'Courier New', monospace; line-height: 1.6; border-top: 1px solid #1f2937; padding-top: 14px; }
   .note a { color: #7c3aed; text-decoration: none; }
-  .note a:hover { text-decoration: underline; }
-  .muni-label { font-size: 9px; font-family: 'Courier New', monospace; pointer-events: none; }
-  .muni-label.always { font-size: 11px; font-family: 'Georgia', serif; font-weight: bold; }
-  .dot { cursor: pointer; }
-  .dot:hover { opacity: 1 !important; }
 </style>
 </head>
 <body>
-
 <header>
   <div class="eyebrow">Laboratori de Dades · perelosantos.com</div>
-  <h1>Dinàmica IST 2015–2023<br><em>66 municipis</em> de la província de Barcelona</h1>
-  <p class="subtitle">Cada punt és un municipi. L'eix X mesura el canvi en la mitjana de l'IST; l'eix Y mesura el canvi en la dispersió interna (σIST). Quatre règims dinàmics emergeixen.</p>
+  <h1>Dinàmica IST 2015–2024<br><em>66 municipis</em> de la província de Barcelona</h1>
+  <p class="subtitle">Cada punt és un municipi. Eix X: deriva de la mitjana IST. Eix Y: canvi en la dispersió interna (σIST). Quatre règims dinàmics. Desplaça i fes zoom per explorar.</p>
 </header>
 
 <div class="chart-wrap" id="chart-wrap">
@@ -61,25 +55,24 @@
       <g id="dots"></g>
       <g id="labels-always"></g>
       <g id="labels-all" visibility="hidden"></g>
-      <g id="bcn-label"></g>
     </g>
   </svg>
 </div>
 
 <div class="legend">
   <div class="leg-item"><div class="leg-dot" style="background:#6366f1"></div> Relaxació (σ↓, IST↑)</div>
-  <div class="leg-item"><div class="leg-dot" style="background:#8b5cf6"></div> Refredament+declivi (σ↓, IST↓)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#8b5cf6"></div> Refredament (σ↓, IST↓)</div>
   <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div> Sistema forçat (σ↑, IST↓)</div>
   <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div> Diferenciació (σ↑, IST↑)</div>
-  <div class="leg-item"><div class="leg-dot hollow"></div> n&lt;10 seccions (estadísticament feble)</div>
-  <div class="leg-item"><div style="width:12px;height:12px;border:2px solid #34d399;transform:rotate(45deg);flex-shrink:0"></div> Districtes BCN</div>
+  <div class="leg-item"><div class="leg-dot hollow"></div> n&lt;10 seccions (feble)</div>
+  <div class="leg-item"><div style="width:11px;height:11px;border:2px solid #34d399;transform:rotate(45deg);flex-shrink:0"></div> Districtes BCN</div>
 </div>
 
 <div class="controls">
   <button class="ctrl-btn" id="toggle-labels" onclick="toggleLabels()">Mostra etiquetes</button>
   <div class="zoom-btns">
-    <button class="ctrl-btn" onclick="zoom(1.3)">＋</button>
-    <button class="ctrl-btn" onclick="zoom(1/1.3)">－</button>
+    <button class="ctrl-btn" onclick="doZoom(1.3)">＋</button>
+    <button class="ctrl-btn" onclick="doZoom(1/1.3)">－</button>
     <button class="ctrl-btn" onclick="resetView()">Reset</button>
   </div>
 </div>
@@ -93,270 +86,181 @@
 </div>
 
 <div class="note">
-  Font: Idescat, IST per secció censal 2015–2024. Mostra: 66 municipis &gt;10.000 hab. província BCN, excloent Barcelona ciutat.
-  Dades obertes a <a href="https://perelosantos.github.io/laboratori-de-dades/data-sources.html" target="_blank">perelosantos.github.io/laboratori-de-dades</a>
+  Font: Idescat, IST per secció censal 2015–2024. 66 municipis &gt;10.000 hab. província BCN, excloent Barcelona ciutat.
+  <a href="https://perelosantos.github.io/laboratori-de-dades/data-sources.html" target="_blank">Dades obertes →</a>
 </div>
 
 <div id="tooltip">
   <div class="t-name" id="tt-name"></div>
-  <div class="t-row">IST 2015→2023: <span id="tt-ist"></span></div>
+  <div class="t-row">IST 2015→2024: <span id="tt-ist"></span></div>
   <div class="t-row">ΔIST: <span id="tt-dmean"></span></div>
-  <div class="t-row">σ 2015→2023: <span id="tt-sigma"></span></div>
+  <div class="t-row">σ 2015→2024: <span id="tt-sigma"></span></div>
   <div class="t-row">Δσ: <span id="tt-dsigma"></span></div>
   <div class="t-row">Seccions: <span id="tt-n"></span></div>
   <div class="t-warn" id="tt-warn"></div>
 </div>
 
 <script>
-const DATA = [{"muni":"08101","name":"Hospitalet de Llobregat, l'","n":192,"ist15":88.2,"ist23":83.8,"d_mean":-4.31,"d_sigma":1.62,"sigma15":13.9,"sigma23":15.5,"means":[88.2,88.0,87.5,87.2,87.2,86.3,85.9,84.9,83.8,83.4],"sigmas":[13.9,13.9,14.1,14.2,14.4,14.5,15.0,15.1,15.5,15.6],"small_n":false},{"muni":"08187","name":"Sabadell","n":152,"ist15":95.5,"ist23":96.1,"d_mean":0.56,"d_sigma":-0.39,"sigma15":19.2,"sigma23":18.8,"means":[95.5,95.7,95.7,96.0,96.4,96.0,96.0,96.1,96.1,96.0],"sigmas":[19.2,19.3,19.3,19.3,19.2,19.3,19.2,19.1,18.8,18.8],"small_n":false},{"muni":"08015","name":"Badalona","n":146,"ist15":92.4,"ist23":94.6,"d_mean":2.2,"d_sigma":0.13,"sigma15":18.9,"sigma23":19.1,"means":[92.4,92.5,92.7,93.0,93.3,93.0,94.0,94.3,94.6,94.9],"sigmas":[18.9,18.8,18.8,18.7,18.8,19.2,18.9,19.1,19.1,19.1],"small_n":false},{"muni":"08279","name":"Terrassa","n":137,"ist15":96.2,"ist23":98.0,"d_mean":1.82,"d_sigma":-1.89,"sigma15":19.3,"sigma23":17.4,"means":[96.2,96.4,96.8,97.0,97.1,97.0,97.2,97.1,98.0,98.1],"sigmas":[19.3,19.4,19.4,19.2,18.9,18.7,18.6,18.6,17.4,17.1],"small_n":false},{"muni":"08245","name":"Santa Coloma de Gramenet","n":99,"ist15":81.8,"ist23":82.9,"d_mean":1.16,"d_sigma":-1.51,"sigma15":15.9,"sigma23":14.4,"means":[81.8,82.0,81.8,81.2,81.4,85.0,82.9,82.8,82.9,82.9],"sigmas":[15.9,16.0,16.1,15.9,16.0,14.3,14.7,14.6,14.4,14.3],"small_n":false},{"muni":"08121","name":"Mataró","n":75,"ist15":92.3,"ist23":93.4,"d_mean":1.15,"d_sigma":0.13,"sigma15":20.4,"sigma23":20.5,"means":[92.3,92.2,92.5,92.8,93.5,93.2,92.1,93.1,93.4,93.7],"sigmas":[20.4,20.6,20.8,20.7,20.7,20.6,21.0,20.9,20.5,20.4],"small_n":false},{"muni":"08073","name":"Cornellà de Llobregat","n":70,"ist15":91.4,"ist23":93.6,"d_mean":2.2,"d_sigma":0.59,"sigma15":14.4,"sigma23":15.0,"means":[91.4,92.0,92.3,92.3,95.2,95.0,93.4,93.1,93.6,93.5],"sigmas":[14.4,14.2,14.1,14.2,13.6,13.6,14.4,14.4,15.0,15.0],"small_n":false},{"muni":"08113","name":"Manresa","n":52,"ist15":90.1,"ist23":89.2,"d_mean":-0.89,"d_sigma":-0.24,"sigma15":12.6,"sigma23":12.4,"means":[90.1,89.9,89.6,90.6,89.8,89.9,89.1,89.0,89.2,89.2],"sigmas":[12.6,12.4,12.4,12.3,12.5,12.9,12.7,12.5,12.4,12.2],"small_n":false},{"muni":"08205","name":"Sant Cugat del Vallès","n":51,"ist15":124.6,"ist23":122.5,"d_mean":-2.09,"d_sigma":-1.34,"sigma15":11.3,"sigma23":9.9,"means":[124.6,124.8,124.8,124.3,124.5,124.5,123.4,122.9,122.5,122.7],"sigmas":[11.3,11.1,11.0,11.2,10.6,10.4,10.2,10.1,9.9,9.8],"small_n":false},{"muni":"08200","name":"Sant Boi de Llobregat","n":50,"ist15":97.2,"ist23":98.8,"d_mean":1.52,"d_sigma":-0.53,"sigma15":11.1,"sigma23":10.6,"means":[97.2,97.4,97.8,97.7,98.0,98.2,98.3,98.5,98.8,98.8],"sigmas":[11.1,11.1,11.1,11.2,11.0,10.9,10.9,10.9,10.6,10.5],"small_n":false},{"muni":"08301","name":"Viladecans","n":45,"ist15":99.9,"ist23":102.7,"d_mean":2.76,"d_sigma":-0.41,"sigma15":11.3,"sigma23":10.9,"means":[99.9,99.9,100.1,100.6,100.3,100.5,101.2,101.7,102.7,103.0],"sigmas":[11.3,11.6,11.7,11.6,11.7,11.6,11.2,11.1,10.9,10.6],"small_n":false},{"muni":"08184","name":"Rubí","n":42,"ist15":97.4,"ist23":97.1,"d_mean":-0.34,"d_sigma":-0.04,"sigma15":10.0,"sigma23":10.0,"means":[97.4,97.3,97.4,98.2,97.9,97.8,98.0,97.1,97.1,96.9],"sigmas":[10.0,10.2,10.0,10.2,10.2,9.9,10.2,10.0,10.0,10.2],"small_n":false},{"muni":"08169","name":"Prat de Llobregat, el","n":40,"ist15":97.5,"ist23":98.3,"d_mean":0.84,"d_sigma":-1.43,"sigma15":14.2,"sigma23":12.8,"means":[97.5,97.2,96.8,97.6,97.8,97.4,97.4,97.9,98.3,98.6],"sigmas":[14.2,14.3,14.4,13.8,13.6,13.5,13.5,13.4,12.8,12.7],"small_n":false},{"muni":"08307","name":"Vilanova i la Geltrú","n":39,"ist15":99.6,"ist23":102.3,"d_mean":2.71,"d_sigma":-0.62,"sigma15":10.1,"sigma23":9.4,"means":[99.6,99.7,99.8,100.3,100.4,100.9,101.5,101.8,102.3,102.1],"sigmas":[10.1,9.8,10.0,10.1,10.1,10.2,9.7,9.3,9.4,9.4],"small_n":false},{"muni":"08096","name":"Granollers","n":35,"ist15":96.9,"ist23":97.0,"d_mean":0.08,"d_sigma":0.29,"sigma15":13.7,"sigma23":14.0,"means":[96.9,97.2,97.1,97.1,97.2,97.2,96.9,97.2,97.0,97.1],"sigmas":[13.7,13.8,14.2,14.4,14.2,14.7,14.3,14.1,14.0,14.2],"small_n":false},{"muni":"08266","name":"Cerdanyola del Vallès","n":32,"ist15":107.9,"ist23":109.3,"d_mean":1.47,"d_sigma":-0.17,"sigma15":11.3,"sigma23":11.1,"means":[107.9,108.0,108.1,108.1,109.5,109.5,109.4,109.3,109.3,109.4],"sigmas":[11.3,11.2,11.6,11.2,11.9,11.5,11.8,11.1,11.1,11.2],"small_n":false},{"muni":"08124","name":"Mollet del Vallès","n":31,"ist15":93.1,"ist23":93.5,"d_mean":0.36,"d_sigma":0.15,"sigma15":14.5,"sigma23":14.7,"means":[93.1,93.6,94.3,94.9,94.8,94.9,94.8,94.7,93.5,93.6],"sigmas":[14.5,14.5,14.0,13.9,13.9,13.9,14.0,13.8,14.7,14.6],"small_n":false},{"muni":"08211","name":"Sant Feliu de Llobregat","n":30,"ist15":104.1,"ist23":106.3,"d_mean":2.17,"d_sigma":-0.12,"sigma15":12.8,"sigma23":12.6,"means":[104.1,104.7,105.1,105.7,105.8,105.3,105.7,105.7,106.3,106.2],"sigmas":[12.8,12.5,12.4,12.1,12.2,12.6,12.2,11.9,12.6,12.6],"small_n":false},{"muni":"08077","name":"Esplugues de Llobregat","n":29,"ist15":106.9,"ist23":104.0,"d_mean":-2.91,"d_sigma":-0.46,"sigma15":14.3,"sigma23":13.8,"means":[106.9,107.0,106.9,106.9,106.5,105.9,105.3,104.7,104.0,103.8],"sigmas":[14.3,14.3,14.6,14.8,14.0,13.8,14.2,13.6,13.8,14.0],"small_n":false},{"muni":"08089","name":"Gavà","n":28,"ist15":103.7,"ist23":104.5,"d_mean":0.81,"d_sigma":-1.57,"sigma15":9.4,"sigma23":7.8,"means":[103.7,103.8,103.5,103.8,103.9,103.9,103.3,103.7,104.5,104.5],"sigmas":[9.4,9.6,9.7,9.0,8.5,8.5,7.9,7.4,7.8,7.7],"small_n":false},{"muni":"08056","name":"Castelldefels","n":26,"ist15":108.5,"ist23":108.9,"d_mean":0.47,"d_sigma":-1.98,"sigma15":12.5,"sigma23":10.5,"means":[108.5,108.6,108.3,108.4,107.5,109.4,108.9,109.0,108.9,108.8],"sigmas":[12.5,12.9,12.3,12.4,11.2,11.2,10.9,10.7,10.5,10.4],"small_n":false},{"muni":"08102","name":"Igualada","n":26,"ist15":99.4,"ist23":99.0,"d_mean":-0.37,"d_sigma":-0.07,"sigma15":12.9,"sigma23":12.8,"means":[99.4,99.4,98.9,98.7,99.3,98.6,97.4,97.5,99.0,98.8],"sigmas":[12.9,12.9,13.7,14.0,13.8,14.5,14.8,15.2,12.8,12.7],"small_n":false},{"muni":"08194","name":"Sant Adrià de Besòs","n":24,"ist15":86.3,"ist23":83.3,"d_mean":-2.92,"d_sigma":0.55,"sigma15":19.6,"sigma23":20.1,"means":[86.3,85.7,84.8,84.2,84.0,83.8,83.7,83.5,83.3,83.2],"sigmas":[19.6,19.8,20.1,20.6,20.0,19.9,19.6,19.8,20.1,20.0],"small_n":false},{"muni":"08252","name":"Barberà del Vallès","n":23,"ist15":101.9,"ist23":103.6,"d_mean":1.71,"d_sigma":-1.1,"sigma15":10.7,"sigma23":9.6,"means":[101.9,101.9,102.2,103.0,103.2,103.4,103.4,103.2,103.6,103.7],"sigmas":[10.7,10.8,10.6,9.9,9.5,9.6,9.5,9.4,9.6,9.7],"small_n":false},{"muni":"08298","name":"Vic","n":23,"ist15":92.1,"ist23":85.8,"d_mean":-6.33,"d_sigma":1.26,"sigma15":17.1,"sigma23":18.3,"means":[92.1,92.1,91.7,89.9,88.9,87.4,86.0,85.9,85.8,86.0],"sigmas":[17.1,17.3,17.6,17.7,18.1,18.4,18.3,18.6,18.3,17.9],"small_n":false},{"muni":"08125","name":"Montcada i Reixac","n":22,"ist15":98.3,"ist23":97.4,"d_mean":-0.9,"d_sigma":0.67,"sigma15":14.7,"sigma23":15.4,"means":[98.3,97.9,97.5,97.6,96.9,96.3,96.8,97.2,97.4,97.7],"sigmas":[14.7,14.8,15.0,15.5,15.6,15.4,15.6,15.8,15.4,15.3],"small_n":false},{"muni":"08305","name":"Vilafranca del Penedès","n":22,"ist15":95.5,"ist23":96.2,"d_mean":0.79,"d_sigma":-0.67,"sigma15":13.0,"sigma23":12.3,"means":[95.5,95.4,95.8,95.6,96.3,96.5,96.9,96.3,96.2,95.8],"sigmas":[13.0,13.2,13.1,13.1,12.9,12.5,12.3,12.3,12.3,12.6],"small_n":false},{"muni":"08217","name":"Sant Joan Despí","n":21,"ist15":107.9,"ist23":109.1,"d_mean":1.21,"d_sigma":-0.81,"sigma15":15.4,"sigma23":14.6,"means":[107.9,107.8,107.8,107.6,107.7,107.9,107.4,107.3,109.1,109.3],"sigmas":[15.4,15.5,14.9,15.3,14.9,14.6,14.6,14.8,14.6,14.4],"small_n":false},{"muni":"08180","name":"Ripollet","n":20,"ist15":95.8,"ist23":95.5,"d_mean":-0.26,"d_sigma":-0.17,"sigma15":13.1,"sigma23":13.0,"means":[95.8,95.6,95.5,95.5,95.5,95.0,94.9,95.2,95.5,95.3],"sigmas":[13.1,13.4,13.5,13.8,13.7,14.0,13.3,13.2,13.0,13.2],"small_n":false},{"muni":"08263","name":"Sant Vicenç dels Horts","n":20,"ist15":97.5,"ist23":98.3,"d_mean":0.87,"d_sigma":-0.45,"sigma15":9.2,"sigma23":8.7,"means":[97.5,98.1,98.4,98.6,98.9,98.8,98.1,97.8,98.3,98.1],"sigmas":[9.2,9.2,8.8,9.6,9.3,9.5,9.2,9.2,8.7,8.7],"small_n":false},{"muni":"08231","name":"Sant Pere de Ribes","n":17,"ist15":97.0,"ist23":101.4,"d_mean":4.45,"d_sigma":-1.5,"sigma15":12.4,"sigma23":10.9,"means":[97.0,96.8,96.7,98.0,98.9,99.4,99.4,100.4,101.4,101.6],"sigmas":[12.4,12.2,12.3,11.7,11.8,11.8,11.5,10.9,10.9,10.9],"small_n":false},{"muni":"08172","name":"Premià de Mar","n":16,"ist15":102.2,"ist23":103.9,"d_mean":1.64,"d_sigma":-1.37,"sigma15":15.3,"sigma23":14.0,"means":[102.2,102.2,102.2,103.3,103.4,103.4,103.6,103.8,103.9,103.9],"sigmas":[15.3,15.2,15.4,15.1,14.4,14.4,14.3,14.0,14.0,13.7],"small_n":false},{"muni":"08114","name":"Martorell","n":15,"ist15":89.9,"ist23":90.1,"d_mean":0.27,"d_sigma":-0.98,"sigma15":19.4,"sigma23":18.4,"means":[89.9,89.8,89.9,89.9,89.6,89.4,88.6,88.5,90.1,90.7],"sigmas":[19.4,19.5,19.7,19.2,19.7,19.8,20.1,20.2,18.4,18.1],"small_n":false},{"muni":"08270","name":"Sitges","n":15,"ist15":111.7,"ist23":111.2,"d_mean":-0.55,"d_sigma":0.66,"sigma15":6.8,"sigma23":7.5,"means":[111.7,111.7,111.5,111.6,110.9,111.3,110.4,110.6,111.2,111.0],"sigmas":[6.8,7.0,6.9,7.4,7.1,7.1,7.6,7.2,7.5,7.5],"small_n":false},{"muni":"08219","name":"Vilassar de Mar","n":15,"ist15":115.5,"ist23":116.2,"d_mean":0.7,"d_sigma":-0.21,"sigma15":9.0,"sigma23":8.7,"means":[115.5,115.4,115.9,116.0,115.8,116.6,116.3,116.3,116.2,116.3],"sigmas":[9.0,9.7,10.2,10.0,9.4,9.3,9.4,9.2,8.7,8.5],"small_n":false},{"muni":"08051","name":"Castellar del Vallès","n":14,"ist15":109.2,"ist23":112.5,"d_mean":3.27,"d_sigma":-0.95,"sigma15":6.0,"sigma23":5.1,"means":[109.2,109.6,109.9,110.5,110.7,111.3,112.0,112.2,112.5,112.7],"sigmas":[6.0,5.9,5.8,6.2,5.7,6.0,5.8,5.0,5.1,5.0],"small_n":false},{"muni":"08118","name":"Masnou, el","n":14,"ist15":114.0,"ist23":113.5,"d_mean":-0.54,"d_sigma":-0.44,"sigma15":7.1,"sigma23":6.6,"means":[114.0,113.9,113.8,113.6,113.6,113.8,113.2,113.3,113.5,113.4],"sigmas":[7.1,7.0,7.2,7.0,7.0,6.6,6.8,6.5,6.6,6.8],"small_n":false},{"muni":"08163","name":"Pineda de Mar","n":14,"ist15":87.2,"ist23":90.7,"d_mean":3.5,"d_sigma":-0.48,"sigma15":8.8,"sigma23":8.3,"means":[87.2,87.3,87.8,87.6,87.8,86.1,89.0,90.0,90.7,90.6],"sigmas":[8.8,8.8,8.8,7.9,8.5,9.1,8.7,8.4,8.3,8.2],"small_n":false},{"muni":"08196","name":"Sant Andreu de la Barca","n":14,"ist15":100.0,"ist23":100.4,"d_mean":0.39,"d_sigma":-1.04,"sigma15":9.7,"sigma23":8.7,"means":[100.0,100.1,100.4,100.2,100.1,100.4,99.5,99.7,100.4,100.5],"sigmas":[9.7,9.8,9.5,9.5,9.5,9.0,9.2,9.2,8.7,8.8],"small_n":false},{"muni":"08260","name":"Santa Perpètua de Mogoda","n":14,"ist15":98.2,"ist23":100.9,"d_mean":2.7,"d_sigma":0.7,"sigma15":13.9,"sigma23":14.6,"means":[98.2,98.6,98.5,98.1,99.9,100.3,100.1,100.0,100.9,101.4],"sigmas":[13.9,14.0,14.5,14.6,14.8,14.6,14.7,14.8,14.6,14.5],"small_n":false},{"muni":"08022","name":"Berga","n":13,"ist15":96.6,"ist23":93.8,"d_mean":-2.79,"d_sigma":1.88,"sigma15":13.9,"sigma23":15.8,"means":[96.6,96.3,96.9,96.1,95.9,96.0,94.4,93.9,93.8,93.8],"sigmas":[13.9,13.6,13.2,14.3,15.2,14.7,15.7,15.7,15.8,16.2],"small_n":false},{"muni":"08904","name":"Badia del Vallès","n":12,"ist15":82.3,"ist23":86.0,"d_mean":3.78,"d_sigma":-0.02,"sigma15":6.0,"sigma23":6.0,"means":[82.3,82.8,83.4,84.7,85.2,85.1,85.2,85.9,86.0,85.6],"sigmas":[6.0,5.5,5.0,4.9,5.1,5.5,5.9,5.4,6.0,6.3],"small_n":false},{"muni":"08112","name":"Manlleu","n":12,"ist15":82.2,"ist23":78.2,"d_mean":-3.98,"d_sigma":0.94,"sigma15":11.7,"sigma23":12.7,"means":[82.2,82.2,82.3,80.3,79.1,78.8,78.5,78.5,78.2,78.6],"sigmas":[11.7,11.8,12.1,13.4,13.2,13.8,13.1,12.3,12.7,12.4],"small_n":false},{"muni":"08123","name":"Molins de Rei","n":12,"ist15":113.1,"ist23":113.6,"d_mean":0.47,"d_sigma":-1.7,"sigma15":7.4,"sigma23":5.7,"means":[113.1,112.8,112.9,112.8,113.2,113.4,113.7,113.5,113.6,113.5],"sigmas":[7.4,7.3,7.4,6.7,6.1,6.0,5.8,5.7,5.7,5.9],"small_n":false},{"muni":"08238","name":"Sant Quirze del Vallès","n":12,"ist15":122.5,"ist23":121.3,"d_mean":-1.17,"d_sigma":-0.52,"sigma15":8.9,"sigma23":8.3,"means":[122.5,122.8,122.7,121.9,121.8,121.7,121.4,121.6,121.3,121.7],"sigmas":[8.9,9.4,9.7,8.7,8.9,8.8,8.2,8.3,8.3,8.1],"small_n":false},{"muni":"08072","name":"Corbera de Llobregat","n":11,"ist15":111.6,"ist23":111.9,"d_mean":0.36,"d_sigma":0.67,"sigma15":7.6,"sigma23":8.3,"means":[111.6,111.8,111.3,112.3,111.9,111.6,111.9,112.0,111.9,112.1],"sigmas":[7.6,8.0,7.7,8.0,8.4,8.0,8.7,8.3,8.3,8.6],"small_n":false},{"muni":"08076","name":"Esparreguera","n":11,"ist15":99.8,"ist23":102.7,"d_mean":2.94,"d_sigma":-1.37,"sigma15":8.0,"sigma23":6.7,"means":[99.8,99.8,99.9,99.9,100.4,100.9,101.6,102.1,102.7,102.9],"sigmas":[8.0,7.7,7.7,7.8,7.6,7.7,6.9,7.0,6.7,6.9],"small_n":false},{"muni":"08147","name":"Olesa de Montserrat","n":11,"ist15":98.1,"ist23":100.8,"d_mean":2.69,"d_sigma":-0.29,"sigma15":7.5,"sigma23":7.3,"means":[98.1,98.1,98.7,98.8,99.1,99.7,100.0,99.9,100.8,101.0],"sigmas":[7.5,7.3,6.7,7.4,7.2,7.3,6.8,7.4,7.3,7.4],"small_n":false},{"muni":"08159","name":"Parets del Vallès","n":11,"ist15":103.7,"ist23":106.3,"d_mean":2.53,"d_sigma":0.95,"sigma15":3.1,"sigma23":4.1,"means":[103.7,104.0,104.7,105.3,105.5,105.9,106.6,106.8,106.3,106.8],"sigmas":[3.1,3.1,2.6,2.8,2.9,3.2,3.4,3.8,4.1,3.7],"small_n":false},{"muni":"08074","name":"Cubelles","n":10,"ist15":102.2,"ist23":101.6,"d_mean":-0.63,"d_sigma":0.91,"sigma15":7.3,"sigma23":8.2,"means":[102.2,101.8,102.0,102.7,102.7,102.9,102.2,101.5,101.6,101.9],"sigmas":[7.3,7.6,7.1,7.3,7.2,7.3,7.4,7.6,8.2,8.0],"small_n":false},{"muni":"08107","name":"Lliçà d'Amunt","n":10,"ist15":104.3,"ist23":109.2,"d_mean":4.9,"d_sigma":-0.56,"sigma15":3.1,"sigma23":2.6,"means":[104.3,105.0,105.5,106.0,106.6,106.3,107.5,108.7,109.2,109.3],"sigmas":[3.1,2.8,3.2,2.7,2.6,2.9,2.7,2.6,2.6,2.6],"small_n":false},{"muni":"08136","name":"Montornès del Vallès","n":10,"ist15":90.4,"ist23":91.7,"d_mean":1.26,"d_sigma":-0.11,"sigma15":21.6,"sigma23":21.5,"means":[90.4,91.0,90.8,91.0,91.4,91.3,91.4,91.0,91.7,92.0],"sigmas":[21.6,21.4,21.9,22.5,21.7,21.5,21.3,21.6,21.5,21.8],"small_n":false},{"muni":"08006","name":"Arenys de Mar","n":9,"ist15":103.4,"ist23":105.6,"d_mean":2.19,"d_sigma":-1.38,"sigma15":5.5,"sigma23":4.1,"means":[103.4,103.8,104.0,104.9,104.9,104.9,105.8,106.1,105.6,105.5],"sigmas":[5.5,5.3,4.6,4.1,4.1,3.9,4.1,4.4,4.1,4.5],"small_n":true},{"muni":"08033","name":"Caldes de Montbui","n":9,"ist15":105.2,"ist23":106.6,"d_mean":1.4,"d_sigma":1.28,"sigma15":7.7,"sigma23":9.0,"means":[105.2,105.7,106.2,105.8,107.0,107.1,106.3,106.2,106.6,106.2],"sigmas":[7.7,7.5,6.8,7.0,7.1,7.8,8.5,8.8,9.0,8.4],"small_n":true},{"muni":"08035","name":"Calella","n":9,"ist15":95.9,"ist23":94.3,"d_mean":-1.6,"d_sigma":0.94,"sigma15":5.2,"sigma23":6.1,"means":[95.9,95.9,95.4,94.9,94.4,92.6,93.0,94.8,94.3,94.3],"sigmas":[5.2,5.5,5.3,6.1,6.7,6.9,6.5,6.2,6.1,6.2],"small_n":true},{"muni":"08105","name":"Llagosta, la","n":9,"ist15":87.7,"ist23":88.2,"d_mean":0.51,"d_sigma":-0.07,"sigma15":11.6,"sigma23":11.5,"means":[87.7,87.9,87.7,87.9,87.7,87.4,88.1,88.2,88.2,88.4],"sigmas":[11.6,11.5,11.4,11.5,11.2,11.1,11.2,11.7,11.5,11.3],"small_n":true},{"muni":"08110","name":"Malgrat de Mar","n":9,"ist15":94.8,"ist23":95.5,"d_mean":0.71,"d_sigma":-0.66,"sigma15":6.0,"sigma23":5.3,"means":[94.8,95.1,94.4,94.8,94.2,92.2,92.9,93.9,95.5,95.9],"sigmas":[6.0,6.2,5.9,5.3,5.3,5.5,5.3,5.4,5.3,5.9],"small_n":true},{"muni":"08161","name":"Piera","n":9,"ist15":94.1,"ist23":97.0,"d_mean":2.98,"d_sigma":1.99,"sigma15":2.5,"sigma23":4.5,"means":[94.1,94.4,94.0,95.1,95.5,95.7,96.8,96.8,97.0,97.2],"sigmas":[2.5,2.8,2.7,2.3,2.8,3.4,3.6,3.6,4.5,4.7],"small_n":true},{"muni":"08202","name":"Sant Celoni","n":9,"ist15":98.9,"ist23":99.0,"d_mean":0.1,"d_sigma":1.52,"sigma15":10.6,"sigma23":12.1,"means":[98.9,98.7,98.5,98.5,99.7,100.1,98.3,98.8,99.0,98.2],"sigmas":[10.6,11.2,11.5,11.6,10.7,11.4,12.3,12.4,12.1,12.5],"small_n":true},{"muni":"08221","name":"Sant Just Desvern","n":9,"ist15":123.4,"ist23":124.4,"d_mean":0.99,"d_sigma":1.92,"sigma15":9.1,"sigma23":11.0,"means":[123.4,122.2,121.5,123.6,122.0,122.9,124.4,123.9,124.4,124.2],"sigmas":[9.1,8.8,8.8,8.4,8.7,7.6,7.0,6.3,11.0,10.0],"small_n":true},{"muni":"08009","name":"Argentona","n":8,"ist15":109.5,"ist23":111.2,"d_mean":1.71,"d_sigma":-0.97,"sigma15":9.9,"sigma23":9.0,"means":[109.5,109.3,110.0,109.9,109.1,109.9,110.1,110.4,111.2,111.8],"sigmas":[9.9,9.2,9.2,9.4,11.0,10.8,10.1,10.1,9.0,8.2],"small_n":true},{"muni":"08040","name":"Canet de Mar","n":8,"ist15":99.8,"ist23":102.3,"d_mean":2.49,"d_sigma":2.72,"sigma15":3.7,"sigma23":6.4,"means":[99.8,100.1,100.3,100.5,101.4,101.2,101.2,102.2,102.3,102.2],"sigmas":[3.7,3.8,3.7,3.7,3.1,4.7,5.8,6.0,6.4,6.5],"small_n":true},{"muni":"08041","name":"Canovelles","n":8,"ist15":76.6,"ist23":77.5,"d_mean":0.89,"d_sigma":0.04,"sigma15":22.5,"sigma23":22.6,"means":[76.6,77.2,76.9,77.0,77.2,77.5,77.8,77.8,77.5,77.3],"sigmas":[22.5,23.0,22.9,23.2,23.4,23.1,22.6,22.8,22.6,22.7],"small_n":true},{"muni":"08046","name":"Cardedeu","n":8,"ist15":110.4,"ist23":112.3,"d_mean":1.97,"d_sigma":0.84,"sigma15":4.2,"sigma23":5.1,"means":[110.4,110.5,111.1,111.2,110.9,111.7,111.7,112.1,112.3,112.6],"sigmas":[4.2,4.3,4.4,4.3,4.5,4.6,4.7,5.1,5.1,5.0],"small_n":true},{"muni":"08086","name":"Franqueses del Vallès, les","n":8,"ist15":100.0,"ist23":99.6,"d_mean":-0.32,"d_sigma":-1.32,"sigma15":18.6,"sigma23":17.2,"means":[100.0,100.7,100.6,100.9,98.9,99.4,99.1,99.4,99.6,99.5],"sigmas":[18.6,18.8,18.4,17.9,17.7,17.9,17.6,17.6,17.2,17.5],"small_n":true},{"muni":"08156","name":"Palau-solità i Plegamans","n":8,"ist15":107.9,"ist23":108.8,"d_mean":0.83,"d_sigma":1.19,"sigma15":5.7,"sigma23":6.9,"means":[107.9,108.2,108.2,108.8,108.8,108.4,108.0,108.5,108.8,108.8],"sigmas":[5.7,6.2,6.2,5.9,6.2,6.2,6.8,6.9,6.9,7.2],"small_n":true}];
+// Clean name helper
+function cleanName(s){ return s.replace(/ DC\d.*$/,'').replace(/ SC\d.*$/,'').trim(); }
 
-const BCN_DISTRICTS = [{"name":"Ciutat Vella","n":54,"ist15":89.3,"ist23":90.7,"d_mean":1.5,"d_sigma":-1.2},{"name":"Nou Barris","n":117,"ist15":92.9,"ist23":91.8,"d_mean":-1.0,"d_sigma":-0.5},{"name":"Sants-Montjuïc","n":117,"ist15":102.4,"ist23":103.2,"d_mean":0.7,"d_sigma":-1.8},{"name":"Sant Martí","n":147,"ist15":106.3,"ist23":106.3,"d_mean":0.1,"d_sigma":-0.5},{"name":"Sant Andreu","n":95,"ist15":106.7,"ist23":106.0,"d_mean":-0.7,"d_sigma":-0.3},{"name":"Horta-Guinardó","n":123,"ist15":107.3,"ist23":105.7,"d_mean":-1.5,"d_sigma":0.3},{"name":"L'Eixample","n":173,"ist15":117.3,"ist23":115.5,"d_mean":-1.8,"d_sigma":-0.4},{"name":"Gràcia","n":87,"ist15":118.5,"ist23":117.2,"d_mean":-1.3,"d_sigma":-0.3},{"name":"Les Corts","n":57,"ist15":123.5,"ist23":120.6,"d_mean":-2.8,"d_sigma":-0.9},{"name":"Sarrià-Sant Gervasi","n":98,"ist15":131.1,"ist23":128.8,"d_mean":-2.3,"d_sigma":-0.5}];
+const DATA = [{"muni":"08101","name":"Hospitalet de Llobregat, l'","n":192,"ist15":88.2,"ist24":83.4,"d_mean":-4.79,"d_sigma":1.72,"sigma15":13.9,"sigma24":15.6,"means":[88.2,88.0,87.5,87.2,87.2,86.3,85.9,84.9,83.8,83.4],"sigmas":[13.9,13.9,14.1,14.2,14.4,14.5,15.0,15.1,15.5,15.6],"small_n":false},{"muni":"08187","name":"Sabadell","n":152,"ist15":95.5,"ist24":96.0,"d_mean":0.41,"d_sigma":-0.43,"sigma15":19.2,"sigma24":18.8,"means":[95.5,95.7,95.7,96.0,96.4,96.0,96.0,96.1,96.1,96.0],"sigmas":[19.2,19.3,19.3,19.3,19.2,19.3,19.2,19.1,18.8,18.8],"small_n":false},{"muni":"08015","name":"Badalona","n":146,"ist15":92.4,"ist24":94.9,"d_mean":2.45,"d_sigma":0.12,"sigma15":18.9,"sigma24":19.1,"means":[92.4,92.5,92.7,93.0,93.3,93.0,94.0,94.3,94.6,94.9],"sigmas":[18.9,18.8,18.8,18.7,18.8,19.2,18.9,19.1,19.1,19.1],"small_n":false},{"muni":"08279","name":"Terrassa","n":137,"ist15":96.2,"ist24":98.1,"d_mean":1.93,"d_sigma":-2.22,"sigma15":19.3,"sigma24":17.1,"means":[96.2,96.4,96.8,97.0,97.1,97.0,97.2,97.1,98.0,98.1],"sigmas":[19.3,19.4,19.4,19.2,18.9,18.7,18.6,18.6,17.4,17.1],"small_n":false},{"muni":"08245","name":"Santa Coloma de Gramenet","n":99,"ist15":81.8,"ist24":82.9,"d_mean":1.09,"d_sigma":-1.6,"sigma15":15.9,"sigma24":14.3,"means":[81.8,82.0,81.8,81.2,81.4,85.0,82.9,82.8,82.9,82.9],"sigmas":[15.9,16.0,16.1,15.9,16.0,14.3,14.7,14.6,14.4,14.3],"small_n":false},{"muni":"08121","name":"Mataró","n":75,"ist15":92.3,"ist24":93.7,"d_mean":1.45,"d_sigma":0.01,"sigma15":20.4,"sigma24":20.4,"means":[92.3,92.2,92.5,92.8,93.5,93.2,92.1,93.1,93.4,93.7],"sigmas":[20.4,20.6,20.8,20.7,20.7,20.6,21.0,20.9,20.5,20.4],"small_n":false},{"muni":"08073","name":"Cornellà de Llobregat","n":70,"ist15":91.4,"ist24":93.5,"d_mean":2.06,"d_sigma":0.59,"sigma15":14.4,"sigma24":15.0,"means":[91.4,92.0,92.3,92.3,95.2,95.0,93.4,93.1,93.6,93.5],"sigmas":[14.4,14.2,14.1,14.2,13.6,13.6,14.4,14.4,15.0,15.0],"small_n":false},{"muni":"08113","name":"Manresa","n":52,"ist15":90.1,"ist24":89.2,"d_mean":-0.91,"d_sigma":-0.41,"sigma15":12.6,"sigma24":12.2,"means":[90.1,89.9,89.6,90.6,89.8,89.9,89.1,89.0,89.2,89.2],"sigmas":[12.6,12.4,12.4,12.3,12.5,12.9,12.7,12.5,12.4,12.2],"small_n":false},{"muni":"08205","name":"Sant Cugat del Vallès","n":51,"ist15":124.6,"ist24":122.7,"d_mean":-1.94,"d_sigma":-1.45,"sigma15":11.3,"sigma24":9.8,"means":[124.6,124.8,124.8,124.3,124.5,124.5,123.4,122.9,122.5,122.7],"sigmas":[11.3,11.1,11.0,11.2,10.6,10.4,10.2,10.1,9.9,9.8],"small_n":false},{"muni":"08200","name":"Sant Boi de Llobregat","n":50,"ist15":97.2,"ist24":98.8,"d_mean":1.53,"d_sigma":-0.62,"sigma15":11.1,"sigma24":10.5,"means":[97.2,97.4,97.8,97.7,98.0,98.2,98.3,98.5,98.8,98.8],"sigmas":[11.1,11.1,11.1,11.2,11.0,10.9,10.9,10.9,10.6,10.5],"small_n":false},{"muni":"08301","name":"Viladecans","n":45,"ist15":99.9,"ist24":103.0,"d_mean":3.1,"d_sigma":-0.78,"sigma15":11.3,"sigma24":10.6,"means":[99.9,99.9,100.1,100.6,100.3,100.5,101.2,101.7,102.7,103.0],"sigmas":[11.3,11.6,11.7,11.6,11.7,11.6,11.2,11.1,10.9,10.6],"small_n":false},{"muni":"08184","name":"Rubí","n":42,"ist15":97.4,"ist24":96.9,"d_mean":-0.55,"d_sigma":0.2,"sigma15":10.0,"sigma24":10.2,"means":[97.4,97.3,97.4,98.2,97.9,97.8,98.0,97.1,97.1,96.9],"sigmas":[10.0,10.2,10.0,10.2,10.2,9.9,10.2,10.0,10.0,10.2],"small_n":false},{"muni":"08169","name":"Prat de Llobregat, el","n":40,"ist15":97.5,"ist24":98.6,"d_mean":1.09,"d_sigma":-1.46,"sigma15":14.2,"sigma24":12.7,"means":[97.5,97.2,96.8,97.6,97.8,97.4,97.4,97.9,98.3,98.6],"sigmas":[14.2,14.3,14.4,13.8,13.6,13.5,13.5,13.4,12.8,12.7],"small_n":false},{"muni":"08307","name":"Vilanova i la Geltrú","n":39,"ist15":99.6,"ist24":102.1,"d_mean":2.51,"d_sigma":-0.68,"sigma15":10.1,"sigma24":9.4,"means":[99.6,99.7,99.8,100.3,100.4,100.9,101.5,101.8,102.3,102.1],"sigmas":[10.1,9.8,10.0,10.1,10.1,10.2,9.7,9.3,9.4,9.4],"small_n":false},{"muni":"08096","name":"Granollers","n":35,"ist15":96.9,"ist24":97.1,"d_mean":0.13,"d_sigma":0.48,"sigma15":13.7,"sigma24":14.2,"means":[96.9,97.2,97.1,97.1,97.2,97.2,96.9,97.2,97.0,97.1],"sigmas":[13.7,13.8,14.2,14.4,14.2,14.7,14.3,14.1,14.0,14.2],"small_n":false},{"muni":"08266","name":"Cerdanyola del Vallès","n":32,"ist15":107.9,"ist24":109.4,"d_mean":1.59,"d_sigma":-0.02,"sigma15":11.3,"sigma24":11.2,"means":[107.9,108.0,108.1,108.1,109.5,109.5,109.4,109.3,109.3,109.4],"sigmas":[11.3,11.2,11.6,11.2,11.9,11.5,11.8,11.1,11.1,11.2],"small_n":false},{"muni":"08124","name":"Mollet del Vallès","n":31,"ist15":93.1,"ist24":93.6,"d_mean":0.43,"d_sigma":0.05,"sigma15":14.5,"sigma24":14.6,"means":[93.1,93.6,94.3,94.9,94.8,94.9,94.8,94.7,93.5,93.6],"sigmas":[14.5,14.5,14.0,13.9,13.9,13.9,14.0,13.8,14.7,14.6],"small_n":false},{"muni":"08211","name":"Sant Feliu de Llobregat","n":30,"ist15":104.1,"ist24":106.2,"d_mean":2.14,"d_sigma":-0.16,"sigma15":12.8,"sigma24":12.6,"means":[104.1,104.7,105.1,105.7,105.8,105.3,105.7,105.7,106.3,106.2],"sigmas":[12.8,12.5,12.4,12.1,12.2,12.6,12.2,11.9,12.6,12.6],"small_n":false},{"muni":"08077","name":"Esplugues de Llobregat","n":29,"ist15":106.9,"ist24":103.8,"d_mean":-3.08,"d_sigma":-0.33,"sigma15":14.3,"sigma24":14.0,"means":[106.9,107.0,106.9,106.9,106.5,105.9,105.3,104.7,104.0,103.8],"sigmas":[14.3,14.3,14.6,14.8,14.0,13.8,14.2,13.6,13.8,14.0],"small_n":false},{"muni":"08089","name":"Gavà","n":28,"ist15":103.7,"ist24":104.5,"d_mean":0.81,"d_sigma":-1.68,"sigma15":9.4,"sigma24":7.7,"means":[103.7,103.8,103.5,103.8,103.9,103.9,103.3,103.7,104.5,104.5],"sigmas":[9.4,9.6,9.7,9.0,8.5,8.5,7.9,7.4,7.8,7.7],"small_n":false},{"muni":"08056","name":"Castelldefels","n":26,"ist15":108.5,"ist24":108.8,"d_mean":0.35,"d_sigma":-2.09,"sigma15":12.5,"sigma24":10.4,"means":[108.5,108.6,108.3,108.4,107.5,109.4,108.9,109.0,108.9,108.8],"sigmas":[12.5,12.9,12.3,12.4,11.2,11.2,10.9,10.7,10.5,10.4],"small_n":false},{"muni":"08102","name":"Igualada","n":26,"ist15":99.4,"ist24":98.8,"d_mean":-0.57,"d_sigma":-0.16,"sigma15":12.9,"sigma24":12.7,"means":[99.4,99.4,98.9,98.7,99.3,98.6,97.4,97.5,99.0,98.8],"sigmas":[12.9,12.9,13.7,14.0,13.8,14.5,14.8,15.2,12.8,12.7],"small_n":false},{"muni":"08194","name":"Sant Adrià de Besòs","n":24,"ist15":86.3,"ist24":83.2,"d_mean":-3.08,"d_sigma":0.48,"sigma15":19.6,"sigma24":20.0,"means":[86.3,85.7,84.8,84.2,84.0,83.8,83.7,83.5,83.3,83.2],"sigmas":[19.6,19.8,20.1,20.6,20.0,19.9,19.6,19.8,20.1,20.0],"small_n":false},{"muni":"08252","name":"Barberà del Vallès","n":23,"ist15":101.9,"ist24":103.7,"d_mean":1.76,"d_sigma":-1.01,"sigma15":10.7,"sigma24":9.7,"means":[101.9,101.9,102.2,103.0,103.2,103.4,103.4,103.2,103.6,103.7],"sigmas":[10.7,10.8,10.6,9.9,9.5,9.6,9.5,9.4,9.6,9.7],"small_n":false},{"muni":"08298","name":"Vic","n":23,"ist15":92.1,"ist24":86.0,"d_mean":-6.08,"d_sigma":0.88,"sigma15":17.1,"sigma24":17.9,"means":[92.1,92.1,91.7,89.9,88.9,87.4,86.0,85.9,85.8,86.0],"sigmas":[17.1,17.3,17.6,17.7,18.1,18.4,18.3,18.6,18.3,17.9],"small_n":false},{"muni":"08125","name":"Montcada i Reixac","n":22,"ist15":98.3,"ist24":97.7,"d_mean":-0.63,"d_sigma":0.55,"sigma15":14.7,"sigma24":15.3,"means":[98.3,97.9,97.5,97.6,96.9,96.3,96.8,97.2,97.4,97.7],"sigmas":[14.7,14.8,15.0,15.5,15.6,15.4,15.6,15.8,15.4,15.3],"small_n":false},{"muni":"08305","name":"Vilafranca del Penedès","n":22,"ist15":95.5,"ist24":95.8,"d_mean":0.36,"d_sigma":-0.37,"sigma15":13.0,"sigma24":12.6,"means":[95.5,95.4,95.8,95.6,96.3,96.5,96.9,96.3,96.2,95.8],"sigmas":[13.0,13.2,13.1,13.1,12.9,12.5,12.3,12.3,12.3,12.6],"small_n":false},{"muni":"08217","name":"Sant Joan Despí","n":21,"ist15":107.9,"ist24":109.3,"d_mean":1.34,"d_sigma":-1.02,"sigma15":15.4,"sigma24":14.4,"means":[107.9,107.8,107.8,107.6,107.7,107.9,107.4,107.3,109.1,109.3],"sigmas":[15.4,15.5,14.9,15.3,14.9,14.6,14.6,14.8,14.6,14.4],"small_n":false},{"muni":"08180","name":"Ripollet","n":20,"ist15":95.8,"ist24":95.3,"d_mean":-0.49,"d_sigma":0.08,"sigma15":13.1,"sigma24":13.2,"means":[95.8,95.6,95.5,95.5,95.5,95.0,94.9,95.2,95.5,95.3],"sigmas":[13.1,13.4,13.5,13.8,13.7,14.0,13.3,13.2,13.0,13.2],"small_n":false},{"muni":"08263","name":"Sant Vicenç dels Horts","n":20,"ist15":97.5,"ist24":98.1,"d_mean":0.65,"d_sigma":-0.52,"sigma15":9.2,"sigma24":8.7,"means":[97.5,98.1,98.4,98.6,98.9,98.8,98.1,97.8,98.3,98.1],"sigmas":[9.2,9.2,8.8,9.6,9.3,9.5,9.2,9.2,8.7,8.7],"small_n":false},{"muni":"08231","name":"Sant Pere de Ribes","n":17,"ist15":97.0,"ist24":101.6,"d_mean":4.61,"d_sigma":-1.55,"sigma15":12.4,"sigma24":10.9,"means":[97.0,96.8,96.7,98.0,98.9,99.4,99.4,100.4,101.4,101.6],"sigmas":[12.4,12.2,12.3,11.7,11.8,11.8,11.5,10.9,10.9,10.9],"small_n":false},{"muni":"08172","name":"Premià de Mar","n":16,"ist15":102.2,"ist24":103.9,"d_mean":1.69,"d_sigma":-1.65,"sigma15":15.3,"sigma24":13.7,"means":[102.2,102.2,102.2,103.3,103.4,103.4,103.6,103.8,103.9,103.9],"sigmas":[15.3,15.2,15.4,15.1,14.4,14.4,14.3,14.0,14.0,13.7],"small_n":false},{"muni":"08114","name":"Martorell","n":15,"ist15":89.9,"ist24":90.7,"d_mean":0.85,"d_sigma":-1.24,"sigma15":19.4,"sigma24":18.1,"means":[89.9,89.8,89.9,89.9,89.6,89.4,88.6,88.5,90.1,90.7],"sigmas":[19.4,19.5,19.7,19.2,19.7,19.8,20.1,20.2,18.4,18.1],"small_n":false},{"muni":"08270","name":"Sitges","n":15,"ist15":111.7,"ist24":111.0,"d_mean":-0.75,"d_sigma":0.66,"sigma15":6.8,"sigma24":7.5,"means":[111.7,111.7,111.5,111.6,110.9,111.3,110.4,110.6,111.2,111.0],"sigmas":[6.8,7.0,6.9,7.4,7.1,7.1,7.6,7.2,7.5,7.5],"small_n":false},{"muni":"08219","name":"Vilassar de Mar","n":15,"ist15":115.5,"ist24":116.3,"d_mean":0.82,"d_sigma":-0.44,"sigma15":9.0,"sigma24":8.5,"means":[115.5,115.4,115.9,116.0,115.8,116.6,116.3,116.3,116.2,116.3],"sigmas":[9.0,9.7,10.2,10.0,9.4,9.3,9.4,9.2,8.7,8.5],"small_n":false},{"muni":"08051","name":"Castellar del Vallès","n":14,"ist15":109.2,"ist24":112.7,"d_mean":3.41,"d_sigma":-1.0,"sigma15":6.0,"sigma24":5.0,"means":[109.2,109.6,109.9,110.5,110.7,111.3,112.0,112.2,112.5,112.7],"sigmas":[6.0,5.9,5.8,6.2,5.7,6.0,5.8,5.0,5.1,5.0],"small_n":false},{"muni":"08118","name":"Masnou, el","n":14,"ist15":114.0,"ist24":113.4,"d_mean":-0.64,"d_sigma":-0.31,"sigma15":7.1,"sigma24":6.8,"means":[114.0,113.9,113.8,113.6,113.6,113.8,113.2,113.3,113.5,113.4],"sigmas":[7.1,7.0,7.2,7.0,7.0,6.6,6.8,6.5,6.6,6.8],"small_n":false},{"muni":"08163","name":"Pineda de Mar","n":14,"ist15":87.2,"ist24":90.6,"d_mean":3.46,"d_sigma":-0.55,"sigma15":8.8,"sigma24":8.2,"means":[87.2,87.3,87.8,87.6,87.8,86.1,89.0,90.0,90.7,90.6],"sigmas":[8.8,8.8,8.8,7.9,8.5,9.1,8.7,8.4,8.3,8.2],"small_n":false},{"muni":"08196","name":"Sant Andreu de la Barca","n":14,"ist15":100.0,"ist24":100.5,"d_mean":0.45,"d_sigma":-0.89,"sigma15":9.7,"sigma24":8.8,"means":[100.0,100.1,100.4,100.2,100.1,100.4,99.5,99.7,100.4,100.5],"sigmas":[9.7,9.8,9.5,9.5,9.5,9.0,9.2,9.2,8.7,8.8],"small_n":false},{"muni":"08260","name":"Santa Perpètua de Mogoda","n":14,"ist15":98.2,"ist24":101.4,"d_mean":3.19,"d_sigma":0.53,"sigma15":13.9,"sigma24":14.5,"means":[98.2,98.6,98.5,98.1,99.9,100.3,100.1,100.0,100.9,101.4],"sigmas":[13.9,14.0,14.5,14.6,14.8,14.6,14.7,14.8,14.6,14.5],"small_n":false},{"muni":"08022","name":"Berga","n":13,"ist15":96.6,"ist24":93.8,"d_mean":-2.78,"d_sigma":2.36,"sigma15":13.9,"sigma24":16.2,"means":[96.6,96.3,96.9,96.1,95.9,96.0,94.4,93.9,93.8,93.8],"sigmas":[13.9,13.6,13.2,14.3,15.2,14.7,15.7,15.7,15.8,16.2],"small_n":false},{"muni":"08904","name":"Badia del Vallès","n":12,"ist15":82.3,"ist24":85.6,"d_mean":3.37,"d_sigma":0.3,"sigma15":6.0,"sigma24":6.3,"means":[82.3,82.8,83.4,84.7,85.2,85.1,85.2,85.9,86.0,85.6],"sigmas":[6.0,5.5,5.0,4.9,5.1,5.5,5.9,5.4,6.0,6.3],"small_n":false},{"muni":"08112","name":"Manlleu","n":12,"ist15":82.2,"ist24":78.6,"d_mean":-3.67,"d_sigma":0.72,"sigma15":11.7,"sigma24":12.4,"means":[82.2,82.2,82.3,80.3,79.1,78.8,78.5,78.5,78.2,78.6],"sigmas":[11.7,11.8,12.1,13.4,13.2,13.8,13.1,12.3,12.7,12.4],"small_n":false},{"muni":"08123","name":"Molins de Rei","n":12,"ist15":113.1,"ist24":113.5,"d_mean":0.39,"d_sigma":-1.52,"sigma15":7.4,"sigma24":5.9,"means":[113.1,112.8,112.9,112.8,113.2,113.4,113.7,113.5,113.6,113.5],"sigmas":[7.4,7.3,7.4,6.7,6.1,6.0,5.8,5.7,5.7,5.9],"small_n":false},{"muni":"08238","name":"Sant Quirze del Vallès","n":12,"ist15":122.5,"ist24":121.7,"d_mean":-0.82,"d_sigma":-0.76,"sigma15":8.9,"sigma24":8.1,"means":[122.5,122.8,122.7,121.9,121.8,121.7,121.4,121.6,121.3,121.7],"sigmas":[8.9,9.4,9.7,8.7,8.9,8.8,8.2,8.3,8.3,8.1],"small_n":false},{"muni":"08072","name":"Corbera de Llobregat","n":11,"ist15":111.6,"ist24":112.1,"d_mean":0.57,"d_sigma":0.96,"sigma15":7.6,"sigma24":8.6,"means":[111.6,111.8,111.3,112.3,111.9,111.6,111.9,112.0,111.9,112.1],"sigmas":[7.6,8.0,7.7,8.0,8.4,8.0,8.7,8.3,8.3,8.6],"small_n":false},{"muni":"08076","name":"Esparreguera","n":11,"ist15":99.8,"ist24":102.9,"d_mean":3.11,"d_sigma":-1.14,"sigma15":8.0,"sigma24":6.9,"means":[99.8,99.8,99.9,99.9,100.4,100.9,101.6,102.1,102.7,102.9],"sigmas":[8.0,7.7,7.7,7.8,7.6,7.7,6.9,7.0,6.7,6.9],"small_n":false},{"muni":"08147","name":"Olesa de Montserrat","n":11,"ist15":98.1,"ist24":101.0,"d_mean":2.93,"d_sigma":-0.16,"sigma15":7.5,"sigma24":7.4,"means":[98.1,98.1,98.7,98.8,99.1,99.7,100.0,99.9,100.8,101.0],"sigmas":[7.5,7.3,6.7,7.4,7.2,7.3,6.8,7.4,7.3,7.4],"small_n":false},{"muni":"08159","name":"Parets del Vallès","n":11,"ist15":103.7,"ist24":106.8,"d_mean":3.04,"d_sigma":0.63,"sigma15":3.1,"sigma24":3.7,"means":[103.7,104.0,104.7,105.3,105.5,105.9,106.6,106.8,106.3,106.8],"sigmas":[3.1,3.1,2.6,2.8,2.9,3.2,3.4,3.8,4.1,3.7],"small_n":false},{"muni":"08074","name":"Cubelles","n":10,"ist15":102.2,"ist24":101.9,"d_mean":-0.38,"d_sigma":0.72,"sigma15":7.3,"sigma24":8.0,"means":[102.2,101.8,102.0,102.7,102.7,102.9,102.2,101.5,101.6,101.9],"sigmas":[7.3,7.6,7.1,7.3,7.2,7.3,7.4,7.6,8.2,8.0],"small_n":false},{"muni":"08107","name":"Lliçà d'Amunt","n":10,"ist15":104.3,"ist24":109.3,"d_mean":4.98,"d_sigma":-0.55,"sigma15":3.1,"sigma24":2.6,"means":[104.3,105.0,105.5,106.0,106.6,106.3,107.5,108.7,109.2,109.3],"sigmas":[3.1,2.8,3.2,2.7,2.6,2.9,2.7,2.6,2.6,2.6],"small_n":false},{"muni":"08136","name":"Montornès del Vallès","n":10,"ist15":90.4,"ist24":92.0,"d_mean":1.53,"d_sigma":0.18,"sigma15":21.6,"sigma24":21.8,"means":[90.4,91.0,90.8,91.0,91.4,91.3,91.4,91.0,91.7,92.0],"sigmas":[21.6,21.4,21.9,22.5,21.7,21.5,21.3,21.6,21.5,21.8],"small_n":false},{"muni":"08006","name":"Arenys de Mar","n":9,"ist15":103.4,"ist24":105.5,"d_mean":2.16,"d_sigma":-1.03,"sigma15":5.5,"sigma24":4.5,"means":[103.4,103.8,104.0,104.9,104.9,104.9,105.8,106.1,105.6,105.5],"sigmas":[5.5,5.3,4.6,4.1,4.1,3.9,4.1,4.4,4.1,4.5],"small_n":true},{"muni":"08033","name":"Caldes de Montbui","n":9,"ist15":105.2,"ist24":106.2,"d_mean":1.08,"d_sigma":0.66,"sigma15":7.7,"sigma24":8.4,"means":[105.2,105.7,106.2,105.8,107.0,107.1,106.3,106.2,106.6,106.2],"sigmas":[7.7,7.5,6.8,7.0,7.1,7.8,8.5,8.8,9.0,8.4],"small_n":true},{"muni":"08035","name":"Calella","n":9,"ist15":95.9,"ist24":94.3,"d_mean":-1.66,"d_sigma":1.07,"sigma15":5.2,"sigma24":6.2,"means":[95.9,95.9,95.4,94.9,94.4,92.6,93.0,94.8,94.3,94.3],"sigmas":[5.2,5.5,5.3,6.1,6.7,6.9,6.5,6.2,6.1,6.2],"small_n":true},{"muni":"08105","name":"Llagosta, la","n":9,"ist15":87.7,"ist24":88.4,"d_mean":0.68,"d_sigma":-0.27,"sigma15":11.6,"sigma24":11.3,"means":[87.7,87.9,87.7,87.9,87.7,87.4,88.1,88.2,88.2,88.4],"sigmas":[11.6,11.5,11.4,11.5,11.2,11.1,11.2,11.7,11.5,11.3],"small_n":true},{"muni":"08110","name":"Malgrat de Mar","n":9,"ist15":94.8,"ist24":95.9,"d_mean":1.1,"d_sigma":-0.1,"sigma15":6.0,"sigma24":5.9,"means":[94.8,95.1,94.4,94.8,94.2,92.2,92.9,93.9,95.5,95.9],"sigmas":[6.0,6.2,5.9,5.3,5.3,5.5,5.3,5.4,5.3,5.9],"small_n":true},{"muni":"08161","name":"Piera","n":9,"ist15":94.1,"ist24":97.2,"d_mean":3.16,"d_sigma":2.23,"sigma15":2.5,"sigma24":4.7,"means":[94.1,94.4,94.0,95.1,95.5,95.7,96.8,96.8,97.0,97.2],"sigmas":[2.5,2.8,2.7,2.3,2.8,3.4,3.6,3.6,4.5,4.7],"small_n":true},{"muni":"08202","name":"Sant Celoni","n":9,"ist15":98.9,"ist24":98.2,"d_mean":-0.62,"d_sigma":1.88,"sigma15":10.6,"sigma24":12.5,"means":[98.9,98.7,98.5,98.5,99.7,100.1,98.3,98.8,99.0,98.2],"sigmas":[10.6,11.2,11.5,11.6,10.7,11.4,12.3,12.4,12.1,12.5],"small_n":true},{"muni":"08221","name":"Sant Just Desvern","n":9,"ist15":123.4,"ist24":124.2,"d_mean":0.83,"d_sigma":0.97,"sigma15":9.1,"sigma24":10.0,"means":[123.4,122.2,121.5,123.6,122.0,122.9,124.4,123.9,124.4,124.2],"sigmas":[9.1,8.8,8.8,8.4,8.7,7.6,7.0,6.3,11.0,10.0],"small_n":true},{"muni":"08009","name":"Argentona","n":8,"ist15":109.5,"ist24":111.8,"d_mean":2.25,"d_sigma":-1.68,"sigma15":9.9,"sigma24":8.2,"means":[109.5,109.3,110.0,109.9,109.1,109.9,110.1,110.4,111.2,111.8],"sigmas":[9.9,9.2,9.2,9.4,11.0,10.8,10.1,10.1,9.0,8.2],"small_n":true},{"muni":"08040","name":"Canet de Mar","n":8,"ist15":99.8,"ist24":102.2,"d_mean":2.36,"d_sigma":2.8,"sigma15":3.7,"sigma24":6.5,"means":[99.8,100.1,100.3,100.5,101.4,101.2,101.2,102.2,102.3,102.2],"sigmas":[3.7,3.8,3.7,3.7,3.1,4.7,5.8,6.0,6.4,6.5],"small_n":true},{"muni":"08041","name":"Canovelles","n":8,"ist15":76.6,"ist24":77.3,"d_mean":0.66,"d_sigma":0.17,"sigma15":22.5,"sigma24":22.7,"means":[76.6,77.2,76.9,77.0,77.2,77.5,77.8,77.8,77.5,77.3],"sigmas":[22.5,23.0,22.9,23.2,23.4,23.1,22.6,22.8,22.6,22.7],"small_n":true},{"muni":"08046","name":"Cardedeu","n":8,"ist15":110.4,"ist24":112.6,"d_mean":2.27,"d_sigma":0.76,"sigma15":4.2,"sigma24":5.0,"means":[110.4,110.5,111.1,111.2,110.9,111.7,111.7,112.1,112.3,112.6],"sigmas":[4.2,4.3,4.4,4.3,4.5,4.6,4.7,5.1,5.1,5.0],"small_n":true},{"muni":"08086","name":"Franqueses del Vallès, les","n":8,"ist15":100.0,"ist24":99.5,"d_mean":-0.48,"d_sigma":-1.02,"sigma15":18.6,"sigma24":17.5,"means":[100.0,100.7,100.6,100.9,98.9,99.4,99.1,99.4,99.6,99.5],"sigmas":[18.6,18.8,18.4,17.9,17.7,17.9,17.6,17.6,17.2,17.5],"small_n":true},{"muni":"08156","name":"Palau-solità i Plegamans","n":8,"ist15":107.9,"ist24":108.8,"d_mean":0.85,"d_sigma":1.52,"sigma15":5.7,"sigma24":7.2,"means":[107.9,108.2,108.2,108.8,108.8,108.4,108.0,108.5,108.8,108.8],"sigmas":[5.7,6.2,6.2,5.9,6.2,6.2,6.8,6.9,6.9,7.2],"small_n":true}];
 
-const ALWAYS_LABEL = {'08101':"L'H",'08279':'Terrassa','08205':'Sant Cugat','08187':'Sabadell','08015':'Badalona','08298':'Vic'};
+const BCN = [{"name":"Ciutat Vella","n":54,"ist15":89.3,"ist24":90.4,"d_mean":1.09,"d_sigma":-1.58},{"name":"L'Eixample","n":173,"ist15":117.3,"ist24":115.3,"d_mean":-2.05,"d_sigma":-0.46},{"name":"Sants-Montjuïc","n":117,"ist15":102.4,"ist24":102.9,"d_mean":0.51,"d_sigma":-1.61},{"name":"Les Corts","n":57,"ist15":123.5,"ist24":120.6,"d_mean":-2.88,"d_sigma":-0.93},{"name":"Sarrià-Sant Gervasi","n":98,"ist15":131.1,"ist24":128.6,"d_mean":-2.48,"d_sigma":-0.4},{"name":"Gràcia","n":87,"ist15":118.5,"ist24":117.0,"d_mean":-1.52,"d_sigma":-0.21},{"name":"Horta-Guinardó","n":123,"ist15":107.3,"ist24":105.5,"d_mean":-1.72,"d_sigma":0.29},{"name":"Nou Barris","n":117,"ist15":92.9,"ist24":91.8,"d_mean":-1.12,"d_sigma":-0.62},{"name":"Sant Andreu","n":95,"ist15":106.7,"ist24":106.0,"d_mean":-0.72,"d_sigma":-0.37},{"name":"Sant Martí","n":147,"ist15":106.3,"ist24":106.1,"d_mean":-0.18,"d_sigma":-0.51}];
+
+const ALWAYS = {'08101':"L'H",'08279':'Terrassa','08205':'Sant Cugat','08187':'Sabadell','08015':'Badalona','08298':'Vic'};
 const YEARS = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
-let showAllLabels = false;
+let showLabels = false;
 
-// SVG dimensions
-const VW = 820, VH = 520;
-const PAD = {l:52, r:24, t:20, b:44};
-const PW = VW - PAD.l - PAD.r, PH = VH - PAD.t - PAD.b;
-
-const allDm = [...DATA.map(d=>d.d_mean), ...BCN_DISTRICTS.map(d=>d.d_mean)];
-const allDs = [...DATA.map(d=>d.d_sigma), ...BCN_DISTRICTS.map(d=>d.d_sigma)];
-const xMin = Math.min(...allDm) - 0.5, xMax = Math.max(...allDm) + 0.5;
-const yMin = Math.min(...allDs) - 0.3, yMax = Math.max(...allDs) + 0.3;
-
-function cx(v){ return PAD.l + (v - xMin)/(xMax - xMin)*PW; }
-function cy(v){ return PAD.t + PH - (v - yMin)/(yMax - yMin)*PH; }
-function dotR(n){ return Math.max(4, Math.min(14, 3 + Math.sqrt(n)*0.7)); }
-
-function qColor(dm, ds, alpha=1){
-  if(ds < 0 && dm >= 0) return `rgba(99,102,241,${alpha})`;
-  if(ds < 0 && dm < 0)  return `rgba(139,92,246,${alpha})`;
-  if(ds > 0 && dm < 0)  return `rgba(239,68,68,${alpha})`;
-  return `rgba(245,158,11,${alpha})`;
+const VW=820,VH=520,PAD={l:52,r:24,t:20,b:44};
+const PW=VW-PAD.l-PAD.r, PH=VH-PAD.t-PAD.b;
+const allDm=[...DATA.map(d=>d.d_mean),...BCN.map(d=>d.d_mean)];
+const allDs=[...DATA.map(d=>d.d_sigma),...BCN.map(d=>d.d_sigma)];
+const xMin=Math.min(...allDm)-0.6, xMax=Math.max(...allDm)+0.6;
+const yMin=Math.min(...allDs)-0.35, yMax=Math.max(...allDs)+0.35;
+function cx(v){return PAD.l+(v-xMin)/(xMax-xMin)*PW;}
+function cy(v){return PAD.t+PH-(v-yMin)/(yMax-yMin)*PH;}
+function dotR(n){return Math.max(4,Math.min(14,3+Math.sqrt(n)*0.7));}
+function qCol(dm,ds,a=1){
+  if(ds<0&&dm>=0) return `rgba(99,102,241,${a})`;
+  if(ds<0&&dm<0)  return `rgba(139,92,246,${a})`;
+  if(ds>0&&dm<0)  return `rgba(239,68,68,${a})`;
+  return `rgba(245,158,11,${a})`;
+}
+function el(tag,attrs,text){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);
+  if(text!==undefined)e.textContent=text;
+  return e;
 }
 
-function svgEl(tag, attrs, text){
-  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v);
-  if(text !== undefined) el.textContent = text;
-  return el;
-}
-
-const x0 = cx(0), y0 = cy(0);
+const x0=cx(0),y0=cy(0);
 
 // Quadrant backgrounds
-const qg = document.getElementById('quadrants');
-[[x0,PAD.t,VW-PAD.r-x0,y0-PAD.t,'rgba(99,102,241,0.04)'],
- [PAD.l,PAD.t,x0-PAD.l,y0-PAD.t,'rgba(139,92,246,0.04)'],
- [PAD.l,y0,x0-PAD.l,VH-PAD.b-y0,'rgba(239,68,68,0.05)'],
- [x0,y0,VW-PAD.r-x0,VH-PAD.b-y0,'rgba(245,158,11,0.04)']
-].forEach(([x,y,w,h,fill])=>{
-  qg.appendChild(svgEl('rect',{x,y,width:w,height:h,fill}));
-});
+const qg=document.getElementById('quadrants');
+[[x0,PAD.t,VW-PAD.r-x0,y0-PAD.t,'rgba(99,102,241,0.04)'],[PAD.l,PAD.t,x0-PAD.l,y0-PAD.t,'rgba(139,92,246,0.04)'],[PAD.l,y0,x0-PAD.l,VH-PAD.b-y0,'rgba(239,68,68,0.05)'],[x0,y0,VW-PAD.r-x0,VH-PAD.b-y0,'rgba(245,158,11,0.04)']].forEach(([x,y,w,h,f])=>qg.appendChild(el('rect',{x,y,width:w,height:h,fill:f})));
+[['RELAXACIÓ',x0+6,PAD.t+12,'left'],['REFREDAMENT',PAD.l+4,PAD.t+12,'left'],['DIFERENCIACIÓ',x0+6,VH-PAD.b-6,'left'],['FORÇAT',PAD.l+4,VH-PAD.b-6,'left']].forEach(([t,x,y,a])=>qg.appendChild(el('text',{x,y,fill:'#374151','font-size':'9','font-family':'Courier New','text-anchor':a},t)));
 
-// Quadrant labels
-[['RELAXACIÓ',x0+6,PAD.t+12,'left'],
- ['REFREDAMENT',PAD.l+4,PAD.t+12,'left'],
- ['DIFERENCIACIÓ',x0+6,VH-PAD.b-6,'left'],
- ['FORÇAT',PAD.l+4,VH-PAD.b-6,'left']
-].forEach(([t,x,y,anchor])=>{
-  qg.appendChild(svgEl('text',{x,y,fill:'#374151','font-size':'9','font-family':'Courier New','text-anchor':anchor},t));
-});
+// Grid + axes
+const gg=document.getElementById('grid');
+[-6,-4,-2,2,4].forEach(v=>{gg.appendChild(el('line',{x1:cx(v),y1:PAD.t,x2:cx(v),y2:VH-PAD.b,stroke:'#1f2937','stroke-width':'1'}));gg.appendChild(el('text',{x:cx(v),y:VH-PAD.b+14,fill:'#6b7280','font-size':'10','font-family':'Courier New','text-anchor':'middle'},(v>0?'+':'')+v));});
+[-2,-1,1,2].forEach(v=>{gg.appendChild(el('line',{x1:PAD.l,y1:cy(v),x2:VW-PAD.r,y2:cy(v),stroke:'#1f2937','stroke-width':'1'}));gg.appendChild(el('text',{x:PAD.l-6,y:cy(v)+3,fill:'#6b7280','font-size':'10','font-family':'Courier New','text-anchor':'end'},(v>0?'+':'')+v));});
+const ag=document.getElementById('axes');
+ag.appendChild(el('line',{x1:x0,y1:PAD.t,x2:x0,y2:VH-PAD.b,stroke:'#374151','stroke-width':'1.5'}));
+ag.appendChild(el('line',{x1:PAD.l,y1:y0,x2:VW-PAD.r,y2:y0,stroke:'#374151','stroke-width':'1.5'}));
+ag.appendChild(el('text',{x:PAD.l+PW/2,y:VH-4,fill:'#4b5563','font-size':'11','font-family':'Georgia','text-anchor':'middle'},'ΔIST mitjà 2015–2024'));
+ag.appendChild(el('text',{x:12,y:PAD.t+PH/2,fill:'#4b5563','font-size':'11','font-family':'Georgia','text-anchor':'middle',transform:`rotate(-90,12,${PAD.t+PH/2})`},'Δσ IST 2015–2024'));
 
-// Grid
-const gg = document.getElementById('grid');
-[-6,-4,-2,2,4].forEach(v=>{
-  gg.appendChild(svgEl('line',{x1:cx(v),y1:PAD.t,x2:cx(v),y2:VH-PAD.b,stroke:'#1f2937','stroke-width':'1'}));
-  gg.appendChild(svgEl('text',{x:cx(v),y:VH-PAD.b+14,fill:'#6b7280','font-size':'10','font-family':'Courier New','text-anchor':'middle'},(v>0?'+':'')+v));
-});
-[-2,-1,1,2].forEach(v=>{
-  gg.appendChild(svgEl('line',{x1:PAD.l,y1:cy(v),x2:VW-PAD.r,y2:cy(v),stroke:'#1f2937','stroke-width':'1'}));
-  gg.appendChild(svgEl('text',{x:PAD.l-6,y:cy(v)+3,fill:'#6b7280','font-size':'10','font-family':'Courier New','text-anchor':'end'},(v>0?'+':'')+v));
-});
+// Dots
+const dg=document.getElementById('dots'),lg=document.getElementById('labels-always'),allg=document.getElementById('labels-all');
+const tooltip=document.getElementById('tooltip');
 
-// Axes
-const ag = document.getElementById('axes');
-ag.appendChild(svgEl('line',{x1:x0,y1:PAD.t,x2:x0,y2:VH-PAD.b,stroke:'#374151','stroke-width':'1.5'}));
-ag.appendChild(svgEl('line',{x1:PAD.l,y1:y0,x2:VW-PAD.r,y2:y0,stroke:'#374151','stroke-width':'1.5'}));
-ag.appendChild(svgEl('text',{x:PAD.l+PW/2,y:VH-4,fill:'#4b5563','font-size':'11','font-family':'Georgia','text-anchor':'middle'},'ΔIST mitjà 2015–2023'));
-const yt = svgEl('text',{x:12,y:PAD.t+PH/2,fill:'#4b5563','font-size':'11','font-family':'Georgia','text-anchor':'middle',transform:`rotate(-90,12,${PAD.t+PH/2})`},'Δσ IST 2015–2023');
-ag.appendChild(yt);
+function showTip(e,d){
+  document.getElementById('tt-name').textContent=d.isBCN?'◆ BCN · '+d.name:d.name;
+  document.getElementById('tt-ist').textContent=`${d.ist15} → ${d.ist24||d.ist23}`;
+  document.getElementById('tt-dmean').textContent=(d.d_mean>0?'+':'')+d.d_mean.toFixed(2);
+  document.getElementById('tt-sigma').textContent=d.sigma15&&d.sigma24?`${d.sigma15} → ${d.sigma24}`:'—';
+  document.getElementById('tt-dsigma').textContent=(d.d_sigma>0?'+':'')+d.d_sigma.toFixed(2);
+  document.getElementById('tt-n').textContent=d.n+(d.isBCN?' (districte BCN)':'');
+  document.getElementById('tt-warn').textContent=d.small_n?'⚠ n<10, resultat feble':'';
+  tooltip.style.opacity=1;
+  tooltip.style.left=(e.clientX+16)+'px';
+  tooltip.style.top=(e.clientY-10)+'px';
+}
 
-// Dots + always-on labels
-const dg = document.getElementById('dots');
-const lg = document.getElementById('labels-always');
-const allg = document.getElementById('labels-all');
-const bcnlg = document.getElementById('bcn-label');
-
-DATA.forEach(d => {
-  const x = cx(d.d_mean), y = cy(d.d_sigma), r = dotR(d.n);
-  const col = qColor(d.d_mean, d.d_sigma, 0.85);
-
-  const circle = svgEl('circle',{
-    cx:x, cy:y, r,
-    fill: d.small_n ? 'none' : col,
-    stroke: d.small_n ? '#6b7280' : 'rgba(255,255,255,0.15)',
-    'stroke-width': d.small_n ? '1.5' : '0.5',
-    opacity:'1', class:'dot'
+DATA.forEach(d=>{
+  const x=cx(d.d_mean),y=cy(d.d_sigma),r=dotR(d.n);
+  const c=el('circle',{cx:x,cy:y,r,fill:d.small_n?'none':qCol(d.d_mean,d.d_sigma,0.85),stroke:d.small_n?'#6b7280':'rgba(255,255,255,0.15)','stroke-width':d.small_n?'1.5':'0.5',style:'cursor:pointer'});
+  c.addEventListener('mouseenter',e=>showTip(e,d));
+  c.addEventListener('mousemove',e=>{tooltip.style.left=(e.clientX+16)+'px';tooltip.style.top=(e.clientY-10)+'px';});
+  c.addEventListener('mouseleave',()=>tooltip.style.opacity=0);
+  c.addEventListener('click',()=>{
+    if(!d.means)return;
+    document.getElementById('spark-panel').classList.add('visible');
+    document.getElementById('spark-title').textContent=d.name;
+    drawSpark('spark-mean',d.means,'#6366f1');
+    drawSpark('spark-sigma',d.sigmas,'#ef4444');
   });
-  circle.dataset.d = JSON.stringify(d);
-  circle.addEventListener('mouseenter', onDotEnter);
-  circle.addEventListener('mousemove', onDotMove);
-  circle.addEventListener('mouseleave', onDotLeave);
-  circle.addEventListener('click', onDotClick);
-  dg.appendChild(circle);
+  dg.appendChild(c);
 
-  // Always-on label
-  if(ALWAYS_LABEL[d.muni]){
-    const anchor = d.d_mean > 0 ? 'start' : 'end';
-    const lx = d.d_mean > 0 ? x + r + 4 : x - r - 4;
-    lg.appendChild(svgEl('text',{x:lx,y:y+4,fill:qColor(d.d_mean,d.d_sigma,1),'font-size':'11','font-family':'Georgia','font-weight':'bold','text-anchor':anchor},ALWAYS_LABEL[d.muni]));
-  }
-
-  // Toggle label
-  if(!ALWAYS_LABEL[d.muni]){
-    const anchor = d.d_mean > 0 ? 'start' : 'end';
-    const lx = d.d_mean > 0 ? x + r + 3 : x - r - 3;
-    const short = d.name.split(',')[0].split(' de ')[0].split(' del ')[0];
-    const lt = svgEl('text',{x:lx,y:y+3,fill:d.small_n?'#6b7280':qColor(d.d_mean,d.d_sigma,0.9),'font-size':'9','font-family':'Courier New','text-anchor':anchor},short);
-    allg.appendChild(lt);
+  if(ALWAYS[d.muni]){
+    const anchor=d.d_mean>0?'start':'end';
+    const lx=d.d_mean>0?x+r+4:x-r-4;
+    lg.appendChild(el('text',{x:lx,y:y+4,fill:qCol(d.d_mean,d.d_sigma,1),'font-size':'11','font-family':'Georgia','font-weight':'bold','text-anchor':anchor},ALWAYS[d.muni]));
+  } else {
+    const anchor=d.d_mean>0?'start':'end';
+    const lx=d.d_mean>0?x+r+3:x-r-3;
+    const short=d.name.split(',')[0].split(' de ')[0].split(' del ')[0];
+    allg.appendChild(el('text',{x:lx,y:y+3,fill:d.small_n?'#6b7280':qCol(d.d_mean,d.d_sigma,0.9),'font-size':'9','font-family':'Courier New','text-anchor':anchor},short));
   }
 });
 
-// BCN Districts — diamonds
-BCN_DISTRICTS.forEach(d => {
-  const x = cx(d.d_mean), y = cy(d.d_sigma), s = 8;
-  const pts = `${x},${y-s} ${x+s},${y} ${x},${y+s} ${x-s},${y}`;
-  const diamond = svgEl('polygon',{
-    points:pts, fill:'rgba(52,211,153,0.12)',
-    stroke:'#34d399','stroke-width':'1.5', class:'dot'
-  });
-  diamond.dataset.d = JSON.stringify({...d, isBCN:true});
-  diamond.addEventListener('mouseenter', onDotEnter);
-  diamond.addEventListener('mousemove', onDotMove);
-  diamond.addEventListener('mouseleave', onDotLeave);
-  dg.appendChild(diamond);
-
-  // Toggle label for BCN districts
-  const lt = svgEl('text',{x:x+10,y:y+3,fill:'#34d399','font-size':'9','font-family':'Courier New','text-anchor':'start'},d.name.split('-')[0].split(' ')[0]);
-  allg.appendChild(lt);
+// BCN districts — diamonds
+BCN.forEach(d=>{
+  const x=cx(d.d_mean),y=cy(d.d_sigma),s=8;
+  const pts=`${x},${y-s} ${x+s},${y} ${x},${y+s} ${x-s},${y}`;
+  const p=el('polygon',{points:pts,fill:'rgba(52,211,153,0.12)',stroke:'#34d399','stroke-width':'1.5',style:'cursor:pointer'});
+  p.addEventListener('mouseenter',e=>showTip(e,{...d,isBCN:true,sigma15:null,sigma24:null}));
+  p.addEventListener('mousemove',e=>{tooltip.style.left=(e.clientX+16)+'px';tooltip.style.top=(e.clientY-10)+'px';});
+  p.addEventListener('mouseleave',()=>tooltip.style.opacity=0);
+  dg.appendChild(p);
+  // Always-on short label for BCN districts (very small)
+  const short=d.name.split('-')[0].split(' ')[0];
+  allg.appendChild(el('text',{x:x+10,y:y+3,fill:'#34d399','font-size':'9','font-family':'Courier New','text-anchor':'start'},short));
 });
 
-// Static BCN cluster label
-bcnlg.appendChild(svgEl('text',{x:cx(-1.4),y:cy(-0.65)+22,fill:'#34d399','font-size':'9','font-family':'Courier New','text-anchor':'middle'},'BCN districtes'));
+// BCN cluster static label
+dg.appendChild(el('text',{x:cx(-1.2),y:cy(-0.7)+20,fill:'#34d399','font-size':'9','font-family':'Courier New','text-anchor':'middle'},'BCN districtes'));
 
-// Tooltip
-const tooltip = document.getElementById('tooltip');
-function onDotEnter(e){
-  const d = JSON.parse(e.target.dataset.d);
-  document.getElementById('tt-name').textContent = d.isBCN ? '◆ BCN · '+d.name : d.name;
-  document.getElementById('tt-ist').textContent = `${d.ist15} → ${d.ist23}`;
-  document.getElementById('tt-dmean').textContent = (d.d_mean>0?'+':'')+d.d_mean.toFixed(2);
-  document.getElementById('tt-sigma').textContent = d.sigma15 && d.sigma23 ? `${d.sigma15} → ${d.sigma23}` : '—';
-  document.getElementById('tt-dsigma').textContent = (d.d_sigma>0?'+':'')+d.d_sigma.toFixed(2);
-  document.getElementById('tt-n').textContent = d.n + (d.isBCN?' (districte BCN)':'');
-  document.getElementById('tt-warn').textContent = d.small_n ? '⚠ n<10 seccions, resultat feble' : '';
-  tooltip.style.opacity = 1;
-}
-function onDotMove(e){ tooltip.style.left=(e.clientX+16)+'px'; tooltip.style.top=(e.clientY-10)+'px'; }
-function onDotLeave(){ tooltip.style.opacity=0; }
-function onDotClick(e){
-  const d = JSON.parse(e.target.dataset.d);
-  if(d.isBCN || !d.means) return;
-  document.getElementById('spark-panel').classList.add('visible');
-  document.getElementById('spark-title').textContent = d.name;
-  drawSparkline('spark-mean', d.means, '#6366f1');
-  drawSparkline('spark-sigma', d.sigmas, '#ef4444');
-}
-
-// Labels toggle
+// Toggle
 function toggleLabels(){
-  showAllLabels = !showAllLabels;
-  document.getElementById('labels-all').setAttribute('visibility', showAllLabels?'visible':'hidden');
-  document.getElementById('toggle-labels').textContent = showAllLabels?'Amaga etiquetes':'Mostra etiquetes';
+  showLabels=!showLabels;
+  document.getElementById('labels-all').setAttribute('visibility',showLabels?'visible':'hidden');
+  document.getElementById('toggle-labels').textContent=showLabels?'Amaga etiquetes':'Mostra etiquetes';
 }
 
 // Pan + zoom
 let vx=0,vy=0,scale=1;
-function applyTransform(){
-  document.getElementById('zoom-g').setAttribute('transform',`translate(${vx},${vy}) scale(${scale})`);
-}
-function zoom(factor){
-  scale *= factor;
-  vx = VW/2 - factor*(VW/2 - vx);
-  vy = VH/2 - factor*(VH/2 - vy);
-  applyTransform();
-}
-function resetView(){ vx=0; vy=0; scale=1; applyTransform(); }
-
-// Pan drag
-let dragging=false, lastX, lastY;
-const wrap = document.getElementById('chart-wrap');
-wrap.addEventListener('mousedown', e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; });
-window.addEventListener('mousemove', e=>{
-  if(!dragging) return;
-  vx += e.clientX - lastX; vy += e.clientY - lastY;
-  lastX=e.clientX; lastY=e.clientY;
-  applyTransform();
-});
-window.addEventListener('mouseup', ()=>{ dragging=false; });
-
-// Wheel zoom
-wrap.addEventListener('wheel', e=>{
+function applyT(){document.getElementById('zoom-g').setAttribute('transform',`translate(${vx},${vy}) scale(${scale})`);}
+function doZoom(f,mx=VW/2,my=VH/2){vx=mx-f*(mx-vx);vy=my-f*(my-vy);scale*=f;applyT();}
+function resetView(){vx=0;vy=0;scale=1;applyT();}
+let drag=false,lx,ly;
+const wrap=document.getElementById('chart-wrap');
+wrap.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+window.addEventListener('mousemove',e=>{if(!drag)return;vx+=e.clientX-lx;vy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;applyT();});
+window.addEventListener('mouseup',()=>drag=false);
+wrap.addEventListener('wheel',e=>{
   e.preventDefault();
-  const rect = wrap.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (VW/rect.width);
-  const my = (e.clientY - rect.top) * (VH/rect.height);
-  const factor = e.deltaY < 0 ? 1.15 : 1/1.15;
-  vx = mx - factor*(mx - vx);
-  vy = my - factor*(my - vy);
-  scale *= factor;
-  applyTransform();
-}, {passive:false});
-
-// Touch zoom/pan
-let lastTouchDist = null;
-wrap.addEventListener('touchstart', e=>{ if(e.touches.length===2){ lastTouchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY); } else { lastX=e.touches[0].clientX; lastY=e.touches[0].clientY; } });
-wrap.addEventListener('touchmove', e=>{
-  e.preventDefault();
-  if(e.touches.length===2){
-    const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    if(lastTouchDist){ zoom(dist/lastTouchDist); } lastTouchDist=dist;
-  } else {
-    vx+=e.touches[0].clientX-lastX; vy+=e.touches[0].clientY-lastY;
-    lastX=e.touches[0].clientX; lastY=e.touches[0].clientY;
-    applyTransform();
-  }
+  const r=wrap.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(VW/r.width),my=(e.clientY-r.top)*(VH/r.height);
+  doZoom(e.deltaY<0?1.15:1/1.15,mx,my);
 },{passive:false});
-wrap.addEventListener('touchend',()=>{ lastTouchDist=null; });
+let ltd=null;
+wrap.addEventListener('touchstart',e=>{if(e.touches.length===2)ltd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);else{lx=e.touches[0].clientX;ly=e.touches[0].clientY;}});
+wrap.addEventListener('touchmove',e=>{e.preventDefault();if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(ltd)doZoom(d/ltd);ltd=d;}else{vx+=e.touches[0].clientX-lx;vy+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;applyT();}},{passive:false});
+wrap.addEventListener('touchend',()=>ltd=null);
 
 // Sparklines
-function drawSparkline(id, values, color){
-  const c = document.getElementById(id);
-  const dpr = window.devicePixelRatio||1;
-  const rect = c.getBoundingClientRect();
-  const W=rect.width||240, H=60;
-  c.width=W*dpr; c.height=H*dpr; c.style.height=H+'px';
-  const ctx=c.getContext('2d'); ctx.scale(dpr,dpr);
+function drawSpark(id,values,color){
+  const c=document.getElementById(id);
+  const dpr=window.devicePixelRatio||1;
+  const W=c.getBoundingClientRect().width||240,H=60;
+  c.width=W*dpr;c.height=H*dpr;c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
   const valid=values.filter(v=>v!==null);
-  const mn=Math.min(...valid), mx=Math.max(...valid);
-  const pad={l:8,r:8,t:8,b:20};
-  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
-  function spx(i){ return pad.l+i/(values.length-1)*pw; }
-  function spy(v){ return pad.t+ph-(v-mn)/(mx-mn||1)*ph; }
-  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round';
-  ctx.beginPath();
-  values.forEach((v,i)=>{ if(v===null) return; i===0?ctx.moveTo(spx(i),spy(v)):ctx.lineTo(spx(i),spy(v)); });
-  ctx.stroke();
-  ctx.fillStyle=color.replace('rgb(','rgba(').replace(')',',0.1)');
-  ctx.lineTo(spx(values.length-1),H-pad.b); ctx.lineTo(spx(0),H-pad.b); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#4b5563'; ctx.font='9px "Courier New"'; ctx.textAlign='center';
-  [0,4,9].forEach(i=>{ ctx.fillText(YEARS[i],spx(i),H-4); });
-  ctx.fillStyle=color; ctx.font='bold 9px "Courier New"';
-  ctx.textAlign='left'; ctx.fillText(valid[0].toFixed(1),pad.l,pad.t+8);
-  ctx.textAlign='right'; ctx.fillText(valid[valid.length-1].toFixed(1),W-pad.r,pad.t+8);
+  const mn=Math.min(...valid),mx=Math.max(...valid);
+  const p={l:8,r:8,t:8,b:20},pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const sx=i=>p.l+i/(values.length-1)*pw;
+  const sy=v=>p.t+ph-(v-mn)/(mx-mn||1)*ph;
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.beginPath();values.forEach((v,i)=>{if(v===null)return;i===0?ctx.moveTo(sx(i),sy(v)):ctx.lineTo(sx(i),sy(v));});ctx.stroke();
+  ctx.fillStyle=color.includes('rgb')?color.replace(')',',0.1)').replace('rgb','rgba'):'rgba(99,102,241,0.1)';
+  ctx.lineTo(sx(values.length-1),H-p.b);ctx.lineTo(sx(0),H-p.b);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#4b5563';ctx.font='9px "Courier New"';ctx.textAlign='center';
+  [0,4,9].forEach(i=>ctx.fillText(YEARS[i],sx(i),H-4));
+  ctx.fillStyle=color;ctx.font='bold 9px "Courier New"';
+  ctx.textAlign='left';ctx.fillText(valid[0].toFixed(1),p.l,p.t+8);
+  ctx.textAlign='right';ctx.fillText(valid[valid.length-1].toFixed(1),W-p.r,p.t+8);
 }
 </script>
 </body>
