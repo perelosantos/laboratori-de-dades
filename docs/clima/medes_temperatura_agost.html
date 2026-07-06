@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les Medes · Temperatura mar agost 2000–2024</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#fff;color:#0b0b0b;}
+  .legend{display:flex;gap:14px;font-size:12px;color:#52514e;margin-bottom:8px;flex-wrap:wrap;}
+  .legend span{display:flex;align-items:center;gap:4px;}
+  .sw{width:10px;height:3px;border-radius:1px;display:inline-block;}
+  .meta{font-size:12px;color:#898781;margin-top:.5rem;}
+  h2{font-size:15px;font-weight:500;margin:0 0 .75rem;}
+</style>
+</head>
+<body>
+<h2>Temperatura del mar · Agost · Les Medes · 2000–2024</h2>
+<div class="legend">
+  <span><span class="sw" style="background:#e34948"></span>0m (superfície)</span>
+  <span><span class="sw" style="background:#f4a261"></span>-20m</span>
+  <span><span class="sw" style="background:#2a78d6"></span>-50m</span>
+  <span><span class="sw" style="background:#264653"></span>-80m</span>
+</div>
+<div style="position:relative;width:100%;height:320px;">
+  <canvas id="chart"></canvas>
+</div>
+<p class="meta" id="stats"></p>
+<script>
+const years=[2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+const d0  =[21.9,23.2,21.0,24.7,23.0,22.3,24.0,22.2,23.0,23.4,23.0,22.2,23.9,22.9,22.3,23.0,22.5,23.6,24.2,23.6,24.2,23.3,25.2,24.8,25.1];
+const d20 =[20.8,20.7,19.8,20.3,21.2,20.7,21.9,21.2,20.9,22.0,19.7,20.3,21.6,21.1,20.6,21.2,20.7,21.1,21.8,22.0,21.9,20.4,21.0,22.0,22.7];
+const d50 =[16.1,16.7,14.8,14.6,15.8,16.5,16.5,17.4,15.4,15.3,15.3,15.9,15.1,15.1,15.6,14.3,15.4,15.5,15.5,15.3,14.7,14.6,15.6,16.4,15.3];
+const d80 =[13.6,14.0,13.8,13.7,13.6,13.4,13.2,13.8,13.8,13.8,13.5,13.7,13.7,13.6,14.0,13.8,14.0,14.0,14.1,13.9,14.0,13.8,13.8,14.1,14.6];
+function lr(ys){const n=years.length,mx=years.reduce((a,b)=>a+b,0)/n,my=ys.reduce((a,b)=>a+b,0)/n;return years.reduce((a,x,i)=>a+(x-mx)*(ys[i]-my),0)/years.reduce((a,x)=>a+(x-mx)**2,0);}
+const s0=lr(d0),s20=lr(d20),s50=lr(d50),s80=lr(d80);
+document.getElementById('stats').textContent='Increment agost 2000–2024 (°C): 0m: +'+(s0*24).toFixed(2)+'  |  -20m: +'+(s20*24).toFixed(2)+'  |  -50m: '+(s50*24).toFixed(2)+'  |  -80m: +'+(s80*24).toFixed(2)+'   Font: Idescat / Estació de l\'Estartit';
+new Chart(document.getElementById('chart'),{type:'line',data:{labels:years,datasets:[
+  {label:'0m',data:d0,borderColor:'#e34948',borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:0.2,fill:false},
+  {label:'-20m',data:d20,borderColor:'#f4a261',borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:0.2,fill:false},
+  {label:'-50m',data:d50,borderColor:'#2a78d6',borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:0.2,fill:false},
+  {label:'-80m',data:d80,borderColor:'#264653',borderWidth:2,pointRadius:3,pointHoverRadius:5,tension:0.2,fill:false}
+]},options:{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+' °C'}}},
+  scales:{
+    x:{ticks:{color:'#898781',maxRotation:45},grid:{color:'rgba(180,178,169,0.2)'}},
+    y:{ticks:{color:'#898781',callback:v=>v+'°'},grid:{color:'rgba(180,178,169,0.2)'},title:{display:true,text:'°C',color:'#898781',font:{size:11}}}
+  }}});
+</script>
+</body>
+</html>
