@@ -23,4 +23,20 @@
     "seccions": 52,
     "any_dades": 2024
   }
+{
+  "nom": "Badalona",
+  "codi": "08015",
+  "file": "badalona_v9.json",
+  "geojson": "badalona.geojson",
+  "seccions": 147,
+  "any_dades": 2024
+},
+{
+  "nom": "Hospitalet de Llobregat",
+  "codi": "08101",
+  "file": "hospitalet_v9.json",
+  "geojson": "hospitalet.geojson",
+  "seccions": 195,
+  "any_dades": 2024
+}
 ]
