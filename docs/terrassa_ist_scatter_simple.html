@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IST 2015 vs 2024 · Terrassa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0e1117; color: #e8e6e0; font-family: 'Georgia', serif; padding: 32px 24px 48px; }
+  header { max-width: 860px; margin: 0 auto 24px; }
+  .eyebrow { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.15em; color: #6b7280; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: clamp(18px, 3vw, 26px); font-weight: normal; color: #f0ede6; margin-bottom: 8px; }
+  h1 em { font-style: italic; color: #a78bfa; }
+  .subtitle { font-size: 13px; color: #9ca3af; line-height: 1.6; max-width: 580px; }
+  .chart-wrap { max-width: 860px; margin: 0 auto; border: 1px solid #1f2937; border-radius: 4px; overflow: hidden; }
+  canvas { display: block; width: 100%; cursor: crosshair; }
+  .legend-wrap { max-width: 860px; margin: 14px auto 0; display: flex; align-items: center; gap: 10px; font-size: 11px; font-family: 'Courier New', monospace; color: #6b7280; }
+  .grad-bar { width: 160px; height: 10px; border-radius: 2px; background: linear-gradient(to right, #ef4444, #a78bfa, #3b82f6); flex-shrink: 0; }
+  .note { max-width: 860px; margin: 20px auto 0; font-size: 11px; color: #6b7280; font-family: 'Courier New', monospace; line-height: 1.6; border-top: 1px solid #1f2937; padding-top: 12px; }
+  .note a { color: #7c3aed; text-decoration: none; }
+  #tooltip { position: fixed; background: #1c1f26; border: 1px solid #374151; border-radius: 5px; padding: 8px 12px; font-size: 11px; pointer-events: none; opacity: 0; transition: opacity 0.1s; z-index: 100; font-family: 'Courier New', monospace; color: #9ca3af; line-height: 1.8; }
+  #tooltip .tt-title { color: #f0ede6; font-weight: bold; }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Laboratori de Dades · perelosantos.com</div>
+  <h1>IST 2015 vs IST 2024<br><em>141 seccions censals</em> · Terrassa</h1>
+  <p class="subtitle">Cada punt és una secció censal. La diagonal representa immobilitat perfecta: per sobre, l'IST ha crescut; per sota, ha caigut. Color: nivell d'IST el 2024 (vermell = baix, blau = alt).</p>
+</header>
+
+<div class="chart-wrap">
+  <canvas id="c"></canvas>
+</div>
+
+<div class="legend-wrap">
+  <span>IST baix</span>
+  <div class="grad-bar"></div>
+  <span>IST alt</span>
+</div>
+
+<div class="note">
+  Font: Idescat, IST per secció censal 2015 i 2024. Terrassa: 141 seccions censals.
+  <a href="https://perelosantos.github.io/laboratori-de-dades/data-sources.html" target="_blank">Dades obertes →</a>
+</div>
+
+<div id="tooltip">
+  <div class="tt-title" id="tt-cusec"></div>
+  <div>IST 2015: <span id="tt-x" style="color:#e8e6e0"></span></div>
+  <div>IST 2024: <span id="tt-y" style="color:#e8e6e0"></span></div>
+  <div>Δ: <span id="tt-d" style="color:#e8e6e0"></span></div>
+  <div>Tendència: <span id="tt-sl" style="color:#e8e6e0"></span> pts/any</div>
+</div>
+
+<script>
+const SECTIONS = [{"x": 130.7, "y": 125.1, "c": "0827901001", "sl": -0.69}, {"x": 116.3, "y": 117.1, "c": "0827901002", "sl": -0.005}, {"x": 122.5, "y": 121.8, "c": "0827901004", "sl": -0.232}, {"x": 121.5, "y": 120.3, "c": "0827901005", "sl": -0.136}, {"x": 123.9, "y": 123, "c": "0827901006", "sl": -0.11}, {"x": 117.9, "y": 118.9, "c": "0827901007", "sl": 0.122}, {"x": 124.8, "y": 117.3, "c": "0827901008", "sl": -0.943}, {"x": 120.2, "y": 119.4, "c": "0827901009", "sl": -0.032}, {"x": 122.5, "y": 120.2, "c": "0827901010", "sl": -0.3}, {"x": 99, "y": 101.9, "c": "0827901011", "sl": 0.327}, {"x": 104.2, "y": 102, "c": "0827901012", "sl": -0.166}, {"x": 88.6, "y": 87.6, "c": "0827901013", "sl": -0.176}, {"x": 91.9, "y": 90.7, "c": "0827901014", "sl": -0.166}, {"x": 97.3, "y": 98, "c": "0827901015", "sl": 0.178}, {"x": 113, "y": 109.5, "c": "0827901016", "sl": -0.458}, {"x": 114.3, "y": 112.7, "c": "0827901017", "sl": -0.179}, {"x": 113.8, "y": 115.7, "c": "0827901018", "sl": 0.273}, {"x": 104.2, "y": 100.6, "c": "0827901019", "sl": -0.512}, {"x": 121.5, "y": 119.2, "c": "0827901020", "sl": -0.122}, {"x": 103.4, "y": 105, "c": "0827901021", "sl": 0.175}, {"x": 118, "y": 114.6, "c": "0827901022", "sl": -0.321}, {"x": 127, "y": 122.4, "c": "0827901023", "sl": -0.454}, {"x": 125.6, "y": 122.6, "c": "0827901024", "sl": -0.331}, {"x": 116.2, "y": 116.6, "c": "0827901025", "sl": 0.4}, {"x": 73.7, "y": 64.9, "c": "0827902001", "sl": -0.969}, {"x": 46, "y": 47.2, "c": "0827902003", "sl": 0.212}, {"x": 47.3, "y": 48.4, "c": "0827902004", "sl": 0.039}, {"x": 68.4, "y": 66.2, "c": "0827902005", "sl": -0.129}, {"x": 76.8, "y": 78.4, "c": "0827902006", "sl": 0.007}, {"x": 68.6, "y": 81.2, "c": "0827902008", "sl": 1.345}, {"x": 71.6, "y": 74, "c": "0827902009", "sl": 0.392}, {"x": 80.6, "y": 84.4, "c": "0827902011", "sl": 0.348}, {"x": 42.2, "y": 51, "c": "0827902012", "sl": 1.021}, {"x": 105.9, "y": 104, "c": "0827902014", "sl": -0.188}, {"x": 51.8, "y": 57.6, "c": "0827902015", "sl": 0.658}, {"x": 110.4, "y": 110.8, "c": "0827902016", "sl": -0.001}, {"x": 92.2, "y": 85.2, "c": "0827902017", "sl": -0.812}, {"x": 98.4, "y": 102.3, "c": "0827903001", "sl": 0.331}, {"x": 99.3, "y": 97, "c": "0827903002", "sl": -0.394}, {"x": 85.2, "y": 89.4, "c": "0827903003", "sl": 0.442}, {"x": 92, "y": 87, "c": "0827903004", "sl": -0.58}, {"x": 106.9, "y": 105.7, "c": "0827903005", "sl": -0.342}, {"x": 115.7, "y": 116.1, "c": "0827903006", "sl": -0.035}, {"x": 114.5, "y": 108.5, "c": "0827903007", "sl": -0.832}, {"x": 84, "y": 92.2, "c": "0827903008", "sl": 0.918}, {"x": 73.2, "y": 75, "c": "0827903014", "sl": 0.402}, {"x": 92, "y": 94.2, "c": "0827903015", "sl": 0.272}, {"x": 54.1, "y": 52, "c": "0827903016", "sl": -0.275}, {"x": 75.1, "y": 76.9, "c": "0827903017", "sl": 0.05}, {"x": 90.4, "y": 94.3, "c": "0827903018", "sl": 0.476}, {"x": 69.2, "y": 68.7, "c": "0827903019", "sl": -0.162}, {"x": 93.8, "y": 92.5, "c": "0827903020", "sl": -0.202}, {"x": 115.3, "y": 116.2, "c": "0827904001", "sl": 0.037}, {"x": 109.1, "y": 106, "c": "0827904002", "sl": -0.518}, {"x": 106.6, "y": 109.5, "c": "0827904003", "sl": 0.15}, {"x": 102.7, "y": 104.1, "c": "0827904004", "sl": 0.11}, {"x": 101.2, "y": 101.7, "c": "0827904005", "sl": 0.095}, {"x": 95.5, "y": 94.5, "c": "0827904006", "sl": -0.235}, {"x": 95.5, "y": 94.9, "c": "0827904007", "sl": -0.073}, {"x": 101, "y": 99.7, "c": "0827904008", "sl": -0.175}, {"x": 84, "y": 84.9, "c": "0827904009", "sl": 0.211}, {"x": 58.4, "y": 61.5, "c": "0827904010", "sl": 0.289}, {"x": 103.3, "y": 103.3, "c": "0827904012", "sl": -0.004}, {"x": 112.1, "y": 112, "c": "0827904013", "sl": -0.08}, {"x": 119.4, "y": 113.8, "c": "0827904014", "sl": -0.579}, {"x": 112.4, "y": 108.7, "c": "0827904015", "sl": -0.263}, {"x": 114.9, "y": 112.2, "c": "0827904016", "sl": -0.527}, {"x": 117.8, "y": 115.4, "c": "0827904017", "sl": -0.463}, {"x": 105.3, "y": 103.6, "c": "0827904018", "sl": -0.321}, {"x": 95.6, "y": 100.1, "c": "0827904019", "sl": 0.379}, {"x": 65.6, "y": 70.4, "c": "0827904020", "sl": 0.496}, {"x": 79.7, "y": 83.2, "c": "0827904021", "sl": 0.5}, {"x": 107.5, "y": 109.2, "c": "0827904022", "sl": 0.117}, {"x": 107.1, "y": 109.4, "c": "0827904023", "sl": 0.193}, {"x": 103.8, "y": 111.4, "c": "0827904024", "sl": 0.89}, {"x": 95.6, "y": 97.2, "c": "0827904025", "sl": 0.307}, {"x": 113.5, "y": 109.9, "c": "0827904026", "sl": -0.416}, {"x": 109.9, "y": 112.1, "c": "0827905001", "sl": 0.239}, {"x": 83, "y": 95.2, "c": "0827905002", "sl": 1.437}, {"x": 102.2, "y": 100.3, "c": "0827905003", "sl": -0.164}, {"x": 106.9, "y": 107.6, "c": "0827905004", "sl": 0.031}, {"x": 103.8, "y": 106.3, "c": "0827905005", "sl": 0.667}, {"x": 109.1, "y": 109.7, "c": "0827905006", "sl": 0.027}, {"x": 114.8, "y": 108.1, "c": "0827905007", "sl": -0.832}, {"x": 106.8, "y": 106.9, "c": "0827905008", "sl": -0.102}, {"x": 110.2, "y": 110.6, "c": "0827905009", "sl": -0.047}, {"x": 80.6, "y": 81.7, "c": "0827905010", "sl": 0.156}, {"x": 105.2, "y": 104.1, "c": "0827905011", "sl": -0.243}, {"x": 96.2, "y": 98.2, "c": "0827905012", "sl": 0.325}, {"x": 94.3, "y": 104.5, "c": "0827905013", "sl": 1.392}, {"x": 94.9, "y": 93.6, "c": "0827905014", "sl": -0.125}, {"x": 86.8, "y": 97.8, "c": "0827905015", "sl": 1.024}, {"x": 96.8, "y": 103.7, "c": "0827905016", "sl": 0.791}, {"x": 113.9, "y": 116, "c": "0827905017", "sl": 0.113}, {"x": 92.6, "y": 98.1, "c": "0827905018", "sl": 0.617}, {"x": 114.7, "y": 114.4, "c": "0827905019", "sl": -0.25}, {"x": 108.6, "y": 110.8, "c": "0827905020", "sl": 0.139}, {"x": 98.1, "y": 107.6, "c": "0827905021", "sl": 1.145}, {"x": 95.8, "y": 105, "c": "0827905022", "sl": 1.053}, {"x": 114.2, "y": 116, "c": "0827905023", "sl": 0.327}, {"x": 111.4, "y": 112.4, "c": "0827905024", "sl": 0.036}, {"x": 107.8, "y": 112.9, "c": "0827905025", "sl": 0.758}, {"x": 110.1, "y": 111, "c": "0827905026", "sl": -0.021}, {"x": 112, "y": 112, "c": "0827905027", "sl": -0.208}, {"x": 110.2, "y": 114.5, "c": "0827905028", "sl": 0.428}, {"x": 113.2, "y": 114.8, "c": "0827905029", "sl": 0.117}, {"x": 88.6, "y": 90.7, "c": "0827905030", "sl": 2.1}, {"x": 93.2, "y": 92.5, "c": "0827905031", "sl": -0.7}, {"x": 97.2, "y": 96.6, "c": "0827905032", "sl": -0.6}, {"x": 83.8, "y": 90.4, "c": "0827906001", "sl": 0.595}, {"x": 81.6, "y": 89.2, "c": "0827906002", "sl": 0.867}, {"x": 79.1, "y": 82, "c": "0827906003", "sl": 0.221}, {"x": 71, "y": 71.8, "c": "0827906004", "sl": -0.101}, {"x": 90.1, "y": 91.7, "c": "0827906005", "sl": 0.195}, {"x": 101.4, "y": 107.2, "c": "0827906006", "sl": 0.838}, {"x": 101.5, "y": 98.9, "c": "0827906008", "sl": -0.176}, {"x": 90.7, "y": 92.6, "c": "0827906009", "sl": 0.148}, {"x": 98.4, "y": 101, "c": "0827906010", "sl": 0.408}, {"x": 78.2, "y": 80.5, "c": "0827906011", "sl": 0.339}, {"x": 88, "y": 86.5, "c": "0827906012", "sl": -0.25}, {"x": 80.4, "y": 85.9, "c": "0827906013", "sl": 0.556}, {"x": 64.8, "y": 71.5, "c": "0827906014", "sl": 0.769}, {"x": 72.9, "y": 79.8, "c": "0827906016", "sl": 0.706}, {"x": 71.6, "y": 73.9, "c": "0827906018", "sl": -0.018}, {"x": 60.6, "y": 62.2, "c": "0827906020", "sl": 0.15}, {"x": 87.9, "y": 89, "c": "0827906023", "sl": 0.178}, {"x": 90.6, "y": 91.1, "c": "0827906024", "sl": 0.172}, {"x": 84.7, "y": 88.6, "c": "0827906025", "sl": 0.582}, {"x": 87.4, "y": 92.2, "c": "0827906026", "sl": 0.521}, {"x": 79.8, "y": 84.2, "c": "0827906027", "sl": 0.479}, {"x": 97.7, "y": 104.9, "c": "0827906028", "sl": 0.822}, {"x": 98.8, "y": 100.8, "c": "0827906029", "sl": 0.425}, {"x": 107.2, "y": 106.5, "c": "0827906030", "sl": -0.235}, {"x": 76, "y": 84.6, "c": "0827906031", "sl": 1.004}, {"x": 110.0, "y": 113.2, "c": "0827906032", "sl": 0.223}, {"x": 120.4, "y": 120.2, "c": "0827906033", "sl": -0.152}, {"x": 112.9, "y": 109.1, "c": "0827907001", "sl": -0.963}, {"x": 86.4, "y": 88.4, "c": "0827907002", "sl": 0.266}, {"x": 76, "y": 76.8, "c": "0827907003", "sl": 0.074}, {"x": 98.9, "y": 101.2, "c": "0827907004", "sl": 0.391}, {"x": 116.4, "y": 115.9, "c": "0827907005", "sl": -0.5}];
+
+function istColor(ist) {
+  const t = Math.max(0, Math.min(1, (ist - 40) / 100));
+  if (t < 0.5) {
+    const s = t * 2;
+    return [Math.round(239+(167-239)*s), Math.round(68+(139-68)*s), Math.round(68+(250-68)*s)];
+  } else {
+    const s = (t-0.5)*2;
+    return [Math.round(167+(59-167)*s), Math.round(139+(130-139)*s), Math.round(250+(246-250)*s)];
+  }
+}
+
+const canvas = document.getElementById('c');
+const tooltip = document.getElementById('tooltip');
+let W, H, PAD, meta;
+
+function draw() {
+  const dpr = window.devicePixelRatio || 1;
+  W = canvas.getBoundingClientRect().width || 820;
+  H = W * 0.72;
+  canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  PAD = {l:52,r:20,t:20,b:48};
+  const pw = W-PAD.l-PAD.r, ph = H-PAD.t-PAD.b;
+  const IST_MIN=35, IST_MAX=140;
+  function cx(v){return PAD.l+(v-IST_MIN)/(IST_MAX-IST_MIN)*pw;}
+  function cy(v){return PAD.t+ph-(v-IST_MIN)/(IST_MAX-IST_MIN)*ph;}
+  meta = {cx,cy,pw,ph,IST_MIN,IST_MAX};
+
+  ctx.fillStyle='#0e1117'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='#1f2937'; ctx.lineWidth=1;
+  [50,60,70,80,90,100,110,120,130].forEach(v=>{
+    ctx.beginPath(); ctx.moveTo(cx(v),PAD.t); ctx.lineTo(cx(v),H-PAD.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD.l,cy(v)); ctx.lineTo(W-PAD.r,cy(v)); ctx.stroke();
+  });
+
+  // Diagonal — more visible
+  ctx.strokeStyle='#6b7280'; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(cx(IST_MIN),cy(IST_MIN)); ctx.lineTo(cx(IST_MAX),cy(IST_MAX)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#6b7280'; ctx.font='10px "Courier New"'; ctx.textAlign='left';
+  ctx.fillText('immobilitat', cx(110)+5, cy(110)-5);
+
+  // OLS convergence line
+  // ΔIST = -0.0914 * IST2015 + 10.06 → IST2024 = IST2015 + (-0.0914*IST2015 + 10.06) = 0.9086*IST2015 + 10.06
+  ctx.strokeStyle='rgba(167,139,250,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+  ctx.beginPath();
+  ctx.moveTo(cx(40), cy(0.9086*40+10.06));
+  ctx.lineTo(cx(135), cy(0.9086*135+10.06));
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(167,139,250,0.7)'; ctx.font='9px "Courier New"'; ctx.textAlign='right';
+  ctx.fillText('tendència real', cx(133), cy(0.9086*133+10.06)-5);
+
+  // Dots — larger for Terrassa (only 141)
+  SECTIONS.forEach(d=>{
+    const [R,G,B] = istColor(d.y);
+    ctx.beginPath(); ctx.arc(cx(d.x),cy(d.y),5,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${R},${G},${B},0.75)`; ctx.fill();
+    ctx.strokeStyle=`rgba(${R},${G},${B},0.3)`; ctx.lineWidth=0.5; ctx.stroke();
+  });
+
+  // Axes — more visible
+  ctx.strokeStyle='#6b7280'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t); ctx.lineTo(PAD.l,H-PAD.b); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD.l,H-PAD.b); ctx.lineTo(W-PAD.r,H-PAD.b); ctx.stroke();
+
+  // Tick labels
+  ctx.fillStyle='#9ca3af'; ctx.font='11px "Courier New"'; ctx.textAlign='center';
+  [60,80,100,120,135].forEach(v=>ctx.fillText(v,cx(v),H-PAD.b+16));
+  ctx.textAlign='right';
+  [60,80,100,120,135].forEach(v=>ctx.fillText(v,PAD.l-8,cy(v)+4));
+
+  // Axis labels — more visible
+  ctx.fillStyle='#9ca3af'; ctx.font='12px Georgia'; ctx.textAlign='center';
+  ctx.fillText('IST 2015',PAD.l+pw/2,H-6);
+  ctx.save(); ctx.translate(14,PAD.t+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('IST 2024',0,0); ctx.restore();
+}
+
+canvas.addEventListener('mousemove', e=>{
+  const rect=canvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  if(!meta) return;
+  const {pw,ph,IST_MIN,IST_MAX}=meta;
+  let best=null, bestD=15;
+  SECTIONS.forEach(d=>{
+    const px=PAD.l+(d.x-IST_MIN)/(IST_MAX-IST_MIN)*pw;
+    const py=PAD.t+ph-(d.y-IST_MIN)/(IST_MAX-IST_MIN)*ph;
+    const dist=Math.hypot(mx-px,my-py);
+    if(dist<bestD){bestD=dist;best=d;}
+  });
+  if(best){
+    document.getElementById('tt-cusec').textContent=best.c;
+    document.getElementById('tt-x').textContent=best.x;
+    document.getElementById('tt-y').textContent=best.y;
+    const d=best.y-best.x;
+    document.getElementById('tt-d').textContent=(d>0?'+':'')+d.toFixed(1);
+    document.getElementById('tt-sl').textContent=(best.sl>0?'+':'')+best.sl;
+    tooltip.style.opacity=1;
+    tooltip.style.left=(e.clientX+14)+'px';
+    tooltip.style.top=(e.clientY-10)+'px';
+  } else { tooltip.style.opacity=0; }
+});
+canvas.addEventListener('mouseleave',()=>tooltip.style.opacity=0);
+
+draw();
+window.addEventListener('resize',draw);
+</script>
+</body>
+</html>
