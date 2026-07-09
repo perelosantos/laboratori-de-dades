@@ -2,6 +2,7 @@
   {
     "nom": "Terrassa",
     "codi": "08279",
+    "tipus": "municipi",
     "file": "terrassa_v9.json",
     "geojson": "terrassa.geojson",
     "seccions": 141,
@@ -10,6 +11,7 @@
   {
     "nom": "Sabadell",
     "codi": "08187",
+    "tipus": "municipi",
     "file": "sabadell_v1.json",
     "geojson": "sabadell.geojson",
     "seccions": 158,
@@ -18,6 +20,7 @@
   {
     "nom": "Sant Cugat del Vallès",
     "codi": "08205",
+    "tipus": "municipi",
     "file": "sant_cugat_v1.json",
     "geojson": "sant_cugat.geojson",
     "seccions": 52,
@@ -26,6 +29,7 @@
   {
     "nom": "Badalona",
     "codi": "08015",
+    "tipus": "municipi",
     "file": "badalona_v1.json",
     "geojson": "badalona.geojson",
     "seccions": 147,
@@ -34,9 +38,19 @@
   {
     "nom": "Hospitalet de Llobregat",
     "codi": "08101",
+    "tipus": "municipi",
     "file": "hospitalet_de_llobregat_v1.json",
     "geojson": "hospitalet.geojson",
     "seccions": 195,
     "any_dades": 2024
+  },
+  {
+    "nom": "Municipis província Barcelona — agrupacions",
+    "codi": null,
+    "tipus": "referencia",
+    "file": "municipis_prov_bcn_agrupacions.csv",
+    "geojson": null,
+    "seccions": null,
+    "any_dades": 2026
   }
 ]
