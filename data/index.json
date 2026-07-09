@@ -44,13 +44,4 @@
     "seccions": 195,
     "any_dades": 2024
   },
-  {
-    "nom": "Municipis província Barcelona — agrupacions",
-    "codi": null,
-    "tipus": "referencia",
-    "file": "municipis_prov_bcn_agrupacions.csv",
-    "geojson": null,
-    "seccions": null,
-    "any_dades": 2026
-  }
 ]
