@@ -89,7 +89,8 @@
    <tr>
       <td><code>municipis_prov_bcn_agrupacions.csv</code></td>
       <td>Derivat (shapefile INE 2026)</td>
-      <td>311 municipis de la província de Barcelona amb codi CUMUN verificat i flags d'agrupació: AMB (36), Corredor Besòs–Llobregat (9), Edu 66 &gt;10k hab (66), B30 (23), FSM Vallès (11). Referència per a qualsevol filtre per agrupació territorial.</td>
+      <td>311 municipis província BCN</td>
+      <td>CUMUN verificat contra shapefile + flags d'agrupació: AMB (36), Corredor Besòs–Llobregat (9), Edu 66 &gt;10k hab (66), B30 (23), FSM Vallès (11). Referència per a qualsevol filtre territorial. <strong>Font de veritat</strong> per a codis CUMUN — no usar llistes d'altres fonts sense validar.</td>
    </tr> 
    <tr>
       <td><code>demografic_bcn_seccions.csv</code></td>
@@ -187,9 +188,9 @@
   </thead>
   <tbody>
     <tr>
-      <td>Cartografia censal</td>
+      <td>Cartografia censal<br><code>SECC_ProvBCN_20260101.*</code></td>
       <td>INE — <em>Cartografía censal</em>, província BCN</td>
-      <td>Shapefile, EPSG:25830 (UTM fus 30N). 3.656 seccions/província. Càlculs geoespacials sempre en metres (UTM); conversió a WGS84 només per a visualització Leaflet. Parseig amb Python <code>struct</code> (sense geopandas); filtrar per <code>CUMUN</code>.</td>
+      <td>Shapefile al repo <code>/data/</code>, EPSG:25830 (UTM fus 30N). 3.656 seccions/província. Càlculs geoespacials sempre en metres (UTM); conversió a WGS84 només per a visualització Leaflet. Filtrar per <code>CUMUN = CPRO.zfill(2) + CMUN.zfill(3)</code>. Data tall: 01/01/2026.</td>
     </tr>
     <tr>
       <td>Zones de planificació educativa</td>
