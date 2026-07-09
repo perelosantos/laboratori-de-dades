@@ -1,86 +1,230 @@
-# Fonts de dades obertes — seccions censals (CUSEC)
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fonts de dades obertes · Laboratori de Dades</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f9f8f6; color: #1a1a1a; font-family: 'Georgia', serif; padding: 40px 24px 80px; line-height: 1.7; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  
+  header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid #e5e2db; }
+  .eyebrow { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 0.15em; color: #9ca3af; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: clamp(22px, 4vw, 34px); font-weight: normal; color: #111; line-height: 1.2; margin-bottom: 10px; }
+  .doc-note { font-size: 13px; color: #6b7280; font-style: italic; }
+  .doc-note a { color: #7c3aed; }
 
-*Document viu, compartit entre tots els projectes que treballen amb dades a nivell de secció censal (Barcelona/Terrassa/Vallès). Actualitza aquesta pàgina en comptes de duplicar-la a cada projecte.*
+  h2 { font-size: 18px; font-weight: normal; color: #111; margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e2db; font-family: 'Courier New', monospace; letter-spacing: 0.05em; }
+  h3 { font-size: 13px; font-family: 'Courier New', monospace; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em; margin: 28px 0 10px; }
 
----
+  p { margin-bottom: 14px; font-size: 15px; color: #374151; }
+  
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; border: 1px solid #e5e2db; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #f3f0ea; }
+  th { padding: 10px 14px; text-align: left; font-family: 'Courier New', monospace; font-size: 11px; font-weight: normal; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #e5e2db; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0ede6; vertical-align: top; color: #374151; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #faf8f5; }
+  
+  code { font-family: 'Courier New', monospace; font-size: 12px; background: #f0ede6; padding: 1px 5px; border-radius: 3px; color: #7c3aed; }
+  strong { font-weight: bold; color: #111; }
+  em { font-style: italic; }
 
-## 1. Datasets en ús actiu
+  /* Category groups */
+  .cat-group { margin-bottom: 24px; }
+  .cat-title { font-family: 'Courier New', monospace; font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .dataset-list { list-style: none; }
+  .dataset-list li { padding: 6px 0; border-bottom: 1px solid #f0ede6; font-size: 14px; color: #374151; }
+  .dataset-list li:last-child { border-bottom: none; }
+  .dataset-list li code { margin-right: 6px; }
+  .dataset-list li span { color: #9ca3af; font-size: 12px; font-family: 'Courier New', monospace; }
 
-Tots es creuen per la clau **CUSEC** (codi de 10 dígits, format INE/Idescat estàndard).
+  /* Notes */
+  .nota { background: #faf8f5; border-left: 3px solid #a78bfa; padding: 14px 18px; margin: 20px 0; border-radius: 0 4px 4px 0; font-size: 14px; color: #374151; }
+  .nota strong { color: #7c3aed; }
 
-| Dataset | Font | Cobertura | Descripció |
-|---|---|---|---|
-| `ist_bcn_2015_2024.csv` | Idescat — Índex Socioeconòmic Territorial | 1.068 seccions BCN, 2015–2024 (5.108 a Catalunya) | Índex sintètic (renda, educació, ocupació, composició llar). Escala Catalunya=100. Correlació amb renda IRPF: r=0,844. **Saturat** a l'extrem alt (125–135 comprimeix rendes molt diverses per sobre de ~25.000€). |
-| `renda_bcn_seccions_cleaned.csv` | INE — Atlas de Distribución de la Renta de los Hogares (taula 30896) | 1.068 seccions, 2015–2023 | Renda neta/bruta per càpita, llar i unitat de consum (UC). Preferir *neta* per anàlisi social. Excel comença a la fila 8, retallar a les 19 primeres columnes. |
-| `demografic_bcn_seccions.csv` | INE/Idescat | 1.068 seccions, 2015–2023 | Edat mitjana, % menors 18, % 65+, mida llar, % llars unipersonals, % població espanyola. |
-| `bcn_seccions_IST_Gini_trajectories_pous_2015_2024.csv` | Derivat (IST + Gini) | 1.068 seccions, 2015–2024 | Trajectòries IST i Gini per secció + classificació de "pous de potencial" (zones ancorades en desavantatge). |
-| `opendatabcn_educacio_ensenyament_reglat.csv` | OpenData BCN | 1.404 registres, per adreça | Centres educatius reglats. **No ve geocodificat a CUSEC** — cal join espacial per adreça/coordenades. Fitxer en **UTF-16**. |
+  /* Tech notes */
+  .tech-note { background: #f8f9fa; border: 1px solid #e5e2db; border-radius: 6px; padding: 14px 18px; margin: 10px 0; font-size: 13px; font-family: 'Courier New', monospace; color: #4b5563; line-height: 1.6; }
+  .tech-note strong { color: #111; font-weight: bold; }
 
-**Nota metodològica compartida:** el gradient discret ∇IST (contigüitat *queen*, ponderació 1/d²) i l'IDAD (Índex d'Accessibilitat a la Diversitat, llindar ΔIST=1σ municipal) es documenten a `annex1_metodologia_v3.md` i `nota_xarxa_idad_metodologia.md`. Reutilitza aquests fitxers en comptes de reimplementar-los.
+  footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #e5e2db; font-size: 12px; color: #9ca3af; font-family: 'Courier New', monospace; }
+  footer a { color: #7c3aed; text-decoration: none; }
 
----
+  .divider { border: none; border-top: 1px solid #e5e2db; margin: 32px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
 
-## 2. Catàleg curat — OpenData BCN
+<header>
+  <div class="eyebrow">Laboratori de Dades · perelosantos.com</div>
+  <h1>Fonts de dades obertes<br>seccions censals (CUSEC)</h1>
+  <p class="doc-note">Document viu, compartit entre tots els projectes que treballen amb dades a nivell de secció censal (Barcelona / Terrassa / Vallès). Actualitza aquesta pàgina en comptes de duplicar-la a cada projecte. Tots els datasets es creuen per la clau <code>CUSEC</code> (codi de 10 dígits, format INE/Idescat estàndard).</p>
+</header>
 
-Filtrat manualment de `cataleg_slim.csv` (555 datasets totals). Criteri: rellevància per a dinàmiques socioeconòmiques/espacials a nivell de secció censal o barri. **Exclosos deliberadament:** ~130 datasets de cadastre detallat i parc de vehicles (massa granulars/administratius, disponibles al catàleg complet si calen).
+<!-- SECTION 1 -->
+<h2>1 · Datasets en ús actiu</h2>
 
-**Unitats territorials**
-- `20170706-districtes-barris` — Districtes, barris, AEB i seccions censals de BCN (crosswalk base)
-- `taula-direle-sec-cens` — Adreces per secció censal (útil per geocodificar altres fonts)
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>Dataset</th><th>Font</th><th>Cobertura</th><th>Descripció</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ist_bcn_2015_2024.csv</code></td>
+      <td>Idescat — IST</td>
+      <td>1.068 seccions BCN, 2015–2024 (5.108 a Catalunya)</td>
+      <td>Índex sintètic (renda, educació, ocupació, composició llar). Escala Catalunya=100. Correlació amb renda IRPF: r=0,844. <strong>Saturat</strong> a l'extrem alt (125–135 comprimeix rendes molt diverses per sobre de ~25.000€).</td>
+    </tr>
+    <tr>
+      <td><code>renda_bcn_seccions_cleaned.csv</code></td>
+      <td>INE — Atlas de Distribución de la Renta (taula 30896)</td>
+      <td>1.068 seccions, 2015–2023</td>
+      <td>Renda neta/bruta per càpita, llar i unitat de consum (UC). Preferir <em>neta</em> per anàlisi social. Excel comença a la fila 8, retallar a les 19 primeres columnes.</td>
+    </tr>
+    <tr>
+      <td><code>demografic_bcn_seccions.csv</code></td>
+      <td>INE/Idescat</td>
+      <td>1.068 seccions, 2015–2023</td>
+      <td>Edat mitjana, % menors 18, % 65+, mida llar, % llars unipersonals, % població espanyola.</td>
+    </tr>
+    <tr>
+      <td><code>bcn_seccions_IST_Gini_trajectories_pous_2015_2024.csv</code></td>
+      <td>Derivat (IST + Gini)</td>
+      <td>1.068 seccions, 2015–2024</td>
+      <td>Trajectòries IST i Gini per secció + classificació de "pous de potencial" (zones ancorades en desavantatge).</td>
+    </tr>
+    <tr>
+      <td><code>opendatabcn_educacio_ensenyament_reglat.csv</code></td>
+      <td>OpenData BCN</td>
+      <td>1.404 registres, per adreça</td>
+      <td>Centres educatius reglats. <strong>No ve geocodificat a CUSEC</strong> — cal join espacial per adreça/coordenades. Fitxer en <strong>UTF-16</strong>.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
-**Renda i desigualtat**
-- `atles-renda-index-gini` — Índex de Gini per secció
-- `atles-renda-mitjana` / `atles-renda-mediana` — Renda per unitat de consum
-- `atles-renda-p80-p20-distribucio` — Ràtio de distribució (proxy de polarització)
-- `renda-disponible-llars-bcn` — Renda disponible per càpita
+<div class="nota"><strong>Nota metodològica:</strong> el gradient discret ∇IST (contigüitat <em>queen</em>, ponderació 1/d²) i l'IDAD (Índex d'Accessibilitat a la Diversitat, llindar ΔIST=1σ municipal) es documenten a <code>annex1_metodologia_v3.md</code> i <code>nota_xarxa_idad_metodologia.md</code>. Reutilitza aquests fitxers en comptes de reimplementar-los.</div>
 
-**Vulnerabilitat i exposició climàtica**
-- `factor-de-vulnerabilitat` — Vulnerabilitat davant onada de calor
-- `poblacio-vulnerable` — Exposició a impacte de calor
-- `formacio-poblacio-insuficient` — Vulnerabilitat per situació socioeconòmica insuficient
-- `equipaments-i-parcs-refugi` — Espais refugi climàtic
-- `deficit-proximitat-espai-verd` — Dèficit d'accés a espai verd
-- `contaminacio-atmosferica` / `risc-contaminacio-acustica` — Exposició ambiental
-- `temperatures-hist-bcn` — Sèrie de temperatures des de 1780
+<!-- SECTION 2 -->
+<h2>2 · Catàleg curat — OpenData BCN</h2>
+<p>Filtrat manualment de <code>cataleg_slim.csv</code> (555 datasets totals). Criteri: rellevància per a dinàmiques socioeconòmiques/espacials a nivell de secció censal o barri. <strong>Exclosos deliberadament:</strong> ~130 datasets de cadastre detallat i parc de vehicles.</p>
 
-**Habitatge**
-- `exclusio-residencial` — Àrees amb risc d'exclusió residencial
-- `manteniment-lloguer` — Esforç econòmic per lloguer
-- `densitat-huts` / `habitatges-us-turistic` — Pressió turística sobre habitatge
-- `est-cadastre-habitatges-edat-mitjana` — Edat mitjana del parc d'habitatge (proxy d'estat/resiliència estructural)
+<div class="cat-group">
+  <div class="cat-title">Unitats territorials</div>
+  <ul class="dataset-list">
+    <li><code>20170706-districtes-barris</code> <span>Districtes, barris, AEB i seccions censals de BCN (crosswalk base)</span></li>
+    <li><code>taula-direle-sec-cens</code> <span>Adreces per secció censal (útil per geocodificar altres fonts)</span></li>
+  </ul>
+</div>
 
-**Demografia fina (Padró)**
-- `pad_mdba_sexe_edat-q` — Població per sexe i edat quinquennal
-- `pad_mdb_nacionalitat-g_edat-q_sexe` — Població per nacionalitat i edat
+<div class="cat-group">
+  <div class="cat-title">Renda i desigualtat</div>
+  <ul class="dataset-list">
+    <li><code>atles-renda-index-gini</code> <span>Índex de Gini per secció</span></li>
+    <li><code>atles-renda-mitjana</code> / <code>atles-renda-mediana</code> <span>Renda per unitat de consum</span></li>
+    <li><code>atles-renda-p80-p20-distribucio</code> <span>Ràtio de distribució (proxy de polarització)</span></li>
+    <li><code>renda-disponible-llars-bcn</code> <span>Renda disponible per càpita</span></li>
+  </ul>
+</div>
 
-**Geografia política** *(paral·lel estructural per homofília espacial — no assumir causalitat)*
-- `est-eleccions-generals-seccio-censal` / `est-eleccions-locals-seccio-censal` — Resultats electorals per secció censal
+<div class="cat-group">
+  <div class="cat-title">Vulnerabilitat i exposició climàtica</div>
+  <ul class="dataset-list">
+    <li><code>factor-de-vulnerabilitat</code> <span>Vulnerabilitat davant onada de calor</span></li>
+    <li><code>poblacio-vulnerable</code> <span>Exposició a impacte de calor</span></li>
+    <li><code>formacio-poblacio-insuficient</code> <span>Vulnerabilitat per situació socioeconòmica insuficient</span></li>
+    <li><code>equipaments-i-parcs-refugi</code> <span>Espais refugi climàtic</span></li>
+    <li><code>deficit-proximitat-espai-verd</code> <span>Dèficit d'accés a espai verd</span></li>
+    <li><code>contaminacio-atmosferica</code> / <code>risc-contaminacio-acustica</code> <span>Exposició ambiental</span></li>
+    <li><code>temperatures-hist-bcn</code> <span>Sèrie de temperatures des de 1780</span></li>
+  </ul>
+</div>
 
----
+<div class="cat-group">
+  <div class="cat-title">Habitatge</div>
+  <ul class="dataset-list">
+    <li><code>exclusio-residencial</code> <span>Àrees amb risc d'exclusió residencial</span></li>
+    <li><code>manteniment-lloguer</code> <span>Esforç econòmic per lloguer</span></li>
+    <li><code>densitat-huts</code> / <code>habitatges-us-turistic</code> <span>Pressió turística sobre habitatge</span></li>
+    <li><code>est-cadastre-habitatges-edat-mitjana</code> <span>Edat mitjana del parc d'habitatge (proxy d'estat/resiliència estructural)</span></li>
+  </ul>
+</div>
 
-## 3. Fonts específiques — casos municipals (Terrassa, Sabadell, Sant Cugat...)
+<div class="cat-group">
+  <div class="cat-title">Demografia fina (Padró)</div>
+  <ul class="dataset-list">
+    <li><code>pad_mdba_sexe_edat-q</code> <span>Població per sexe i edat quinquennal</span></li>
+    <li><code>pad_mdb_nacionalitat-g_edat-q_sexe</code> <span>Població per nacionalitat i edat</span></li>
+  </ul>
+</div>
 
-Aplicables quan un projecte necessita cartografia, zonificació o equipaments a nivell de municipi concret, no només indicadors socioeconòmics.
+<div class="cat-group">
+  <div class="cat-title">Geografia política <span style="font-weight:normal;color:#9ca3af">(paral·lel estructural — no assumir causalitat)</span></div>
+  <ul class="dataset-list">
+    <li><code>est-eleccions-generals-seccio-censal</code> <span>Resultats eleccions generals per secció censal</span></li>
+    <li><code>est-eleccions-locals-seccio-censal</code> <span>Resultats eleccions locals per secció censal</span></li>
+  </ul>
+</div>
 
-| Dataset | Font | Descripció |
-|---|---|---|
-| Cartografia censal | INE — *Cartografía censal*, província de Barcelona | Shapefile, EPSG:25830 (UTM fus 30N). 3.656 seccions/província. Càlculs geoespacials sempre en metres (UTM); conversió a WGS84 (EPSG:4326) només per a visualització Leaflet. Parseig amb Python `struct` (sense geopandas); filtrar per `CUMUN`. |
-| Zones de planificació educativa | Departament d'Educació (Gencat), dades obertes | Geometries en WKT per comarca (p. ex. `zones_Vallès_Occidental.csv`). Assignació secció→zona per intersecció del centroide amb el polígon. |
-| Matrícula per centre | Departament d'Educació | `Alumnes_matriculats_per_ensenyament_i_unitats...xlsx`. Codificació original **latin-1**. |
-| Plantilles docents / condició CMC | Departament d'Educació | Base per identificar Centres de Màxima Complexitat. |
-| Distàncies a peu | OSRM (recomanat) vs. haversine (aprox., insuficient per a publicació) | Haversine sobreestima connectivitat real en trames urbanes irregulars — usar només com a primera aproximació, mai com a xifra final publicable. |
+<!-- SECTION 3 -->
+<h2>3 · Fonts específiques — casos municipals</h2>
+<p>Aplicables quan un projecte necessita cartografia, zonificació o equipaments a nivell de municipi concret (Terrassa, Sabadell, Sant Cugat...).</p>
 
----
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>Dataset</th><th>Font</th><th>Descripció</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cartografia censal</td>
+      <td>INE — <em>Cartografía censal</em>, província BCN</td>
+      <td>Shapefile, EPSG:25830 (UTM fus 30N). 3.656 seccions/província. Càlculs geoespacials sempre en metres (UTM); conversió a WGS84 només per a visualització Leaflet. Parseig amb Python <code>struct</code> (sense geopandas); filtrar per <code>CUMUN</code>.</td>
+    </tr>
+    <tr>
+      <td>Zones de planificació educativa</td>
+      <td>Departament d'Educació (Gencat)</td>
+      <td>Geometries en WKT per comarca. Assignació secció→zona per intersecció del centroide amb el polígon.</td>
+    </tr>
+    <tr>
+      <td>Matrícula per centre</td>
+      <td>Departament d'Educació</td>
+      <td><code>Alumnes_matriculats_per_ensenyament_i_unitats...xlsx</code>. Codificació original <strong>latin-1</strong>.</td>
+    </tr>
+    <tr>
+      <td>Distàncies a peu</td>
+      <td>OSRM (recomanat) vs. haversine</td>
+      <td>Haversine sobreestima connectivitat real en trames urbanes irregulars — usar només com a primera aproximació, mai com a xifra final publicable.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
-## 4. Notes tècniques transversals (errors ja resolts, no repetir)
+<!-- SECTION 4 -->
+<h2>4 · Notes tècniques transversals</h2>
+<p style="font-size:13px;color:#6b7280;margin-bottom:20px;">Errors ja resolts. No repetir.</p>
 
-- **Conversió de codis INE↔Idescat:** Idescat fa servir codis de secció de **11 caràcters**, amb un `8` inserit a la posició 5 respecte al CUSEC estàndard de l'INE (10 caràcters). Ex.: INE `0818701001` → Idescat `08187801001`.
-- **Codis de centre educatiu:** el camp `codi_centre` als fitxers d'escoles té 7 dígits; els fitxers de matrícula el fan servir amb 8 dígits (zero-padded). Cal `zfill(8)` sobre el fitxer d'escoles abans de fer el join. Filtrar matrícula pel conjunt conegut de centres, no pel codi de municipi.
-- **Encodings variables per font:** CSV educatiu BCN → UTF-16; plantilles docents → `utf-8-sig`; Excel INE 30896 → dades útils a partir de la fila 8, primeres 19 columnes.
-- **Agrupacions censals ≠ seccions censals:** Idescat publica IST a dos nivells (853 agrupacions vs. 5.108 seccions a Catalunya). Les agrupacions suavitzen la variabilitat local — per a qualsevol anàlisi de gradient o de talls administratius, usar sempre seccions, no agrupacions.
-- **Contigüitat espacial:** criteri *queen* (inclou diagonals), no *rook* — estàndard per a tesselacions urbanes irregulars com les seccions censals. Implementació pràctica: arrodonir coordenades a 1m de precisió i buscar coincidències de vèrtex.
-- **Adreces sense geocodificar:** alguns datasets (p. ex. centres educatius OpenData BCN) venen per adreça, no per CUSEC. Cal geocodificar i fer join espacial (punt dins polígon de secció) abans d'incorporar-los a qualsevol anàlisi per secció.
+<div class="tech-note"><strong>Conversió codis INE↔Idescat:</strong> Idescat fa servir codis de secció d'<strong>11 caràcters</strong>, amb un <code>8</code> inserit a la posició 5. Ex.: INE <code>0818701001</code> → Idescat <code>08187801001</code>. Excepció: Barcelona ciutat (<code>08019</code>) no segueix el patró d'inserció.</div>
 
----
+<div class="tech-note"><strong>Codis de centre educatiu:</strong> el camp <code>codi_centre</code> als fitxers d'escoles té 7 dígits; els fitxers de matrícula el fan servir amb 8 dígits (zero-padded). Cal <code>zfill(8)</code> sobre el fitxer d'escoles abans de fer el join.</div>
 
-*Mantenidor: Pere Losantos · perelosantos.com · repo: laboratori-de-dades*
+<div class="tech-note"><strong>Encodings variables per font:</strong> CSV educatiu BCN → UTF-16 · plantilles docents → <code>utf-8-sig</code> · Excel INE 30896 → dades útils a partir de la fila 8, primeres 19 columnes.</div>
+
+<div class="tech-note"><strong>Agrupacions censals ≠ seccions censals:</strong> Idescat publica IST a dos nivells (853 agrupacions vs. 5.108 seccions a Catalunya). Les agrupacions suavitzen la variabilitat local. Per a qualsevol anàlisi de gradient o talls administratius, usar sempre seccions.</div>
+
+<div class="tech-note"><strong>Contigüitat espacial:</strong> criteri <em>queen</em> (inclou diagonals), no <em>rook</em> — estàndard per a tesselacions urbanes irregulars. Implementació: arrodonir coordenades a 1m de precisió i buscar coincidències de vèrtex.</div>
+
+<div class="tech-note"><strong>Adreces sense geocodificar:</strong> alguns datasets (p. ex. centres educatius OpenData BCN) venen per adreça, no per CUSEC. Cal geocodificar i fer join espacial (punt dins polígon de secció) abans d'incorporar-los a qualsevol anàlisi per secció.</div>
+
+<footer>
+  Mantenidor: <a href="https://perelosantos.com">Pere Losantos</a> · repo: <a href="https://github.com/perelosantos/laboratori-de-dades">laboratori-de-dades</a> · Document viu
+</footer>
+
+</div>
+</body>
+</html>
