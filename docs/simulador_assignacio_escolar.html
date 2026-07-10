@@ -153,7 +153,7 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
       <b>α Proximitat</b> (0–1): pes de la proximitat. 0 → distància irrellevant. 1 → tothom va a l'escola més propera.<br><br>
       <b>β Schelling IST</b> (0–1): famílies d'IST alt eviten escoles amb IST inferior (asimètric). 0.3 és el llindar psicològic clàssic de Schelling. 1 → segregació per afinitat màxima.<br><br>
       <b>γ Concertada×IST</b> (0–1): preferència per concertada ponderada per IST². 0 → cap efecte. 1 → famílies d'IST alt trien concertada gairebé sempre. Efecte feble a IST baix, fort a IST alt.<br><br>
-      <b>Zones actives:</b> restringeix les escoles PÚBLIQUES a la zona d'adscripció. Les concertades sempre són accessibles des de qualsevol zona.
+      <b>Zones actives:</b> penalització per escola fora de zona (−0.25 utilitat), aplicable a públiques <i>i</i> concertades. Reflecteix el barem real de l'OME Terrassa: 30 punts dins zona vs 10 fora (diferència de 20 punts sobre 80 màxims).
     </div>
   </div>
 </div>
@@ -299,9 +299,6 @@ function getAnimDur(){ return 2300-parseInt(document.getElementById('speed').val
 
 // --- Funció utilitat v3: γ escalat, zones no afecten concertades ---
 function utilitat(agent, escola, alpha, beta, gamma, zonaActiva){
-  // Zones actives: només restringeix escoles PÚBLIQUES
-  if(zonaActiva && escola.naturalesa!=='Concertat' && agent.zona!==escola.zona) return -1e9;
-
   // α: distància normalitzada [0,1]
   const dist = Math.max(haversine(agent.lat,agent.lon,escola.lat,escola.lon), 1);
   const uDist = alpha * (1 - dist/DIST_MAX);
@@ -314,7 +311,12 @@ function utilitat(agent, escola, alpha, beta, gamma, zonaActiva){
   const istN = (agent.ist - IST_MIN) / IST_RANGE;
   const uConc = (gamma / 2) * (escola.naturalesa==='Concertat'?1:0) * (istN * istN);
 
-  return uDist + uSch + uConc;
+  // Zones: penalització per fora de zona (afecta públiques I concertades)
+  // Basat en el barem real de l'OME Terrassa: 30 pts dins zona vs 10 pts fora = diferència 20 pts
+  // Normalitzada: la penalització equival a ~0.25 unitats de utilitat (20/80 punts màxims)
+  const uZona = (zonaActiva && agent.zona !== escola.zona) ? -0.25 : 0;
+
+  return uDist + uSch + uConc + uZona;
 }
 
 let simState=null, isPlaying=false, animRAF=null;
