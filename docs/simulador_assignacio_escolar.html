@@ -137,10 +137,15 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
     <div class="legend-item"><div class="ld ld-circ" style="border:2px solid #7eb8f7;outline:2px solid white;outline-offset:1px"></div>CMC</div>
   </div>
   <div class="ctrl-section">
-    <div class="ctrl-label">Llegenda — Infants</div>
-    <div class="legend-item"><div class="ld ld-circ" style="background:#ff1e00"></div>IST baix (&lt;83)</div>
-    <div class="legend-item"><div class="ld ld-circ" style="background:#ffff00;border:1px solid #555"></div>IST mig (83–113)</div>
-    <div class="legend-item"><div class="ld ld-circ" style="background:#0050ff"></div>IST alt (&gt;113)</div>
+    <div class="ctrl-label">Llegenda — Infants (IST)</div>
+    <div style="display:flex;align-items:center;gap:6px;margin:4px 0 2px 0">
+      <span style="font-size:9px;color:#aaa">46</span>
+      <div style="flex:1;height:10px;border-radius:4px;background:linear-gradient(to right,#ff1e00,#ff9900,#ffff00,#80d080,#0050ff)"></div>
+      <span style="font-size:9px;color:#aaa">125</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:8px;color:#888;margin-bottom:4px">
+      <span>Baix</span><span>Mig</span><span>Alt</span>
+    </div>
   </div>
   <div class="ctrl-section" id="zona-llegenda" style="display:none;">
     <div class="ctrl-label">Llegenda — Zones</div>
