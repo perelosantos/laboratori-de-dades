@@ -239,7 +239,8 @@ const zonaLayers = {};
 Object.entries(ZONA_DISSOLVED).forEach(([zona, geojson]) => {
   const col = ZONA_COLORS[zona] || '#ffffff';
   zonaLayers[zona] = L.geoJSON(geojson, {
-    style:{ color:col, weight:3.5, fillColor:col, fillOpacity:0.10, opacity:0.85 }
+    style:{ color:col, weight:3.5, fillColor:col, fillOpacity:0.10, opacity:0.85 },
+    interactive: false
   });
 });
 
