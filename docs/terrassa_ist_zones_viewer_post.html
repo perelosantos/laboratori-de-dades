@@ -3,27 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terrassa — Topografia IST i Zones Educatives</title>
+<title>Topografia IST · Terrassa 2024</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; height: 100vh; display: flex; flex-direction: column; }
-#header { padding: 8px 14px; background: #16213e; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid #2a2a4a; min-height: 44px; }
-h1 { font-size: 14px; font-weight: 600; color: #a8d8ea; white-space: nowrap; }
+body { font-family: 'Courier New', monospace; background: #0f1117; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
+#header { padding: 8px 16px; background: #0f1117; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid #1e1e2e; min-height: 44px; z-index: 1000; }
+#header h1 { font-size: 13px; font-weight: 600; color: #7eb8f7; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
 #map { flex: 1; }
-.toggle-label { display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; color: #ccc; user-select: none; padding: 3px 9px; border-radius: 4px; border: 1px solid #333; }
-.toggle-label input { cursor: pointer; accent-color: #a8d8ea; }
+.toggle-label { display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; color: #aaa; user-select: none; padding: 3px 9px; border-radius: 3px; border: 1px solid #1e1e2e; }
+.toggle-label input { cursor: pointer; accent-color: #7eb8f7; }
 #legend-ist { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 #legend-zones { display: flex; align-items: center; gap: 8px; }
-.leg { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #bbb; }
-.leg-sw { width: 12px; height: 12px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.12); flex-shrink:0; }
-.leg-zone-line { width: 20px; height: 3px; border-radius: 1px; flex-shrink:0; }
-.vsep { width:1px; height:20px; background:#2a2a4a; }
-#tooltip { position: fixed; background: rgba(16,22,40,0.96); border: 1px solid #3a3a5a; border-radius: 5px; padding: 9px 12px; font-size: 12px; pointer-events: none; display: none; max-width: 220px; z-index: 1000; line-height: 1.75; box-shadow: 0 2px 10px rgba(0,0,0,0.6); }
-#status { font-size: 11px; color: #555; margin-left: auto; white-space: nowrap; }
+.leg { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #888; }
+.leg-sw { width: 11px; height: 11px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.leg-zone-line { width: 18px; height: 3px; border-radius: 1px; flex-shrink: 0; }
+.vsep { width: 1px; height: 18px; background: #1e1e2e; }
+#tooltip { position: fixed; background: rgba(10,10,16,0.97); border: 1px solid #2a3a5a; border-radius: 4px; padding: 9px 12px; font-size: 11px; font-family: 'Courier New', monospace; pointer-events: none; display: none; max-width: 220px; z-index: 1000; line-height: 1.75; box-shadow: 0 2px 12px rgba(0,0,0,0.7); }
+#status { font-size: 10px; color: #333; margin-left: auto; white-space: nowrap; letter-spacing: .05em; }
 </style>
+
 <div id="header">
   <h1>⬡ Topografia IST · Terrassa 2024</h1>
   <label class="toggle-label"><input type="checkbox" id="tog-ist" checked> IST</label>
@@ -86,7 +87,7 @@ function renderSections(){
     style: f=>({
       fillColor: istColor(f.properties.ist),
       fillOpacity: 0.55,
-      color:'rgba(255,255,255,0.1)',
+      color:'rgba(255,255,255,0.08)',
       weight:0.5, opacity:0.5
     }),
     onEachFeature:(f,layer)=>{
@@ -97,39 +98,17 @@ function renderSections(){
         tip.style.left=(e.originalEvent.pageX+14)+'px';
         tip.style.top=(e.originalEvent.pageY-10)+'px';
         tip.innerHTML=`
-          <div style="font-size:10px;color:#555;letter-spacing:.5px">${p.cusec}</div>
-          <div style="font-size:14px;font-weight:700;color:#eee;margin:2px 0 4px">${p.barri||'—'}</div>
-          <div>IST 2024: <strong style="color:${istColor(p.ist)};font-size:15px">${p.ist}</strong><span style="color:#444;font-size:10px"> (CAT=100)</span></div>
+          <div style="font-size:9px;color:#333;letter-spacing:.5px">${p.cusec}</div>
+          <div style="font-size:13px;font-weight:700;color:#e0e0e0;margin:2px 0 4px">${p.barri||'—'}</div>
+          <div>IST 2024: <strong style="color:${istColor(p.ist)};font-size:14px">${p.ist}</strong><span style="color:#333;font-size:9px"> CAT=100</span></div>
           <div style="margin-top:5px">
-            <span style="background:${zcolor}22;border:1px solid ${zcolor};color:${zcolor};padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700">${zs}</span>
-            <span style="color:#777;font-size:11px;margin-left:5px">${p.zona_nom}</span>
+            <span style="background:${zcolor}22;border:1px solid ${zcolor};color:${zcolor};padding:1px 7px;border-radius:2px;font-size:10px;font-weight:700">${zs}</span>
+            <span style="color:#555;font-size:10px;margin-left:5px">${p.zona_nom}</span>
           </div>`;
       });
       layer.on('mouseout',()=>{ tip.style.display='none'; });
     }
   }).addTo(map);
-}
-
-// Dissolve real amb Turf.union — només el perímetre exterior de cada zona
-function buildZoneOutlines(){
-  const byZone={};
-  GEOJSON.features.forEach(f=>{
-    const z=f.properties.zone_code;
-    if(!byZone[z]) byZone[z]=[];
-    byZone[z].push(f);
-  });
-
-  const outlines=[];
-  Object.entries(byZone).forEach(([zc, feats])=>{
-    // union iteratiu de tots els polígons de la zona
-    let dissolved = feats[0];
-    for(let i=1; i<feats.length; i++){
-      try { dissolved = turf.union(dissolved, feats[i]); }
-      catch(e){ /* salta errors de topologia */ }
-    }
-    outlines.push({ zc, geojson: dissolved });
-  });
-  return outlines;
 }
 
 function renderZones(){
@@ -138,34 +117,39 @@ function renderZones(){
   borderLayers=[]; labelMarkers=[];
   if(!showZones) return;
 
-  const outlines = buildZoneOutlines();
-  outlines.forEach(({zc, geojson})=>{
-    const color = ZONE_COLORS[zc]||'#fff';
-    const l = L.geoJSON(geojson,{
+  const byZone={};
+  GEOJSON.features.forEach(f=>{
+    const z=f.properties.zone_code;
+    if(!byZone[z]) byZone[z]=[];
+    byZone[z].push(f);
+  });
+
+  Object.entries(byZone).forEach(([zc,feats])=>{
+    let dissolved=feats[0];
+    for(let i=1;i<feats.length;i++){
+      try{ dissolved=turf.union(dissolved,feats[i]); }catch(e){}
+    }
+    const color=ZONE_COLORS[zc]||'#fff';
+    const l=L.geoJSON(dissolved,{
       style:{ fill:false, color, weight:3, opacity:0.95, lineJoin:'round' }
     }).addTo(map);
     borderLayers.push(l);
   });
 
-  // Etiquetes
   Object.entries(ZONE_SHORT).forEach(([code,label])=>{
     const center=ZONE_CENTERS[code];
     if(!center) return;
     const color=ZONE_COLORS[code]||'#fff';
     const icon=L.divIcon({
-      html:`<div style="background:rgba(16,22,40,0.9);border:1.5px solid ${color};color:${color};padding:2px 8px;border-radius:3px;font-size:12px;font-weight:700;white-space:nowrap;font-family:system-ui">${label}</div>`,
+      html:`<div style="background:rgba(10,10,16,0.92);border:1px solid ${color};color:${color};padding:2px 8px;border-radius:2px;font-size:11px;font-weight:700;white-space:nowrap;font-family:'Courier New',monospace;letter-spacing:.05em">${label}</div>`,
       className:'', iconAnchor:[18,10]
     });
     labelMarkers.push(L.marker(center,{icon,interactive:false}).addTo(map));
   });
 }
 
-document.getElementById('tog-ist').addEventListener('change',e=>{
-  showIST=e.target.checked; renderSections();
-});
-document.getElementById('tog-zones').addEventListener('change',e=>{
-  showZones=e.target.checked; renderZones();
-});
+document.getElementById('tog-ist').addEventListener('change',e=>{ showIST=e.target.checked; renderSections(); });
+document.getElementById('tog-zones').addEventListener('change',e=>{ showZones=e.target.checked; renderZones(); });
 
 renderSections();
 renderZones();
