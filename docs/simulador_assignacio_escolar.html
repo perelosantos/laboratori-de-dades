@@ -7,25 +7,26 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Courier New',monospace;background:#0f1117;color:#e0e0e0;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-#header{padding:8px 16px;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:1000;background:#0f1117;}
-#header h1{font-size:13px;color:#7eb8f7;text-transform:uppercase;letter-spacing:.08em;}
-#header .sub{font-size:10px;color:#444;}
+
+
+
 #main{display:flex;flex:1;overflow:hidden;}
-#controls{width:230px;min-width:230px;padding:12px;border-right:1px solid #1e1e2e;background:#0a0a10;overflow-y:auto;display:flex;flex-direction:column;gap:12px;z-index:1000;}
-.ctrl-section{display:flex;flex-direction:column;gap:7px;}
-.ctrl-label{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#556;border-bottom:1px solid #1e1e2e;padding-bottom:3px;}
+#controls{width:230px;min-width:230px;padding:14px 12px 12px;border-right:1px solid #1e1e2e;background:#0a0a10;overflow-y:auto;display:flex;flex-direction:column;gap:12px;z-index:1000;}
+
+.ctrl-section{display:flex;flex-direction:column;gap:8px;background:#12121e;border:1px solid #1e1e2e;border-radius:4px;padding:12px;}
+
 .slider-row label{font-size:11px;color:#bbb;display:flex;justify-content:space-between;margin-bottom:3px;}
 .slider-row label span{color:#7eb8f7;font-weight:bold;}
 input[type=range]{width:100%;accent-color:#7eb8f7;cursor:pointer;height:14px;}
 input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
 /* Equalitzador vertical */
-#eq-wrap{display:flex;gap:10px;justify-content:center;align-items:flex-end;height:130px;margin:6px 0;}
+#eq-wrap{display:flex;gap:10px;justify-content:center;align-items:flex-end;height:90px;margin:0 0 6px;}
 .eq-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
-.eq-col label{font-size:9px;color:#778;text-align:center;line-height:1.3;}
-.eq-col .eq-val{font-size:11px;color:#7eb8f7;font-weight:bold;}
-.eq-col input[type=range]{writing-mode:vertical-lr;direction:rtl;width:22px;height:100px;cursor:pointer;accent-color:#7eb8f7;padding:0;}
+.eq-col label{font-size:11px;color:#aaa;text-align:center;line-height:1.4;}
+.eq-col .eq-val{font-size:13px;color:#7eb8f7;font-weight:bold;}
+.eq-col input[type=range]{writing-mode:vertical-lr;direction:rtl;width:22px;height:65px;cursor:pointer;accent-color:#7eb8f7;padding:0;}
 .eq-col input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
-.toggle-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#999;}
+
 .toggle{position:relative;width:30px;height:16px;flex-shrink:0;}
 .toggle input{opacity:0;width:0;height:0;}
 .tog-sl{position:absolute;inset:0;background:#1e1e2e;border-radius:8px;cursor:pointer;transition:.2s;}
@@ -40,29 +41,86 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
 #speed-row input{flex:1;}
 #round-display{font-size:24px;color:#7eb8f7;text-align:center;font-weight:bold;}
 #round-label{font-size:9px;color:#445;text-align:center;text-transform:uppercase;letter-spacing:.1em;margin-top:-4px;}
-#stats{font-size:11px;color:#778;line-height:2;}
-#stats b{color:#9ab;}
+
+
 .sw{color:#e07a5f!important;}.sg{color:#81b29a!important;}
 .param-note{font-size:9px;color:#445;line-height:1.6;margin-top:2px;}
 .param-note b{color:#667;}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#778;margin-bottom:2px;}
+
 .ld{width:10px;height:10px;flex-shrink:0;}
 .ld-circ{border-radius:50%;}
-#map-wrap{flex:1;position:relative;}
-#map{width:100%;height:100%;}
+
+
 #overlay-canvas{position:absolute;top:0;left:0;pointer-events:none;z-index:400;}
 #tooltip{position:absolute;background:#12121e;border:1px solid #2a2a4a;padding:6px 9px;font-size:10px;color:#bbb;pointer-events:none;display:none;line-height:1.7;max-width:180px;z-index:500;}
 #progress{height:2px;background:#1e1e2e;flex-shrink:0;}
 #progress-bar{height:100%;background:#7eb8f7;width:0%;transition:width .15s;}
 .leaflet-interactive:focus { outline: none !important; }
 .leaflet-interactive { outline: none !important; }
+
+/* ── Layout tabs ── */
+#content-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#view-tabs{display:flex;border-bottom:1px solid #1e1e2e;background:#0a0a10;flex-shrink:0;}
+.tab-btn{padding:7px 18px;background:transparent;border:none;border-bottom:2px solid transparent;color:#556;font-family:'Courier New',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;transition:.15s;}
+.tab-btn:hover{color:#7eb8f7;}
+.tab-btn.active{color:#7eb8f7;border-bottom:2px solid #7eb8f7;}
+.tab-btn.running{color:#ffe66d;border-bottom:2px solid #ffe66d;}
+.tab-btn.done{color:#0f1117;background:#81b29a;border-bottom:2px solid #81b29a;font-weight:bold;}
+#view-mapa{flex:1;position:relative;min-height:400px;}
+#view-resultats{flex:1;display:none;overflow-y:auto;background:#0f1117;min-height:400px;}
+#res-content{max-width:680px;margin:0 auto;}
+
+/* ── Menú fonts ── */
+
+.ctrl-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#7eb8f7;font-weight:bold;border-bottom:1px solid #1e1e2e;padding-bottom:5px;margin-bottom:2px;}
+.toggle-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#aaa;}
+#stats{font-size:12px;color:#778;line-height:2;}
+
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#889;margin-bottom:3px;}
+
+/* ── Tooltip JS ── */
+.tip-icon{font-size:12px;color:#7eb8f7;cursor:default;margin-left:3px;vertical-align:middle;}
+#tip-global{display:none;position:fixed;background:#0d0d1a;border:1px solid #3a4a6a;padding:9px 11px;font-size:11px;color:#ccc;line-height:1.7;width:230px;z-index:9999;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.9);}
+
+/* ── Header ── */
+#header{padding:10px 16px;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;gap:16px;flex-shrink:0;z-index:1000;background:#0f1117;}
+#header-left{display:flex;flex-direction:column;gap:2px;}
+#header h1{font-size:14px;color:#7eb8f7;text-transform:uppercase;letter-spacing:.1em;margin:0;}
+#header .sub{font-size:12px;color:#778;}
+#header-controls{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.hdr-select{background:#111827;color:#7eb8f7;border:1px solid #2a3a5a;font-family:'Courier New',monospace;font-size:10px;padding:4px 8px;cursor:pointer;}
+.hdr-label{font-size:9px;color:#445;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:2px;}
+
+/* ── Resultats ── */
+.res-card{background:#12121e;border:1px solid #1e1e2e;border-radius:4px;padding:16px 18px;margin-bottom:16px;}
+.res-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#7eb8f7;margin-bottom:12px;font-weight:bold;}
+.res-legend{font-size:11px;color:#778;font-weight:normal;text-transform:none;letter-spacing:0;}
+.res-note{font-size:13px;color:#c8d4e8;line-height:1.7;margin-top:12px;padding-top:12px;border-top:1px solid #1e1e2e;}
+.res-note b{color:#7eb8f7;}
+.res-stat-line{font-size:14px;color:#ddd;line-height:2;}
+.res-stat-line b{color:#7eb8f7;}
+.rbar-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.rbar-name{width:220px;font-size:10px;color:#778;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rbar-bar-wrap{flex:1;background:#1a1a2e;height:12px;position:relative;}
+.rbar-bar{height:100%;opacity:.85;}
+.rbar-line{position:absolute;top:0;width:1px;height:100%;background:#e07a5f;}
+.rbar-val{width:38px;font-size:10px;text-align:right;}
+.dist-wrap{display:flex;align-items:flex-end;gap:2px;height:110px;}
+.dist-bin{flex:1;display:flex;flex-direction:column;justify-content:flex-end;position:relative;}
+.dist-bar{width:100%;opacity:.8;}
 </style>
 </head>
 <body>
+<div id="tip-global"></div>
 <div id="header">
-  <h1>Simulador d'Elecció Escolar</h1>
-  <span class="sub">Terrassa · Boston Mechanism · 1.933 infants · 53 escoles</span>
-  <select id="preset-select" style="margin-left:12px;background:#111827;color:#7eb8f7;border:1px solid #2a3a5a;font-family:inherit;font-size:10px;padding:3px 6px;cursor:pointer;">
+  <div id="header-left">
+    <h1>Simulador d'Elecció Escolar</h1>
+    <span class="sub">Terrassa · Boston Mechanism · 1.933 infants · 53 escoles</span>
+  </div>
+  <div id="header-controls">
+    <div><span class="hdr-label">Municipi</span><select class="hdr-select"><option>Terrassa</option></select></div>
+    <div><span class="hdr-label">Cas predefinit</span>
+    <select id="preset-select" class="hdr-select">
     <option value="">— Cas predefinit —</option>
     <option value="base">Base (α=0.7 β=0.2 γ=0.1)</option>
     <option value="base_zones">Base + zones</option>
@@ -76,38 +134,36 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
     <option value="tot_fort">Tot fort (β=1 γ=1)</option>
     <option value="sense_dist">Sense distància (α=0)</option>
     <option value="sense_dist_pref">Sense dist. + preferències</option>
-  </select>
+  </select></div>
+  </div>
 </div>
 <div id="progress"><div id="progress-bar"></div></div>
 <div id="main">
 <div id="controls">
   <div class="ctrl-section">
-    <div class="ctrl-label">Paràmetres ABM</div>
+    <div class="ctrl-label">Paràmetres</div>
+    <div style="height:28px;"></div>
     <div id="eq-wrap">
       <div class="eq-col">
         <span class="eq-val" id="alpha-val">0.70</span>
         <input type="range" id="alpha" min="0" max="1" step="0.05" value="0.7">
-        <label>α<br>Proximitat</label>
+        <label>α<br>Proximitat</label><span class="tip-icon" data-tip="Pes de la proximitat. 0=distància irrellevant. 1=tothom va a l'escola més propera.">ℹ</span>
       </div>
       <div class="eq-col">
         <span class="eq-val" id="beta-val">0.20</span>
         <input type="range" id="beta" min="0" max="1" step="0.05" value="0.2">
-        <label>β<br>Schelling</label>
+        <label>β<br>Schelling</label><span class="tip-icon" data-tip="Famílies d'IST alt eviten escoles amb IST inferior. 0.3=llindar Schelling. 1=segregació màxima.">ℹ</span>
       </div>
       <div class="eq-col">
         <span class="eq-val" id="gamma-val">0.10</span>
         <input type="range" id="gamma" min="0" max="1" step="0.05" value="0.1">
-        <label>γ<br>Concertada</label>
+        <label>γ<br>Concertada</label><span class="tip-icon" data-tip="Preferència concertada ponderada per IST². 0=cap efecte. 1=IST alt tria concertada gairebé sempre.">ℹ</span>
       </div>
     </div>
-  </div>
-  <div class="ctrl-section">
-    <div class="ctrl-label">Configuració</div>
-    <div class="toggle-row"><label class="toggle"><input type="checkbox" id="zona-toggle"><span class="tog-sl"></span></label>Zones actives</div>
+    <div class="toggle-row" style="margin-top:6px;"><label class="toggle"><input type="checkbox" id="zona-toggle"><span class="tog-sl"></span></label>Zones actives</div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#556;margin-top:8px;padding-bottom:3px;border-bottom:1px solid #1e1e2e;">Visualització</div>
     <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-seccions"><span class="tog-sl"></span></label>Seccions censals</div>
     <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-map" checked><span class="tog-sl"></span></label>Mapa de fons</div>
-
-
   </div>
   <div class="ctrl-section">
     <div class="ctrl-label">Simulació</div>
@@ -119,25 +175,22 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
       <button id="step-btn">⏭</button>
       <button id="play-btn">▶ INICIA</button>
     </div>
-    <div class="ctrl-label">Velocitat simulació</div>
+    <div style="font-size:11px;color:#c8d4e8;line-height:1.5;margin-top:6px;padding:6px 9px;background:#0a0a10;border-left:2px solid #7eb8f7;">Per canviar paràmetres: <b style="color:#7eb8f7;">↺</b> primer.</div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#667;margin-top:8px;padding-bottom:3px;border-bottom:1px solid #1e1e2e;">Velocitat simulació</div>
     <div id="speed-row">
       <span style="font-size:9px;color:#556">Lent</span>
       <input type="range" id="speed" min="30" max="2000" step="30" value="900">
       <span style="font-size:9px;color:#556">Ràpid</span>
     </div>
+    <div id="stats" style="margin-top:8px;"><span style="color:#333">— prem INICIA —</span></div>
   </div>
   <div class="ctrl-section">
-    <div class="ctrl-label">Resultats</div>
-    <div id="stats"><span style="color:#333">— prem INICIA —</span></div>
-  </div>
-  <div class="ctrl-section">
-    <div class="ctrl-label">Llegenda — Escoles</div>
+    <div class="ctrl-label">Llegenda</div>
+    <div style="font-size:10px;color:#556;text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Escoles</div>
     <div class="legend-item"><div class="ld ld-circ" style="border:2px solid #7eb8f7"></div>Pública</div>
     <div class="legend-item"><div class="ld" style="border:2px solid #f4a261"></div>Concertada</div>
     <div class="legend-item"><div class="ld ld-circ" style="border:2px solid #7eb8f7;outline:2px solid white;outline-offset:1px"></div>CMC</div>
-  </div>
-  <div class="ctrl-section">
-    <div class="ctrl-label">Llegenda — Infants (IST)</div>
+    <div style="font-size:10px;color:#556;text-transform:uppercase;letter-spacing:.06em;margin-top:8px;">Infants (IST)</div>
     <div style="display:flex;align-items:center;gap:6px;margin:4px 0 2px 0">
       <span style="font-size:9px;color:#aaa">46</span>
       <div style="flex:1;height:10px;border-radius:4px;background:linear-gradient(to right,#ff1e00,#ff9900,#ffff00,#80d080,#0050ff)"></div>
@@ -154,20 +207,80 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
     <div class="legend-item"><div class="ld" style="background:rgba(255,230,109,0.2);border:2.5px solid #ffe66d"></div>Z03</div>
     <div class="legend-item"><div class="ld" style="background:rgba(167,139,250,0.2);border:2.5px solid #a78bfa"></div>Z04</div>
   </div>
-  <div class="ctrl-section">
-    <div class="ctrl-label">Com funcionen els paràmetres</div>
-    <div class="param-note">
-      <b>α Proximitat</b> (0–1): pes de la proximitat. 0 → distància irrellevant. 1 → tothom va a l'escola més propera.<br><br>
-      <b>β Schelling IST</b> (0–1): famílies d'IST alt eviten escoles amb IST inferior (asimètric). 0.3 és el llindar psicològic clàssic de Schelling. 1 → segregació per afinitat màxima.<br><br>
-      <b>γ Concertada×IST</b> (0–1): preferència per concertada ponderada per IST². 0 → cap efecte. 1 → famílies d'IST alt trien concertada gairebé sempre. Efecte feble a IST baix, fort a IST alt.<br><br>
-      <b>Zones actives:</b> penalització per escola fora de zona (−0.25 utilitat), aplicable a públiques <i>i</i> concertades. Reflecteix el barem real de l'OME Terrassa: 30 punts dins zona vs 10 fora (diferència de 20 punts sobre 80 màxims).
+
+</div>
+<div id="content-area">
+  <div id="view-tabs">
+    <button class="tab-btn active" id="tab-mapa" onclick="switchTab('mapa')">Mapa</button>
+    <button class="tab-btn" id="tab-resultats" onclick="switchTab('resultats')">Resultats</button>
+    <button class="tab-btn" id="tab-detall" onclick="switchTab('detall')">Detall</button>
+  </div>
+  <div id="view-mapa">
+    <div id="map-wrap" style="position:absolute;inset:0;">
+      <div id="map" style="width:100%;height:100%;"></div>
+      <canvas id="overlay-canvas" style="position:absolute;top:0;left:0;pointer-events:none;z-index:400;"></canvas>
+      <div id="tooltip"></div>
     </div>
   </div>
-</div>
-<div id="map-wrap">
-  <div id="map"></div>
-  <canvas id="overlay-canvas"></canvas>
-  <div id="tooltip"></div>
+  <div id="view-resultats">
+    <div id="res-placeholder" style="color:#e07a5f;font-size:14px;padding:30px;font-family:monospace;">— executa la simulació i torna aquí —</div>
+    <div id="res-content" style="display:none;padding:20px 18px;font-family:'Courier New',monospace;">
+
+      <!-- 1. Rbar -->
+      <div class="res-card">
+        <div class="res-title">Rbar per escola <span class="res-legend">(σ assignats / σ entorn)</span></div>
+        <div style="font-size:12px;color:#889;line-height:1.6;margin-bottom:10px;">
+          Compara la barreja d'IST dins l'escola amb la del seu entorn. Rbar &lt; 1 = l'escola barreja menys que el seu barri; Rbar ≥ 1 = barreja igual o més.
+        </div>
+        <div class="res-legend" style="margin-bottom:10px;">
+          <span style="color:#7eb8f7">■</span> Públic &nbsp;
+          <span style="color:#f4a261">■</span> Concertat &nbsp;
+          <span style="color:#e07a5f;">| Rbar = 1</span>
+        </div>
+        <div id="hist-rbar" style="display:flex;align-items:stretch;gap:4px;height:130px;margin:8px 0 4px 6px;position:relative;"></div>
+        <div id="hist-rbar-labels" style="display:flex;gap:4px;margin-left:6px;font-size:11px;color:#667;"></div>
+        <div id="res-note-rbar" class="res-note"></div>
+        <div style="margin-top:10px;"><a href="#" onclick="switchTab('detall');return false;" style="font-size:11px;color:#7eb8f7;text-decoration:none;">→ veure detall per escola</a></div>
+      </div>
+
+      <!-- 2. Distància -->
+      <div class="res-card">
+        <div class="res-title">Distribució de distàncies <span class="res-legend">(bins 0.2 km)</span></div>
+        <div style="font-size:12px;color:#889;line-height:1.6;margin-bottom:10px;">
+          Distància entre el domicili de cada infant i l'escola assignada.
+        </div>
+        <div class="res-legend" style="margin-bottom:10px;">
+          <span style="color:#81b29a">■</span> &lt;1 km &nbsp;
+          <span style="color:#7eb8f7">■</span> ≥1 km &nbsp;
+          <span style="color:#e07a5f;">| 1 km</span>
+        </div>
+        <div id="hist-dist" style="display:flex;align-items:stretch;gap:2px;height:130px;margin:8px 0 4px 6px;position:relative;"></div>
+        <div id="hist-dist-labels" style="display:flex;gap:2px;margin-left:6px;font-size:10px;color:#667;"></div>
+        <div id="res-note-dist" class="res-note"></div>
+        <div style="margin-top:10px;"><a href="#" onclick="switchTab('detall');return false;" style="font-size:11px;color:#7eb8f7;text-decoration:none;">→ veure detall per escola</a></div>
+      </div>
+
+    </div>
+  </div>
+  <div id="view-detall" style="flex:1;display:none;overflow-y:auto;background:#0f1117;padding:20px 18px;font-family:'Courier New',monospace;">
+    <div style="max-width:820px;margin:0 auto;">
+      <div style="font-size:12px;color:#889;margin-bottom:14px;">
+        Detall per escola. Clica una capçalera per ordenar.
+      </div>
+      <table id="detall-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="border-bottom:1px solid #2a3a5a;color:#7eb8f7;text-align:left;">
+            <th style="padding:6px 8px;cursor:pointer;" onclick="sortDetall('nom')">Escola</th>
+            <th style="padding:6px 8px;cursor:pointer;" onclick="sortDetall('nat')">Tipus</th>
+            <th style="padding:6px 8px;cursor:pointer;text-align:right;" onclick="sortDetall('rbar')">Rbar ▾</th>
+            <th style="padding:6px 8px;cursor:pointer;text-align:right;" onclick="sortDetall('distmit')">Dist. mitjana ▾</th>
+            <th style="padding:6px 8px;cursor:pointer;text-align:right;" onclick="sortDetall('n')">Infants</th>
+          </tr>
+        </thead>
+        <tbody id="detall-tbody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -608,6 +721,7 @@ function stepBack(){
 }
 function resetSim(){
   stopPlay(); if(!simState) return;
+  document.getElementById('tab-resultats').classList.remove('running','done');
   simState.currentRound=0; fromRound=0; toRound=0; interpFrac=1;
   unlockParams();
   // Zones: respecta l'estat del toggle
@@ -617,7 +731,10 @@ function resetSim(){
 }
 function startPlay(){
   if(!simState){initSim();setTimeout(startPlay,300);return;}
-  isPlaying=true; document.getElementById('play-btn').textContent='⏸ PAUSA'; playNext();
+  isPlaying=true; document.getElementById('play-btn').textContent='⏸ PAUSA';
+  const tr=document.getElementById('tab-resultats');
+  tr.classList.remove('done'); tr.classList.add('running');
+  playNext();
 }
 function playNext(){
   if(!isPlaying) return;
@@ -627,6 +744,9 @@ function playNext(){
 }
 function stopPlay(){
   isPlaying=false; document.getElementById('play-btn').textContent='▶ PLAY'; stopAnim();
+  const tr=document.getElementById('tab-resultats');
+  tr.classList.remove('running');
+  if(simState&&simState.currentRound===simState.totalRounds) tr.classList.add('done');
 }
 
 document.getElementById('play-btn').addEventListener('click',()=>{
@@ -642,6 +762,7 @@ document.getElementById('back-btn').addEventListener('click',stepBack);
 document.getElementById('reset-btn').addEventListener('click',resetSim);
 document.getElementById('zona-toggle').addEventListener('change', function(){
   simState=null; unlockParams();
+  document.getElementById('tab-resultats').classList.remove('running','done');
   if(this.checked){ showZonaLayers(); document.getElementById('zona-llegenda').style.display=''; }
   else{ hideZonaLayers(); document.getElementById('zona-llegenda').style.display='none'; }
   document.getElementById('stats').innerHTML='<span style="color:#333">— prem INICIA —</span>'; render();
@@ -679,29 +800,9 @@ function updateStats(){
   const assignatsAra = simState.schoolCountsAtRound ? simState.schoolCountsAtRound(r).reduce((a,b)=>a+b,0) : simState.totalAssigned;
   let html=`<b>Ronda:</b> ${r} / ${simState.totalRounds}<br><b>Assignats:</b> ${assignatsAra} / ${simState.totalAssigned}<br>`;
   if(r===simState.totalRounds){
-    html+=`<b>Dist. mitjana:</b> ${simState.avgDist.toFixed(2)} km<br><br>`;
-
-    // Càlcul IST segregació
-    const ist = calcISTStats();
-    simState.istStats = ist;  // guarda per al tooltip
-    html+=`<b>Segregació IST:</b><br>`;
-    html+=`σ intra-escola: <span class="${ist.intra<10?'sg':'sw'}">${ist.intra.toFixed(1)}</span><br>`;
-    html+=`σ inter-escola: <span class="${ist.inter>15?'sw':'sg'}">${ist.inter.toFixed(1)}</span><br>`;
-    html+=`Ràtio inter/intra: <span class="${ist.ratio>1.5?'sw':'sg'}">${ist.ratio?ist.ratio.toFixed(2):'—'}</span><br>`;
-    html+=`<span style="font-size:9px;color:#445">(inter/intra > 1 → segregació)</span><br><br>`;
-
-    html+=`<b>% Concertada per IST:</b><br>`;
-    const bands=[[46.2,83],[83,100],[100,113],[113,124.5]];
-    bands.forEach(([lo,hi],qi)=>{
-      let tot=0,conc=0;
-      for(let i=0;i<AGENTS.length;i++){
-        if(AGENTS[i].ist>=lo&&AGENTS[i].ist<hi&&simState.assigned[i]>=0){
-          tot++; if(ESCOLES[simState.assigned[i]].naturalesa==='Concertat') conc++;
-        }
-      }
-      const pct=tot>0?Math.round(conc/tot*100):0;
-      html+=`Q${qi+1} (${lo}–${hi}): <span class="${pct>50?'sw':'sg'}">${pct}%</span><br>`;
-    });
+    // Precàlcul per tooltip escola i pestanya Resultats
+    simState.istStats = calcISTStats();
+    html+=`<span style="font-size:10px;color:#445">→ veure pestanya Resultats</span>`;
   }
   document.getElementById('stats').innerHTML=html;
 }
@@ -774,6 +875,7 @@ document.getElementById('preset-select').addEventListener('change', function(){
   // Reset simulació anterior però NO arrenca
   simState = null;
   unlockParams();
+  document.getElementById('tab-resultats').classList.remove('running','done');
   document.getElementById('stats').innerHTML='<span style="color:#555">Paràmetres carregats — prem INICIA</span>';
   document.getElementById('round-display').textContent='—';
   document.getElementById('progress-bar').style.width='0%';
@@ -782,6 +884,207 @@ document.getElementById('preset-select').addEventListener('change', function(){
 });
 
 map.whenReady(()=>render());
+
+// ── Tab switching ──
+function switchTab(n){
+  document.getElementById('view-mapa').style.display      = n==='mapa'      ? 'block' : 'none';
+  document.getElementById('view-resultats').style.display = n==='resultats' ? 'block' : 'none';
+  document.getElementById('view-detall').style.display    = n==='detall'    ? 'block' : 'none';
+  document.getElementById('tab-mapa').classList.toggle('active', n==='mapa');
+  document.getElementById('tab-resultats').classList.toggle('active', n==='resultats');
+  document.getElementById('tab-detall').classList.toggle('active', n==='detall');
+  if(n==='mapa'){ if(typeof map!=='undefined') map.invalidateSize(); setTimeout(()=>{resizeCanvas();render();},50); }
+  if(n==='resultats') drawResultats();
+  if(n==='detall') drawDetall();
+}
+
+// ── Taula Detall per escola ──
+let detallSort={col:'rbar', dir:-1};
+let detallData=[];
+
+function computeDetallData(){
+  if(!simState||simState.currentRound!==simState.totalRounds) return [];
+  const ist=simState.istStats||calcISTStats();
+  const dSum=new Array(ESCOLES.length).fill(0), dCnt=new Array(ESCOLES.length).fill(0);
+  for(let i=0;i<AGENTS.length;i++){
+    const j=simState.assigned[i];
+    if(j>=0){
+      const d=haversine(AGENTS[i].lat,AGENTS[i].lon,ESCOLES[j].lat,ESCOLES[j].lon)/1000;
+      dSum[j]+=d; dCnt[j]++;
+    }
+  }
+  return ESCOLES.map((e,j)=>{
+    const s=ist.schoolStats[j];
+    const sig=ESCOLA_SIGMA_ENTORN[e.nom]||0;
+    const rbar=(s&&s.mean!==null&&sig>1)?s.sd/sig:null;
+    const distmit=dCnt[j]>0?dSum[j]/dCnt[j]:null;
+    return{nom:e.nom, nat:e.naturalesa, rbar, distmit, n:dCnt[j]};
+  });
+}
+
+function sortDetall(col){
+  if(detallSort.col===col) detallSort.dir*=-1;
+  else{ detallSort.col=col; detallSort.dir=(col==='nom'||col==='nat')?1:-1; }
+  renderDetall();
+}
+
+function drawDetall(){
+  detallData=computeDetallData();
+  renderDetall();
+}
+
+function renderDetall(){
+  const tb=document.getElementById('detall-tbody');
+  if(!detallData.length){
+    tb.innerHTML='<tr><td colspan="5" style="padding:20px;color:#445;">— executa la simulació primer —</td></tr>';
+    return;
+  }
+  const {col,dir}=detallSort;
+  const sorted=[...detallData].sort((a,b)=>{
+    let av=a[col], bv=b[col];
+    if(av===null) av=-Infinity; if(bv===null) bv=-Infinity;
+    if(typeof av==='string') return av.localeCompare(bv)*dir;
+    return (av-bv)*dir;
+  });
+  tb.innerHTML=sorted.map(d=>{
+    const rc=d.rbar===null?'#445':(d.rbar>=1?'#e07a5f':'#81b29a');
+    const natCol=d.nat==='Concertat'?'#f4a261':'#7eb8f7';
+    return `<tr style="border-bottom:1px solid #1a1a2e;">
+      <td style="padding:6px 8px;color:#ccc;">${d.nom}</td>
+      <td style="padding:6px 8px;color:${natCol};">${d.nat}</td>
+      <td style="padding:6px 8px;text-align:right;color:${rc};">${d.rbar!==null?d.rbar.toFixed(2):'—'}</td>
+      <td style="padding:6px 8px;text-align:right;color:#bbb;">${d.distmit!==null?d.distmit.toFixed(2)+' km':'—'}</td>
+      <td style="padding:6px 8px;text-align:right;color:#889;">${d.n}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Resultats (HTML pur, sense canvas) ──
+function drawResultats(){
+  if(!simState||simState.currentRound!==simState.totalRounds) return;
+  document.getElementById('res-placeholder').style.display='none';
+  document.getElementById('res-content').style.display='';
+  try{
+  const ist=simState.istStats||calcISTStats();
+  simState.istStats=ist;
+
+  // ── Rbar per escola → histograma per bins ──
+  const rbarVals=[]; // {rb, nat}
+  ESCOLES.forEach((e,j)=>{
+    const s=ist.schoolStats[j];
+    if(!s||s.mean===null) return;
+    const sig=ESCOLA_SIGMA_ENTORN[e.nom]||0;
+    if(sig<=1) return;
+    rbarVals.push({rb:s.sd/sig, nat:e.naturalesa});
+  });
+
+  // Bins: [0,0.5), [0.5,1), [1,1.5), [1.5,2), [2,2.5), [2.5+)
+  const RBINS=[0,0.5,1,1.5,2,2.5,Infinity];
+  const RBIN_LABELS=['0–0.5','0.5–1','1–1.5','1.5–2','2–2.5','≥2.5'];
+  const rbPub=new Array(6).fill(0), rbCon=new Array(6).fill(0);
+  rbarVals.forEach(({rb,nat})=>{
+    const bi=RBINS.findIndex((_,i)=>rb>=RBINS[i]&&rb<RBINS[i+1]);
+    if(bi>=0){ if(nat==='Concertat') rbCon[bi]++; else rbPub[bi]++; }
+  });
+  const rbMax=Math.max(...rbPub.map((v,i)=>v+rbCon[i]),1);
+
+  const hw=document.getElementById('hist-rbar');
+  const hl=document.getElementById('hist-rbar-labels');
+  hw.innerHTML=''; hl.innerHTML='';
+  // Línia Rbar=1 — cau entre bin 1 i bin 2 (50% de l'amplada total)
+  const rbar1pct = (2/6*100).toFixed(1); // bin 2 de 6 = 33.3% però la línia és al límit bin1/bin2
+  hw.style.position='relative';
+  hw.innerHTML=`<div style="position:absolute;left:calc(${rbar1pct}% + 2px);top:0;width:1px;height:100%;background:#e07a5f;z-index:1;"></div>`;
+
+  RBIN_LABELS.forEach((lbl,i)=>{
+    const tot=rbPub[i]+rbCon[i];
+    const hPub=rbPub[i]/rbMax*100, hCon=rbCon[i]/rbMax*100;
+    const hTot=(tot)/rbMax*100;
+    hw.innerHTML+=
+      `<div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:0;position:relative;z-index:2;">`+
+        `<div title="${rbCon[i]} concertades" style="width:80%;background:#f4a261;opacity:.85;height:${hCon}%;"></div>`+
+        `<div title="${rbPub[i]} públiques" style="width:80%;background:#7eb8f7;opacity:.85;height:${hPub}%;"></div>`+
+        (tot>0?`<div style="font-size:11px;color:#ccc;margin-top:3px;font-weight:bold;">${tot}</div>`:`<div style="font-size:11px;color:#333;">·</div>`)+
+      `</div>`;
+    hl.innerHTML+=`<div style="flex:1;text-align:center;font-size:11px;color:#889;padding-top:4px;">${lbl}</div>`;
+  });
+
+  // ── Histograma distàncies ──
+  const dists=[];
+  for(let i=0;i<AGENTS.length;i++){
+    const j=simState.assigned[i];
+    if(j>=0) dists.push(haversine(AGENTS[i].lat,AGENTS[i].lon,ESCOLES[j].lat,ESCOLES[j].lon)/1000);
+  }
+  const nB=20, bW=0.2, dbins=new Array(nB).fill(0);
+  dists.forEach(d=>{const b=Math.floor(d/bW); if(b<nB) dbins[b]++;});
+  const dmx=Math.max(...dbins,1);
+  // Bin corresponent a 1km = bin 5 (0-indexed)
+  const dist1kmPct=((5/nB)*100).toFixed(1);
+
+  const dw=document.getElementById('hist-dist');
+  const lw=document.getElementById('hist-dist-labels');
+  dw.innerHTML=''; lw.innerHTML='';
+  dw.style.position='relative';
+  dw.innerHTML=`<div style="position:absolute;left:${dist1kmPct}%;top:0;width:1px;height:100%;background:#e07a5f;z-index:1;"></div>`;
+  dbins.forEach((cnt,b)=>{
+    const h=Math.round(cnt/dmx*100);
+    const col=b*bW<1?'#81b29a':'#7eb8f7';
+    dw.innerHTML+=
+      `<div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;z-index:2;position:relative;">`+
+      `<div style="width:100%;background:${col};opacity:.8;height:${h}%;" title="${cnt} (${(b*bW).toFixed(1)}–${((b+1)*bW).toFixed(1)}km)"></div>`+
+      `</div>`;
+    lw.innerHTML+= b%5===0
+      ? `<div style="flex:1;text-align:left;font-size:10px;color:#667;">${(b*bW).toFixed(1)}</div>`
+      : `<div style="flex:1;"></div>`;
+  });
+
+  const mu=dists.reduce((a,b)=>a+b,0)/dists.length;
+  const sorted=[...dists].sort((a,b)=>a-b);
+  const med=sorted[Math.floor(sorted.length/2)];
+  const pctUnder1=Math.round(dists.filter(d=>d<1).length/dists.length*100);
+
+  // ── Notes per caixa ──
+  const nSeg=rbarVals.filter(v=>v.rb>=1).length;
+  const nTotal=rbarVals.length;
+  const nConcSeg=rbarVals.filter(v=>v.rb>=1&&v.nat==='Concertat').length;
+  const nPubSeg=rbarVals.filter(v=>v.rb>=1&&v.nat==='Públic').length;
+  const segregLabel=ist.ratio>2?'alta':ist.ratio>1.2?'moderada':'baixa';
+  const distLabel=mu<0.8?'molt curta':mu<1.5?'moderada':'llarga';
+
+  const gamma=parseFloat(document.getElementById('gamma').value);
+  const beta=parseFloat(document.getElementById('beta').value);
+
+  // Nota Rbar
+  let noteRbar=`<b>${nSeg} de ${nTotal} escoles</b> (${Math.round(nSeg/nTotal*100)}%) tenen Rbar ≥ 1 — reben infants més homogenis que el seu entorn. `;
+  noteRbar+=`De les segregades: ${nPubSeg} públiques, ${nConcSeg} concertades.`;
+  if(gamma>0.5) noteRbar+=` <span style="color:#ffe66d">γ=${gamma.toFixed(2)}: la preferència per concertada és dominant i explica part d'aquest resultat.</span>`;
+  if(beta>0.7) noteRbar+=` <span style="color:#ffe66d">β=${beta.toFixed(2)}: Schelling fort — famílies d'IST alt eviten activament escoles mixtes.</span>`;
+  document.getElementById('res-note-rbar').innerHTML=noteRbar;
+
+  // Nota distància
+  let noteDist=`Distància <b>${distLabel}</b>: mediana ${med.toFixed(2)} km, mitjana ${mu.toFixed(2)} km. `;
+  noteDist+=`<b>${pctUnder1}%</b> dels infants van a una escola a menys d'1 km.`;
+  document.getElementById('res-note-dist').innerHTML=noteDist;
+
+  } catch(err){
+    console.error('drawResultats:', err);
+  }
+}
+
+// ── Tooltip JS ──
+const TIP=document.getElementById('tip-global');
+document.addEventListener('mouseover',ev=>{
+  const el=ev.target.closest('[data-tip]');
+  if(el){ TIP.textContent=el.dataset.tip; TIP.style.display='block'; }
+  else TIP.style.display='none';
+});
+document.addEventListener('mousemove',ev=>{
+  if(TIP.style.display==='none') return;
+  const x=ev.clientX+14, y=ev.clientY-10;
+  TIP.style.left=(x+240>window.innerWidth?ev.clientX-250:x)+'px';
+  TIP.style.top=(y+100>window.innerHeight?ev.clientY-110:y)+'px';
+});
+
 </script>
 </body>
 </html>
