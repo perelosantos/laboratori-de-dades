@@ -683,9 +683,18 @@ function unlockParams(){
   document.getElementById('zona-toggle').disabled=false;
 }
 
+function clearResultViews(){
+  document.getElementById('res-placeholder').style.display='';
+  document.getElementById('res-content').style.display='none';
+  document.getElementById('detall-tbody').innerHTML='<tr><td colspan="5" style="padding:20px;color:#445;">— executa la simulació primer —</td></tr>';
+  detallData=[];
+  document.getElementById('tab-resultats').classList.remove('running','done');
+}
+
 function initSim(){
   stopPlay();
   lockParams();
+  clearResultViews();
   document.getElementById('stats').innerHTML='<span style="color:#555">Calculant...</span>';
   setTimeout(()=>{
     const result=buildSimulation();
@@ -721,7 +730,7 @@ function stepBack(){
 }
 function resetSim(){
   stopPlay(); if(!simState) return;
-  document.getElementById('tab-resultats').classList.remove('running','done');
+  clearResultViews();
   simState.currentRound=0; fromRound=0; toRound=0; interpFrac=1;
   unlockParams();
   // Zones: respecta l'estat del toggle
@@ -762,7 +771,7 @@ document.getElementById('back-btn').addEventListener('click',stepBack);
 document.getElementById('reset-btn').addEventListener('click',resetSim);
 document.getElementById('zona-toggle').addEventListener('change', function(){
   simState=null; unlockParams();
-  document.getElementById('tab-resultats').classList.remove('running','done');
+  clearResultViews();
   if(this.checked){ showZonaLayers(); document.getElementById('zona-llegenda').style.display=''; }
   else{ hideZonaLayers(); document.getElementById('zona-llegenda').style.display='none'; }
   document.getElementById('stats').innerHTML='<span style="color:#333">— prem INICIA —</span>'; render();
@@ -878,7 +887,7 @@ document.getElementById('preset-select').addEventListener('change', function(){
   // Reset simulació anterior però NO arrenca
   simState = null;
   unlockParams();
-  document.getElementById('tab-resultats').classList.remove('running','done');
+  clearResultViews();
   document.getElementById('stats').innerHTML='<span style="color:#555">Paràmetres carregats — prem INICIA</span>';
   document.getElementById('round-display').textContent='—';
   document.getElementById('progress-bar').style.width='0%';
