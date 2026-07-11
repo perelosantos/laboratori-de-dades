@@ -803,6 +803,9 @@ function updateStats(){
     // Precàlcul per tooltip escola i pestanya Resultats
     simState.istStats = calcISTStats();
     html+=`<span style="font-size:10px;color:#445">→ veure pestanya Resultats</span>`;
+    // Refresca la pestanya activa si és Resultats o Detall
+    if(currentTab==='resultats') drawResultats();
+    if(currentTab==='detall') drawDetall();
   }
   document.getElementById('stats').innerHTML=html;
 }
@@ -886,7 +889,9 @@ document.getElementById('preset-select').addEventListener('change', function(){
 map.whenReady(()=>render());
 
 // ── Tab switching ──
+let currentTab='mapa';
 function switchTab(n){
+  currentTab=n;
   document.getElementById('view-mapa').style.display      = n==='mapa'      ? 'block' : 'none';
   document.getElementById('view-resultats').style.display = n==='resultats' ? 'block' : 'none';
   document.getElementById('view-detall').style.display    = n==='detall'    ? 'block' : 'none';
