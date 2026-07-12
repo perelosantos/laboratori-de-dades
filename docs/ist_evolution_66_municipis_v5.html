@@ -54,10 +54,10 @@
 </div>
 
 <div class="legend">
-  <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> Relaxació (σ↓, IST↑)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div> Consolidació (σ↓, IST↑)</div>
   <div class="leg-item"><div class="leg-dot" style="background:#a855f7"></div> Refredament (σ↓, IST↓)</div>
-  <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div> Sistema forçat (σ↑, IST↓)</div>
-  <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div> Diferenciació (σ↑, IST↑)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div> Contracció (σ↑, IST↓)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div> Empenta (σ↑, IST↑)</div>
   <div class="leg-item"><div class="leg-dot hollow"></div> n&lt;10 seccions (feble)</div>
   <div class="leg-item"><div style="width:11px;height:11px;border:2px solid #34d399;transform:rotate(45deg);flex-shrink:0"></div> Districtes BCN</div>
 </div>
@@ -134,8 +134,8 @@ const x0=cx(0),y0=cy(0);
 // Quadrant backgrounds
 const qg=document.getElementById('quadrants');
 [[x0,PAD.t,VW-PAD.r-x0,y0-PAD.t,'rgba(245,158,11,0.04)'],[PAD.l,PAD.t,x0-PAD.l,y0-PAD.t,'rgba(239,68,68,0.05)'],[PAD.l,y0,x0-PAD.l,VH-PAD.b-y0,'rgba(139,92,246,0.04)'],[x0,y0,VW-PAD.r-x0,VH-PAD.b-y0,'rgba(99,102,241,0.04)']].forEach(([x,y,w,h,f])=>qg.appendChild(el('rect',{x,y,width:w,height:h,fill:f})));
-[['DIFERENCIACIÓ',x0+6,PAD.t+12,'left'],['FORÇAT',PAD.l+4,PAD.t+12,'left'],['RELAXACIÓ',x0+6,VH-PAD.b-6,'left'],['REFREDAMENT',PAD.l+4,VH-PAD.b-6,'left']].forEach(([t,x,y,a])=>{
-  const qc={'DIFERENCIACIÓ':'rgba(245,158,11,0.85)','FORÇAT':'rgba(239,68,68,0.85)','RELAXACIÓ':'rgba(59,130,246,0.85)','REFREDAMENT':'rgba(168,85,247,0.85)'};
+[['EMPENTA',x0+6,PAD.t+12,'left'],['CONTRACCIÓ',PAD.l+4,PAD.t+12,'left'],['CONSOLIDACIÓ',x0+6,VH-PAD.b-6,'left'],['REFREDAMENT',PAD.l+4,VH-PAD.b-6,'left']].forEach(([t,x,y,a])=>{
+  const qc={'EMPENTA':'rgba(245,158,11,0.85)','CONTRACCIÓ':'rgba(239,68,68,0.85)','CONSOLIDACIÓ':'rgba(59,130,246,0.85)','REFREDAMENT':'rgba(168,85,247,0.85)'};
   qg.appendChild(el('text',{x,y,fill:qc[t]||'#9ca3af','font-size':'10','font-weight':'bold','font-family':'Courier New','text-anchor':a},t));
 });
 
