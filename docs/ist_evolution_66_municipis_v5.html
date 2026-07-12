@@ -198,9 +198,15 @@ BCN.forEach(d=>{
   const x=cx(d.d_mean),y=cy(d.d_sigma),s=8;
   const pts=`${x},${y-s} ${x+s},${y} ${x},${y+s} ${x-s},${y}`;
   const p=el('polygon',{points:pts,fill:'rgba(52,211,153,0.12)',stroke:'#34d399','stroke-width':'1.5',style:'cursor:pointer'});
-  p.addEventListener('mouseenter',e=>showTip(e,{...d,isBCN:true,sigma15:null,sigma24:null}));
+  p.addEventListener('mouseenter',e=>showTip(e,{...d,isBCN:true}));
   p.addEventListener('mousemove',e=>{tooltip.style.left=(e.clientX+16)+'px';tooltip.style.top=(e.clientY-10)+'px';});
   p.addEventListener('mouseleave',()=>tooltip.style.opacity=0);
+  p.addEventListener('click',()=>{
+    document.getElementById('spark-panel').classList.add('visible');
+    document.getElementById('spark-title').textContent='BCN · '+d.name;
+    drawSpark('spark-mean',d.means,'#34d399');
+    drawSpark('spark-sigma',d.sigmas,'#ef4444');
+  });
   dg.appendChild(p);
   // Always-on short label for BCN districts (very small)
   const short=d.name.split('-')[0].split(' ')[0];
