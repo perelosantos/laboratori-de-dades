@@ -746,6 +746,7 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
   <div id="view-tabs" style="margin-left:auto;display:flex;gap:4px;">
     <button id="tab-mapa" class="view-tab active">Mapa</button>
     <button id="tab-resultats" class="view-tab">Resultats</button>
+    <button id="tab-instruccions" class="view-tab">Instruccions</button>
   </div>
   <select id="preset-select" style="margin-left:12px;background:#111827;color:#7eb8f7;border:1px solid #2a3a5a;font-family:inherit;font-size:10px;padding:3px 6px;cursor:pointer;">
     <option value="">— Cas predefinit —</option>
@@ -789,7 +790,6 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
   <div class="ctrl-section">
     <div class="ctrl-label">Configuració</div>
     <div class="toggle-row"><label class="toggle"><input type="checkbox" id="zona-toggle"><span class="tog-sl"></span></label>Zones actives</div>
-    <div class="toggle-row"><label class="toggle"><input type="checkbox" id="totes-publiques-toggle"><span class="tog-sl"></span></label>Sense reputació concertada <span class="info-ic" title="Anul·la l'efecte δ únicament a les 22 escoles concertades (les públiques conserven la seva reputació real). Aproximació al vell 'Totes públiques' (que anul·lava γ), adaptada al model δ. Les concertades mantenen ubicació i capacitat — no és equivalent a repartir-les entre les públiques.">ⓘ</span></div>
     <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-seccions"><span class="tog-sl"></span></label>Seccions censals</div>
     <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-map"><span class="tog-sl"></span></label>Mapa de fons (requereix internet)</div>
 
@@ -871,6 +871,39 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
       </thead>
       <tbody id="resultats-tbody"></tbody>
     </table>
+  </div>
+</div>
+<div id="view-instruccions" class="view-panel">
+  <div id="instruccions-wrap" style="flex:1;overflow:auto;padding:20px 28px;max-width:720px;font-size:12px;line-height:1.8;color:#ccc;">
+    <h2 style="color:#7eb8f7;font-size:15px;margin:0 0 4px;">Què és això</h2>
+    <p>Un simulador d'elecció escolar per a Terrassa. 1.933 infants, 53 escoles, mecanisme de Boston — el mateix mecanisme que fa servir de veritat la preinscripció catalana (assignació per ordre de petició, no per punts absoluts). No prediu el futur — és un microscopi per veure com proximitat, afinitat socioeconòmica i reputació generen segregació, i quant en generen les zones educatives.</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Paràmetres (equalitzador esquerra)</h2>
+    <p><b style="color:#eee">α Proximitat</b> — 0 = distància irrellevant · 1 = tothom va a l'escola més propera.<br>
+    <b style="color:#eee">β Schelling</b> — famílies d'IST alt eviten escoles d'entorn més pobre (asimètric).<br>
+    <b style="color:#eee">δ Reputació</b> — pes de la reputació real de cada escola (<code>rep_j</code>, calculada amb 4 cursos de dades CEM: demanda/oferta mitjana). δ=0 apaga la reputació per igual a totes les escoles.</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Zones</h2>
+    <p>Penalització −0.25 d'utilitat si vas a una escola fora de la teva zona (Z01-Z04). S'aplica igual a públiques i concertades — confirmat pel Decret 11/2021, no és una simplificació nostra. No bloqueja: si sobren places, hi pots entrar igualment.</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Com fer-lo servir</h2>
+    <p><b style="color:#eee">Casos predefinits</b> (desplegable superior dret) — tria'n un i s'aplica i arrenca sol.<br>
+    <b style="color:#eee">Manual</b> — mou els sliders, activa/desactiva zones, prem ▶ INICIA.<br>
+    Els sliders es bloquegen mentre corre la simulació — prem ↺ per desbloquejar-los i canviar paràmetres.</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Llegenda del mapa</h2>
+    <p><b style="color:#eee">Escoles:</b> cercle blau = pública · quadrat taronja = concertada · anell blanc = CMC.<br>
+    <b style="color:#eee">Infants (color per IST):</b> vermell = IST baix · blanc = IST mitjà · blau = IST alt.<br>
+    <b style="color:#eee">Zones:</b> vermell coral Z01 · turquesa Z02 · groc Z03 · lila Z04.</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Resultats</h2>
+    <p><b style="color:#eee">D_IST</b> — fracció d'alumnes a redistribuir per igualar IST entre escoles. Anàleg continu del D del Síndic, no numèricament comparable amb ell, sí comparable entre configuracions d'aquest simulador.<br>
+    <b style="color:#eee">D_EST</b> — Duncan clàssic sobre %estranger de secció, directament comparable amb el D-EST oficial del Síndic (0,26 curs 2024/25 a Terrassa).<br>
+    <b style="color:#eee">% fora de zona</b> — visible sota la llegenda de zones un cop hi ha simulació, desglossat per Z01-Z04.<br>
+    Pestanya <b style="color:#eee">Resultats</b> — taula ordenable de les 53 escoles (clic a la capçalera per ordenar).</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Límits coneguts</h2>
+    <p>Població i capacitat són una foto fixa (no varien per any dins d'una mateixa simulació). Distàncies en línia recta, no per carrer. IST i %estranger no són del mateix any exacte (2023 i 2024 respectivament) — desajust petit, documentat. El model no té cap paràmetre de política activa (reserva de places, contenció d'oferta) — per això sotaestima la millora real de segregació per origen dels darrers anys, i sobreestima la segregació socioeconòmica real (el Programa d'escolarització equilibrada ja en conté bona part).</p>
   </div>
 </div>
 <script>
@@ -1028,7 +1061,7 @@ document.getElementById('speed').addEventListener('input',()=>{});
 function getAnimDur(){ return 2030-parseInt(document.getElementById('speed').value); }
 
 // --- Funció utilitat v4: δ (reputació, rep_j calibrat amb dades reals) substitueix γ ---
-function utilitat(agent, escola, alpha, beta, delta, zonaActiva, totesPubliques){
+function utilitat(agent, escola, alpha, beta, delta, zonaActiva){
   // α: distància normalitzada [0,1]
   const dist = Math.max(haversine(agent.lat,agent.lon,escola.lat,escola.lon), 1);
   const uDist = alpha * (1 - dist/DIST_MAX);
@@ -1038,10 +1071,8 @@ function utilitat(agent, escola, alpha, beta, delta, zonaActiva, totesPubliques)
   const uSch = -beta * Math.max(deltaIST, 0) / IST_RANGE;
 
   // δ: reputació acumulada (rep_j = demanda/oferta mitjana últims 4 cursos, dades reals CEM)
-  // "Sense reputació concertada": anul·la rep_j només a les concertades (aprox. de l'antic "Totes públiques")
   const repBase = REP_J[escola.nom] != null ? REP_J[escola.nom] : 1.0;
-  const repEfectiva = (totesPubliques && escola.naturalesa==='Concertat') ? 1.0 : repBase;
-  const uRep = delta * (repEfectiva - 1.0);
+  const uRep = delta * (repBase - 1.0);
 
   // Zones: penalització per fora de zona (afecta públiques I concertades)
   const uZona = (zonaActiva && agent.zona !== escola.zona) ? -0.25 : 0;
@@ -1057,12 +1088,11 @@ function buildSimulation(){
   const beta=parseFloat(document.getElementById('beta').value);
   const delta=parseFloat(document.getElementById('delta').value);
   const zonaActiva=document.getElementById('zona-toggle').checked;
-  const totesPubliques=document.getElementById('totes-publiques-toggle').checked;
   const n=AGENTS.length;
 
   const prefs=[];
   for(let i=0;i<n;i++){
-    const sc=ESCOLES.map((e,j)=>[j,utilitat(AGENTS[i],e,alpha,beta,delta,zonaActiva,totesPubliques)]);
+    const sc=ESCOLES.map((e,j)=>[j,utilitat(AGENTS[i],e,alpha,beta,delta,zonaActiva)]);
     sc.sort((a,b)=>b[1]-a[1]); prefs.push(sc.map(s=>s[0]));
   }
 
@@ -1086,7 +1116,7 @@ function buildSimulation(){
     for(let j=0;j<ESCOLES.length;j++){
       if(!demand[j].length) continue;
       const e=ESCOLES[j];
-      demand[j].sort((a,b)=>utilitat(AGENTS[b],e,alpha,beta,delta,zonaActiva,totesPubliques)-utilitat(AGENTS[a],e,alpha,beta,delta,zonaActiva,totesPubliques));
+      demand[j].sort((a,b)=>utilitat(AGENTS[b],e,alpha,beta,delta,zonaActiva)-utilitat(AGENTS[a],e,alpha,beta,delta,zonaActiva));
       for(let k=0;k<Math.min(cap[j],demand[j].length);k++){
         const i=demand[j][k]; assigned[i]=j; cap[j]--; totalAssigned++; accepted.add(i);
       }
@@ -1563,20 +1593,18 @@ document.querySelectorAll('#resultats-taula th').forEach(th=>{
   });
 });
 
-document.getElementById('tab-mapa').addEventListener('click', ()=>{
-  document.getElementById('tab-mapa').classList.add('active');
-  document.getElementById('tab-resultats').classList.remove('active');
-  document.getElementById('view-mapa').classList.add('active');
-  document.getElementById('view-resultats').classList.remove('active');
-  setTimeout(()=>{ map.invalidateSize(); render(); }, 50);
-});
-document.getElementById('tab-resultats').addEventListener('click', ()=>{
-  document.getElementById('tab-resultats').classList.add('active');
-  document.getElementById('tab-mapa').classList.remove('active');
-  document.getElementById('view-resultats').classList.add('active');
-  document.getElementById('view-mapa').classList.remove('active');
-  renderResultatsView();
-});
+function switchTab(tabId){
+  const tabs = {mapa:'view-mapa', resultats:'view-resultats', instruccions:'view-instruccions'};
+  Object.keys(tabs).forEach(key=>{
+    document.getElementById('tab-'+key).classList.toggle('active', key===tabId);
+    document.getElementById(tabs[key]).classList.toggle('active', key===tabId);
+  });
+  if(tabId==='mapa'){ setTimeout(()=>{ map.invalidateSize(); render(); }, 50); }
+  if(tabId==='resultats'){ renderResultatsView(); }
+}
+document.getElementById('tab-mapa').addEventListener('click', ()=>switchTab('mapa'));
+document.getElementById('tab-resultats').addEventListener('click', ()=>switchTab('resultats'));
+document.getElementById('tab-instruccions').addEventListener('click', ()=>switchTab('instruccions'));
 
 document.getElementById('map-wrap').addEventListener('mousemove',(ev)=>{
   const rect=canvas.getBoundingClientRect();
@@ -1604,6 +1632,19 @@ document.getElementById('map-wrap').addEventListener('mousemove',(ev)=>{
     }
     tip.style.display='block'; tip.style.left=(mx+14)+'px'; tip.style.top=(my-10)+'px';
     tip.innerHTML=`<b>${e.nom}</b><br>${e.naturalesa} · Z${e.zona.slice(-2)}<br>Línies:${e.linies} · Cap:${e.capacitat}<br>IST entorn:${e.ist}${e.cmc?'<br>⚑ CMC':''}${istLine}<br>Assignats ara:${cnt} / final:${cntFinal}`;
+  } else if(document.getElementById('show-seccions').checked){
+    let foundSec=null, bestD=16;
+    Object.entries(SECCIO_LABELS).forEach(([cusec,s])=>{
+      const[x,y]=proj(s.lat,s.lon);
+      const d=Math.hypot(mx-x,my-y);
+      if(d<bestD){ bestD=d; foundSec={cusec,s}; }
+    });
+    if(foundSec){
+      const{cusec,s}=foundSec;
+      const pct = PCT_EST[cusec];
+      tip.style.display='block'; tip.style.left=(mx+14)+'px'; tip.style.top=(my-10)+'px';
+      tip.innerHTML=`<b>${cusec}</b><br>${s.barri}<br>IST: ${s.ist} · Z${s.zona.slice(-2)}${pct!=null?`<br>%estranger (2024): ${pct}`:''}`;
+    } else tip.style.display='none';
   } else tip.style.display='none';
 });
 
