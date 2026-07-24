@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dinàmica IST 2015–2024 · 73 barris de Barcelona</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0e1117; color: #e8e6e0; font-family: 'Georgia', serif; min-height: 100vh; padding: 32px 24px 48px; }
+  .chart-wrap { max-width: 860px; margin: 0 auto; position: relative; border: 1px solid #1f2937; border-radius: 4px; overflow: hidden; cursor: grab; user-select: none; }
+  .chart-wrap:active { cursor: grabbing; }
+  #scatter-svg { display: block; width: 100%; touch-action: none; }
+  .legend { max-width: 860px; margin: 20px auto 0; display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 11px; font-family: 'Courier New', monospace; }
+  .leg-item { display: flex; align-items: center; gap: 7px; color: #9ca3af; }
+  .leg-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .leg-dot.hollow { background: transparent; border: 2px solid #6b7280; }
+  .leg-shape { width: 11px; height: 11px; flex-shrink: 0; }
+  .legend-section { max-width: 860px; margin: 10px auto 0; font-size: 9px; font-family: 'Courier New', monospace; color: #4b5563; text-transform: uppercase; letter-spacing: 0.1em; }
+  .controls { max-width: 860px; margin: 14px auto 0; display: flex; justify-content: space-between; align-items: center; }
+  .ctrl-btn { background: #1c1f26; border: 1px solid #374151; color: #9ca3af; font-family: 'Courier New', monospace; font-size: 11px; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+  .ctrl-btn:hover { color: #e8e6e0; border-color: #4b5563; }
+  .zoom-btns { display: flex; gap: 6px; }
+  #tooltip { position: fixed; background: #1c1f26; border: 1px solid #374151; border-radius: 6px; padding: 10px 14px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.12s; max-width: 220px; z-index: 100; }
+  #tooltip .t-name { font-size: 13px; font-weight: bold; color: #f0ede6; margin-bottom: 4px; }
+  #tooltip .t-row { color: #9ca3af; line-height: 1.7; }
+  #tooltip .t-row span { color: #e8e6e0; }
+  #tooltip .t-warn { color: #f59e0b; font-size: 10px; margin-top: 4px; }
+  #spark-panel { max-width: 860px; margin: 28px auto 0; background: #13161d; border: 1px solid #1f2937; border-radius: 6px; padding: 18px 20px; display: none; }
+  #spark-panel.visible { display: block; }
+  #spark-title { font-size: 15px; color: #f0ede6; margin-bottom: 14px; }
+  .spark-row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .spark-col { flex: 1; min-width: 240px; }
+  .spark-label { font-size: 10px; font-family: 'Courier New', monospace; color: #6b7280; margin-bottom: 6px; letter-spacing: 0.1em; text-transform: uppercase; }
+  canvas.sparkline { display: block; width: 100%; height: 60px; }
+  .note { max-width: 860px; margin: 24px auto 0; font-size: 11px; color: #6b7280; font-family: 'Courier New', monospace; line-height: 1.6; border-top: 1px solid #1f2937; padding-top: 14px; }
+  .note a { color: #7c3aed; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="chart-wrap" id="chart-wrap">
+  <svg id="scatter-svg" viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg">
+    <g id="zoom-g">
+      <g id="quadrants"></g>
+      <g id="grid"></g>
+      <g id="axes"></g>
+      <g id="dots"></g>
+      <g id="labels-always"></g>
+      <g id="labels-all" visibility="visible"></g>
+    </g>
+  </svg>
+</div>
+
+<div class="legend-section">Districtes (color del punt)</div>
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#e6194b"></div> Ciutat Vella</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#3cb44b"></div> L'Eixample</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#4363d8"></div> Sants-Montjuïc</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f58231"></div> Les Corts</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#911eb4"></div> Sarrià-Sant Gervasi</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#42d4f4"></div> Gràcia</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f032e6"></div> Horta-Guinardó</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#bfef45"></div> Nou Barris</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fabed4"></div> Sant Andreu</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#469990"></div> Sant Martí</div>
+</div>
+
+<div class="legend-section">Règim (posició al quadrant) i referències</div>
+<div class="legend">
+  <div class="leg-item"><span style="color:#3b82f6">■</span> Consolidació (σ↓, IST↑)</div>
+  <div class="leg-item"><span style="color:#a855f7">■</span> Refredament (σ↓, IST↓)</div>
+  <div class="leg-item"><span style="color:#ef4444">■</span> Contracció (σ↑, IST↓)</div>
+  <div class="leg-item"><span style="color:#f59e0b">■</span> Empenta (σ↑, IST↑)</div>
+  <div class="leg-item"><div class="leg-dot hollow"></div> n&lt;10 seccions (feble)</div>
+  <div class="leg-item"><div class="leg-shape" style="border:2px solid #34d399;transform:rotate(45deg)"></div> 66 municipis (mitjana)</div>
+  <div class="leg-item"><div class="leg-shape" style="border:2px solid #fbbf24;clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)"></div> BCN ciutat (mitjana 10 districtes)</div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="toggle-labels" onclick="toggleLabels()">Amaga etiquetes</button>
+  <div class="zoom-btns">
+    <button class="ctrl-btn" onclick="doZoom(1.3)">＋</button>
+    <button class="ctrl-btn" onclick="doZoom(1/1.3)">－</button>
+    <button class="ctrl-btn" onclick="resetView()">Reset</button>
+  </div>
+</div>
+
+<div id="spark-panel">
+  <div id="spark-title">—</div>
+  <div class="spark-row">
+    <div class="spark-col"><div class="spark-label">IST mitjà 2015–2024</div><canvas class="sparkline" id="spark-mean"></canvas></div>
+    <div class="spark-col"><div class="spark-label">σIST 2015–2024</div><canvas class="sparkline" id="spark-sigma"></canvas></div>
+  </div>
+</div>
+
+<div class="note">
+  Font: Idescat, IST per secció censal 2015–2024. 73 barris de Barcelona ciutat, 1.068 seccions censals. Mètode d'intersecció (seccions amb dades completes als 10 anys). Exclosos 3 barris amb 1 sola secció censal (Vallbona, la Clota, la Marina del Prat Vermell) — σ no calculable.
+  <a href="https://perelosantos.github.io/laboratori-de-dades/data-sources.html" target="_blank">Dades obertes →</a>
+</div>
+
+<div id="tooltip">
+  <div class="t-name" id="tt-name"></div>
+  <div class="t-row">Districte: <span id="tt-districte"></span></div>
+  <div class="t-row">IST 2015→2024: <span id="tt-ist"></span></div>
+  <div class="t-row">ΔIST: <span id="tt-dmean"></span></div>
+  <div class="t-row">σ 2015→2024: <span id="tt-sigma"></span></div>
+  <div class="t-row">Δσ: <span id="tt-dsigma"></span></div>
+  <div class="t-row">Seccions: <span id="tt-n"></span></div>
+  <div class="t-warn" id="tt-warn"></div>
+</div>
+
+<script>
+const DATA = [{"name": "el Raval", "districte": "Ciutat Vella", "n": 21, "ist15": 75.51, "ist24": 79.95, "d_mean": 4.44, "sigma15": 11.7, "sigma24": 8.77, "d_sigma": -2.93, "means": [75.51, 75.71, 76.01, 78.72, 79.15, 78.86, 77.45, 79.04, 80.08, 79.95], "sigmas": [11.7, 11.76, 11.46, 11.03, 10.27, 9.88, 10.04, 9.36, 8.93, 8.77], "small_n": false, "excluded": false, "color": "#e6194b"}, {"name": "el Barri Gòtic", "districte": "Ciutat Vella", "n": 9, "ist15": 99.11, "ist24": 90.82, "d_mean": -8.29, "sigma15": 9.17, "sigma24": 16.13, "d_sigma": 6.96, "means": [99.11, 98.46, 97.32, 95.31, 93.97, 91.01, 91.3, 92.69, 91.42, 90.82], "sigmas": [9.17, 9.36, 10.3, 15.87, 18.41, 19.35, 14.4, 15.44, 16.99, 16.13], "small_n": true, "excluded": false, "color": "#e6194b"}, {"name": "la Barceloneta", "districte": "Ciutat Vella", "n": 11, "ist15": 94.56, "ist24": 96.14, "d_mean": 1.58, "sigma15": 2.9, "sigma24": 2.2, "d_sigma": -0.7, "means": [94.56, 94.85, 94.85, 95.45, 95.82, 95.63, 95.43, 96.02, 96.57, 96.14], "sigmas": [2.9, 2.94, 2.75, 2.24, 2.63, 2.16, 2.47, 2.07, 1.94, 2.2], "small_n": false, "excluded": false, "color": "#e6194b"}, {"name": "Sant Pere, Santa Caterina i la Ribera", "districte": "Ciutat Vella", "n": 13, "ist15": 100.3, "ist24": 102.05, "d_mean": 1.75, "sigma15": 7.63, "sigma24": 5.96, "d_sigma": -1.67, "means": [100.3, 100.51, 100.57, 101.25, 101.99, 101.17, 101.95, 102.7, 102.56, 102.05], "sigmas": [7.63, 7.37, 6.72, 6.91, 6.35, 6.11, 6.11, 5.88, 6.07, 5.96], "small_n": false, "excluded": false, "color": "#e6194b"}, {"name": "el Fort Pienc", "districte": "L'Eixample", "n": 20, "ist15": 114.45, "ist24": 112.42, "d_mean": -2.03, "sigma15": 6.29, "sigma24": 8.26, "d_sigma": 1.97, "means": [114.45, 113.92, 113.36, 113.36, 113.05, 112.42, 113.0, 112.86, 112.56, 112.42], "sigmas": [6.29, 6.2, 6.64, 7.38, 7.72, 8.77, 8.02, 8.04, 8.03, 8.26], "small_n": false, "excluded": false, "color": "#3cb44b"}, {"name": "la Sagrada Família", "districte": "L'Eixample", "n": 34, "ist15": 113.87, "ist24": 111.18, "d_mean": -2.69, "sigma15": 4.81, "sigma24": 4.47, "d_sigma": -0.34, "means": [113.87, 113.26, 113.07, 112.59, 112.65, 112.13, 111.99, 112.39, 111.64, 111.18], "sigmas": [4.81, 4.97, 5.22, 5.31, 5.0, 5.13, 5.18, 4.59, 4.42, 4.47], "small_n": false, "excluded": false, "color": "#3cb44b"}, {"name": "la Dreta de l'Eixample", "districte": "L'Eixample", "n": 29, "ist15": 124.32, "ist24": 120.61, "d_mean": -3.71, "sigma15": 4.58, "sigma24": 3.9, "d_sigma": -0.68, "means": [124.32, 124.25, 123.29, 123.18, 122.59, 121.46, 121.43, 121.38, 121.23, 120.61], "sigmas": [4.58, 4.58, 4.16, 3.84, 3.91, 4.2, 3.44, 4.08, 3.99, 3.9], "small_n": false, "excluded": false, "color": "#3cb44b"}, {"name": "l'Antiga Esquerra de l'Eixample", "districte": "L'Eixample", "n": 26, "ist15": 120.85, "ist24": 118.67, "d_mean": -2.18, "sigma15": 4.59, "sigma24": 4.93, "d_sigma": 0.34, "means": [120.85, 120.43, 120.19, 119.95, 119.28, 118.78, 119.02, 119.2, 118.72, 118.67], "sigmas": [4.59, 4.68, 5.23, 5.95, 6.26, 6.58, 5.16, 4.6, 5.14, 4.93], "small_n": false, "excluded": false, "color": "#3cb44b"}, {"name": "la Nova Esquerra de l'Eixample", "districte": "L'Eixample", "n": 40, "ist15": 117.97, "ist24": 116.83, "d_mean": -1.14, "sigma15": 5.57, "sigma24": 4.88, "d_sigma": -0.69, "means": [117.97, 117.71, 117.44, 117.4, 117.15, 117.06, 117.19, 117.22, 116.77, 116.83], "sigmas": [5.57, 5.56, 5.31, 5.54, 5.4, 5.14, 5.08, 4.87, 5.01, 4.88], "small_n": false, "excluded": false, "color": "#3cb44b"}, {"name": "Sant Antoni", "districte": "L'Eixample", "n": 24, "ist15": 111.43, "ist24": 110.91, "d_mean": -0.52, "sigma15": 5.14, "sigma24": 3.26, "d_sigma": -1.88, "means": [111.43, 111.35, 110.9, 110.86, 111.3, 110.5, 111.13, 111.17, 110.98, 110.91], "sigmas": [5.14, 5.18, 4.98, 4.4, 4.06, 3.65, 3.68, 3.65, 3.59, 3.26], "small_n": false, "excluded": false, "color": "#3cb44b"}, {"name": "el Poble Sec", "districte": "Sants-Montjuïc", "n": 24, "ist15": 93.45, "ist24": 97.97, "d_mean": 4.52, "sigma15": 6.13, "sigma24": 3.85, "d_sigma": -2.28, "means": [93.45, 93.44, 93.7, 95.19, 95.61, 96.12, 96.37, 97.64, 98.2, 97.97], "sigmas": [6.13, 5.64, 5.34, 5.12, 4.68, 4.4, 4.39, 4.63, 4.11, 3.85], "small_n": false, "excluded": false, "color": "#4363d8"}, {"name": "la Marina de Port", "districte": "Sants-Montjuïc", "n": 17, "ist15": 95.21, "ist24": 95.32, "d_mean": 0.11, "sigma15": 12.23, "sigma24": 9.56, "d_sigma": -2.67, "means": [95.21, 94.84, 94.35, 94.74, 94.72, 94.77, 95.24, 95.37, 95.42, 95.32], "sigmas": [12.23, 12.08, 11.91, 11.47, 11.58, 11.15, 10.89, 10.37, 9.7, 9.56], "small_n": false, "excluded": false, "color": "#4363d8"}, {"name": "la Font de la Guatlla", "districte": "Sants-Montjuïc", "n": 7, "ist15": 107.87, "ist24": 104.8, "d_mean": -3.07, "sigma15": 6.22, "sigma24": 5.67, "d_sigma": -0.55, "means": [107.87, 107.19, 107.09, 107.96, 108.0, 107.64, 106.74, 105.24, 104.84, 104.8], "sigmas": [6.22, 5.49, 5.96, 5.18, 5.02, 4.7, 4.99, 4.6, 5.61, 5.67], "small_n": true, "excluded": false, "color": "#4363d8"}, {"name": "Hostafrancs", "districte": "Sants-Montjuïc", "n": 10, "ist15": 104.51, "ist24": 103.99, "d_mean": -0.52, "sigma15": 3.75, "sigma24": 4.12, "d_sigma": 0.37, "means": [104.51, 104.36, 104.21, 104.77, 104.6, 104.47, 103.95, 104.56, 104.28, 103.99], "sigmas": [3.75, 3.89, 3.7, 3.89, 3.71, 3.63, 4.0, 4.41, 4.32, 4.12], "small_n": false, "excluded": false, "color": "#4363d8"}, {"name": "la Bordeta", "districte": "Sants-Montjuïc", "n": 13, "ist15": 107.04, "ist24": 106.7, "d_mean": -0.34, "sigma15": 4.85, "sigma24": 4.09, "d_sigma": -0.76, "means": [107.04, 106.78, 106.92, 107.11, 106.7, 106.65, 107.64, 107.94, 107.3, 106.7], "sigmas": [4.85, 4.87, 4.92, 4.26, 5.23, 4.75, 4.17, 4.03, 3.71, 4.09], "small_n": false, "excluded": false, "color": "#4363d8"}, {"name": "Sants-Badal", "districte": "Sants-Montjuïc", "n": 16, "ist15": 103.96, "ist24": 102.95, "d_mean": -1.01, "sigma15": 5.88, "sigma24": 4.67, "d_sigma": -1.21, "means": [103.96, 103.63, 103.2, 104.09, 103.54, 102.36, 102.67, 103.73, 103.36, 102.95], "sigmas": [5.88, 5.76, 5.41, 4.6, 4.49, 4.41, 5.07, 4.83, 4.8, 4.67], "small_n": false, "excluded": false, "color": "#4363d8"}, {"name": "Sants", "districte": "Sants-Montjuïc", "n": 29, "ist15": 110.14, "ist24": 109.62, "d_mean": -0.52, "sigma15": 8.43, "sigma24": 9.81, "d_sigma": 1.38, "means": [110.14, 110.02, 110.17, 110.52, 109.7, 108.78, 109.27, 110.49, 109.73, 109.62], "sigmas": [8.43, 8.17, 8.33, 8.71, 10.3, 11.57, 9.5, 7.56, 8.89, 9.81], "small_n": false, "excluded": false, "color": "#4363d8"}, {"name": "les Corts", "districte": "Les Corts", "n": 35, "ist15": 123.42, "ist24": 121.09, "d_mean": -2.33, "sigma15": 7.36, "sigma24": 6.76, "d_sigma": -0.6, "means": [123.42, 123.56, 123.26, 122.87, 122.56, 122.05, 122.15, 121.83, 121.17, 121.09], "sigmas": [7.36, 7.41, 6.8, 6.93, 7.04, 7.21, 6.35, 6.17, 6.65, 6.76], "small_n": false, "excluded": false, "color": "#f58231"}, {"name": "la Maternitat i Sant Ramon", "districte": "Les Corts", "n": 15, "ist15": 119.41, "ist24": 116.24, "d_mean": -3.17, "sigma15": 8.08, "sigma24": 6.84, "d_sigma": -1.24, "means": [119.41, 119.39, 119.2, 118.78, 118.47, 118.17, 117.71, 116.9, 116.21, 116.24], "sigmas": [8.08, 8.27, 7.8, 7.67, 7.74, 7.79, 8.03, 8.1, 7.18, 6.84], "small_n": false, "excluded": false, "color": "#f58231"}, {"name": "Pedralbes", "districte": "Les Corts", "n": 7, "ist15": 132.44, "ist24": 127.44, "d_mean": -5.0, "sigma15": 7.4, "sigma24": 6.59, "d_sigma": -0.81, "means": [132.44, 131.51, 129.61, 129.87, 129.64, 129.49, 128.2, 128.01, 127.5, 127.44], "sigmas": [7.4, 7.23, 7.6, 7.83, 8.1, 7.72, 7.4, 7.23, 6.79, 6.59], "small_n": true, "excluded": false, "color": "#f58231"}, {"name": "Vallvidrera, el Tibidabo i les Planes", "districte": "Sarrià-Sant Gervasi", "n": 3, "ist15": 120.6, "ist24": 120.7, "d_mean": 0.1, "sigma15": 8.73, "sigma24": 7.43, "d_sigma": -1.3, "means": [120.6, 121.33, 120.47, 121.23, 121.83, 120.3, 121.73, 121.3, 120.93, 120.7], "sigmas": [8.73, 9.4, 9.8, 9.32, 9.75, 8.55, 8.54, 7.89, 7.9, 7.43], "small_n": true, "excluded": false, "color": "#911eb4"}, {"name": "Sarrià", "districte": "Sarrià-Sant Gervasi", "n": 16, "ist15": 131.04, "ist24": 128.71, "d_mean": -2.33, "sigma15": 3.81, "sigma24": 5.26, "d_sigma": 1.45, "means": [131.04, 130.25, 130.41, 130.24, 129.96, 129.17, 129.07, 129.07, 128.88, 128.71], "sigmas": [3.81, 5.51, 4.45, 5.28, 5.63, 6.28, 4.33, 5.28, 5.27, 5.26], "small_n": false, "excluded": false, "color": "#911eb4"}, {"name": "les Tres Torres", "districte": "Sarrià-Sant Gervasi", "n": 11, "ist15": 137.01, "ist24": 133.75, "d_mean": -3.26, "sigma15": 4.52, "sigma24": 4.38, "d_sigma": -0.14, "means": [137.01, 137.16, 136.78, 137.01, 136.58, 135.83, 134.35, 134.21, 133.71, 133.75], "sigmas": [4.52, 4.53, 4.85, 4.72, 3.91, 3.77, 3.82, 3.87, 4.55, 4.38], "small_n": false, "excluded": false, "color": "#911eb4"}, {"name": "Sant Gervasi- la Bonanova", "districte": "Sarrià-Sant Gervasi", "n": 18, "ist15": 130.71, "ist24": 129.21, "d_mean": -1.5, "sigma15": 6.66, "sigma24": 6.94, "d_sigma": 0.28, "means": [130.71, 130.41, 130.84, 131.12, 130.96, 130.12, 129.32, 129.43, 129.25, 129.21], "sigmas": [6.66, 6.69, 6.39, 5.78, 6.25, 6.57, 6.72, 6.39, 6.78, 6.94], "small_n": false, "excluded": false, "color": "#911eb4"}, {"name": "Sant Gervasi- Galvany", "districte": "Sarrià-Sant Gervasi", "n": 31, "ist15": 132.98, "ist24": 129.52, "d_mean": -3.46, "sigma15": 4.25, "sigma24": 3.66, "d_sigma": -0.59, "means": [132.98, 132.42, 132.45, 132.51, 131.51, 131.38, 130.69, 130.17, 129.88, 129.52], "sigmas": [4.25, 3.96, 4.06, 4.23, 3.59, 3.62, 3.34, 3.2, 3.52, 3.66], "small_n": false, "excluded": false, "color": "#911eb4"}, {"name": "el Putxet i el Farró", "districte": "Sarrià-Sant Gervasi", "n": 19, "ist15": 126.55, "ist24": 124.68, "d_mean": -1.87, "sigma15": 3.41, "sigma24": 2.57, "d_sigma": -0.84, "means": [126.55, 126.84, 126.92, 126.65, 126.82, 124.97, 125.32, 124.99, 124.85, 124.68], "sigmas": [3.41, 3.63, 3.7, 3.93, 3.4, 4.35, 3.16, 2.91, 2.49, 2.57], "small_n": false, "excluded": false, "color": "#911eb4"}, {"name": "Vallcarca i els Penitents", "districte": "Gràcia", "n": 11, "ist15": 121.74, "ist24": 118.59, "d_mean": -3.15, "sigma15": 5.71, "sigma24": 5.61, "d_sigma": -0.1, "means": [121.74, 121.25, 120.56, 120.35, 119.87, 119.06, 118.43, 118.89, 118.78, 118.59], "sigmas": [5.71, 5.23, 4.91, 5.48, 5.33, 5.05, 5.15, 5.11, 5.29, 5.61], "small_n": false, "excluded": false, "color": "#42d4f4"}, {"name": "el Coll", "districte": "Gràcia", "n": 5, "ist15": 111.1, "ist24": 107.7, "d_mean": -3.4, "sigma15": 3.79, "sigma24": 3.76, "d_sigma": -0.03, "means": [111.1, 110.76, 111.06, 110.44, 110.52, 108.76, 108.22, 109.54, 107.72, 107.7], "sigmas": [3.79, 4.16, 3.71, 3.87, 4.09, 3.44, 3.32, 3.29, 3.86, 3.76], "small_n": true, "excluded": false, "color": "#42d4f4"}, {"name": "la Salut", "districte": "Gràcia", "n": 10, "ist15": 119.99, "ist24": 117.32, "d_mean": -2.67, "sigma15": 5.86, "sigma24": 5.4, "d_sigma": -0.46, "means": [119.99, 119.82, 119.69, 118.67, 119.01, 118.19, 119.01, 118.68, 117.76, 117.32], "sigmas": [5.86, 5.68, 6.07, 6.47, 6.78, 6.57, 4.65, 5.36, 5.48, 5.4], "small_n": false, "excluded": false, "color": "#42d4f4"}, {"name": "la Vila de Gràcia", "districte": "Gràcia", "n": 36, "ist15": 116.98, "ist24": 117.01, "d_mean": 0.03, "sigma15": 4.62, "sigma24": 2.92, "d_sigma": -1.7, "means": [116.98, 116.97, 116.97, 117.27, 117.66, 117.36, 117.43, 117.39, 117.25, 117.01], "sigmas": [4.62, 4.56, 4.28, 3.73, 3.24, 3.15, 2.98, 2.74, 2.93, 2.92], "small_n": false, "excluded": false, "color": "#42d4f4"}, {"name": "el Camp d'en Grassot i Gràcia Nova", "districte": "Gràcia", "n": 25, "ist15": 120.26, "ist24": 118.06, "d_mean": -2.2, "sigma15": 3.69, "sigma24": 5.5, "d_sigma": 1.81, "means": [120.26, 119.87, 119.84, 119.06, 119.07, 118.56, 118.51, 118.7, 118.12, 118.06], "sigmas": [3.69, 3.77, 3.85, 3.97, 4.72, 5.51, 4.74, 5.1, 5.42, 5.5], "small_n": false, "excluded": false, "color": "#42d4f4"}, {"name": "el Baix Guinardó", "districte": "Horta-Guinardó", "n": 19, "ist15": 113.92, "ist24": 111.87, "d_mean": -2.05, "sigma15": 3.97, "sigma24": 4.1, "d_sigma": 0.13, "means": [113.92, 113.55, 113.41, 112.93, 113.23, 112.51, 112.34, 112.33, 112.39, 111.87], "sigmas": [3.97, 4.14, 3.71, 3.68, 3.51, 3.99, 3.95, 3.52, 3.7, 4.1], "small_n": false, "excluded": false, "color": "#f032e6"}, {"name": "Can Baró", "districte": "Horta-Guinardó", "n": 7, "ist15": 107.01, "ist24": 108.2, "d_mean": 1.19, "sigma15": 5.78, "sigma24": 5.1, "d_sigma": -0.68, "means": [107.01, 107.0, 107.04, 107.69, 107.61, 107.44, 107.77, 108.37, 107.7, 108.2], "sigmas": [5.78, 4.96, 5.77, 5.12, 5.02, 5.36, 5.25, 5.11, 4.98, 5.1], "small_n": true, "excluded": false, "color": "#f032e6"}, {"name": "el Guinardó", "districte": "Horta-Guinardó", "n": 25, "ist15": 110.91, "ist24": 109.38, "d_mean": -1.53, "sigma15": 4.08, "sigma24": 3.84, "d_sigma": -0.24, "means": [110.91, 110.63, 110.67, 110.45, 110.52, 110.28, 110.06, 110.07, 109.49, 109.38], "sigmas": [4.08, 4.06, 3.85, 3.84, 3.69, 3.94, 4.41, 4.07, 3.78, 3.84], "small_n": false, "excluded": false, "color": "#f032e6"}, {"name": "la Font d'en Fargues", "districte": "Horta-Guinardó", "n": 7, "ist15": 119.87, "ist24": 119.26, "d_mean": -0.61, "sigma15": 5.87, "sigma24": 5.09, "d_sigma": -0.78, "means": [119.87, 120.43, 120.66, 119.8, 119.53, 118.76, 118.37, 119.79, 119.43, 119.26], "sigmas": [5.87, 5.49, 5.6, 5.72, 5.18, 5.0, 6.03, 4.83, 5.29, 5.09], "small_n": true, "excluded": false, "color": "#f032e6"}, {"name": "el Carmel", "districte": "Horta-Guinardó", "n": 22, "ist15": 93.95, "ist24": 92.61, "d_mean": -1.34, "sigma15": 4.43, "sigma24": 4.96, "d_sigma": 0.53, "means": [93.95, 93.96, 93.87, 93.35, 93.41, 92.7, 92.46, 93.32, 92.73, 92.61], "sigmas": [4.43, 4.54, 5.03, 5.12, 4.03, 4.43, 4.7, 4.75, 5.05, 4.96], "small_n": false, "excluded": false, "color": "#f032e6"}, {"name": "la Teixonera", "districte": "Horta-Guinardó", "n": 8, "ist15": 99.53, "ist24": 98.97, "d_mean": -0.56, "sigma15": 3.33, "sigma24": 4.05, "d_sigma": 0.72, "means": [99.53, 100.06, 99.5, 100.28, 99.89, 98.9, 98.9, 99.2, 99.22, 98.97], "sigmas": [3.33, 2.82, 2.89, 2.43, 1.99, 3.12, 2.92, 2.94, 3.58, 4.05], "small_n": true, "excluded": false, "color": "#f032e6"}, {"name": "Sant Genís dels Agudells", "districte": "Horta-Guinardó", "n": 5, "ist15": 103.0, "ist24": 99.1, "d_mean": -3.9, "sigma15": 8.21, "sigma24": 8.19, "d_sigma": -0.02, "means": [103.0, 102.1, 101.54, 101.22, 100.38, 100.3, 100.72, 99.64, 99.36, 99.1], "sigmas": [8.21, 7.45, 8.8, 8.84, 8.57, 8.36, 8.79, 8.44, 8.31, 8.19], "small_n": true, "excluded": false, "color": "#f032e6"}, {"name": "Montbau", "districte": "Horta-Guinardó", "n": 4, "ist15": 109.58, "ist24": 105.85, "d_mean": -3.73, "sigma15": 2.82, "sigma24": 1.12, "d_sigma": -1.7, "means": [109.58, 108.9, 107.58, 106.3, 107.5, 106.6, 106.33, 106.1, 106.08, 105.85], "sigmas": [2.82, 2.51, 2.57, 2.73, 2.77, 2.28, 0.26, 1.1, 1.46, 1.12], "small_n": true, "excluded": false, "color": "#f032e6"}, {"name": "la Vall d'Hebron", "districte": "Horta-Guinardó", "n": 4, "ist15": 116.58, "ist24": 112.1, "d_mean": -4.48, "sigma15": 6.98, "sigma24": 8.24, "d_sigma": 1.26, "means": [116.58, 116.35, 114.92, 114.83, 114.05, 113.67, 112.88, 112.8, 112.55, 112.1], "sigmas": [6.98, 7.1, 8.02, 7.49, 8.18, 8.59, 8.55, 8.55, 8.82, 8.24], "small_n": true, "excluded": false, "color": "#f032e6"}, {"name": "Horta", "districte": "Horta-Guinardó", "n": 21, "ist15": 108.5, "ist24": 105.87, "d_mean": -2.63, "sigma15": 7.94, "sigma24": 10.17, "d_sigma": 2.23, "means": [108.5, 108.09, 108.04, 107.71, 106.94, 106.35, 106.75, 106.28, 106.37, 105.87], "sigmas": [7.94, 7.73, 7.94, 8.36, 9.43, 11.1, 9.48, 9.93, 10.32, 10.17], "small_n": false, "excluded": false, "color": "#f032e6"}, {"name": "Vilapicina i la Torre Llobeta", "districte": "Nou Barris", "n": 19, "ist15": 105.89, "ist24": 103.91, "d_mean": -1.98, "sigma15": 4.75, "sigma24": 4.72, "d_sigma": -0.03, "means": [105.89, 105.29, 105.08, 104.96, 104.54, 104.34, 104.64, 104.38, 104.14, 103.91], "sigmas": [4.75, 4.55, 4.92, 4.63, 4.99, 4.78, 4.68, 4.88, 4.68, 4.72], "small_n": false, "excluded": false, "color": "#bfef45"}, {"name": "Porta", "districte": "Nou Barris", "n": 18, "ist15": 99.6, "ist24": 96.39, "d_mean": -3.21, "sigma15": 6.78, "sigma24": 10.39, "d_sigma": 3.61, "means": [99.6, 99.26, 98.42, 97.68, 95.87, 95.06, 95.35, 96.09, 96.31, 96.39], "sigmas": [6.78, 6.78, 7.58, 8.59, 10.17, 12.03, 9.62, 9.84, 10.19, 10.39], "small_n": false, "excluded": false, "color": "#bfef45"}, {"name": "el Turó de la Peira", "districte": "Nou Barris", "n": 10, "ist15": 87.2, "ist24": 87.86, "d_mean": 0.66, "sigma15": 8.49, "sigma24": 7.23, "d_sigma": -1.26, "means": [87.2, 87.07, 86.82, 87.04, 87.73, 86.58, 87.08, 87.95, 88.12, 87.86], "sigmas": [8.49, 8.04, 8.17, 8.24, 6.98, 7.3, 7.51, 7.17, 7.39, 7.23], "small_n": false, "excluded": false, "color": "#bfef45"}, {"name": "Can Peguera", "districte": "Nou Barris", "n": 2, "ist15": 81.25, "ist24": 82.1, "d_mean": 0.85, "sigma15": 8.95, "sigma24": 10.6, "d_sigma": 1.65, "means": [81.25, 80.65, 81.2, 79.8, 79.55, 79.95, 82.95, 82.0, 81.6, 82.1], "sigmas": [8.95, 9.85, 10.8, 11.0, 9.95, 9.65, 8.65, 9.1, 10.6, 10.6], "small_n": true, "excluded": false, "color": "#bfef45"}, {"name": "la Guineueta", "districte": "Nou Barris", "n": 11, "ist15": 106.7, "ist24": 105.19, "d_mean": -1.51, "sigma15": 6.3, "sigma24": 6.11, "d_sigma": -0.19, "means": [106.7, 106.5, 105.58, 105.03, 104.35, 104.28, 104.68, 105.14, 105.21, 105.19], "sigmas": [6.3, 6.06, 5.91, 6.2, 6.08, 6.19, 6.2, 5.85, 6.09, 6.11], "small_n": false, "excluded": false, "color": "#bfef45"}, {"name": "Canyelles", "districte": "Nou Barris", "n": 5, "ist15": 99.94, "ist24": 99.1, "d_mean": -0.84, "sigma15": 5.4, "sigma24": 4.17, "d_sigma": -1.23, "means": [99.94, 100.18, 99.4, 99.08, 98.68, 98.2, 99.4, 99.34, 99.62, 99.1], "sigmas": [5.4, 5.59, 5.19, 4.24, 3.63, 4.2, 4.17, 4.26, 3.75, 4.17], "small_n": true, "excluded": false, "color": "#bfef45"}, {"name": "les Roquetes", "districte": "Nou Barris", "n": 10, "ist15": 79.24, "ist24": 78.37, "d_mean": -0.87, "sigma15": 5.24, "sigma24": 5.09, "d_sigma": -0.15, "means": [79.24, 78.99, 78.67, 78.09, 77.93, 77.23, 77.64, 78.37, 78.33, 78.37], "sigmas": [5.24, 5.04, 5.06, 4.85, 5.01, 5.15, 5.0, 4.41, 5.28, 5.09], "small_n": false, "excluded": false, "color": "#bfef45"}, {"name": "Verdun", "districte": "Nou Barris", "n": 8, "ist15": 85.74, "ist24": 84.58, "d_mean": -1.16, "sigma15": 4.73, "sigma24": 2.91, "d_sigma": -1.82, "means": [85.74, 85.55, 85.05, 84.75, 84.46, 84.06, 83.7, 84.14, 84.46, 84.58], "sigmas": [4.73, 4.9, 5.4, 4.83, 4.08, 3.24, 3.16, 2.45, 2.66, 2.91], "small_n": true, "excluded": false, "color": "#bfef45"}, {"name": "la Prosperitat", "districte": "Nou Barris", "n": 20, "ist15": 93.62, "ist24": 91.97, "d_mean": -1.65, "sigma15": 4.4, "sigma24": 5.32, "d_sigma": 0.92, "means": [93.62, 93.41, 92.62, 92.02, 92.59, 92.25, 91.78, 92.56, 92.36, 91.97], "sigmas": [4.4, 4.5, 5.31, 4.83, 4.99, 5.4, 5.64, 5.5, 5.47, 5.32], "small_n": false, "excluded": false, "color": "#bfef45"}, {"name": "la Trinitat Nova", "districte": "Nou Barris", "n": 5, "ist15": 75.52, "ist24": 78.16, "d_mean": 2.64, "sigma15": 3.21, "sigma24": 5.33, "d_sigma": 2.12, "means": [75.52, 75.52, 75.66, 75.88, 76.08, 76.24, 76.58, 77.42, 77.46, 78.16], "sigmas": [3.21, 2.93, 3.57, 3.85, 3.55, 3.68, 4.68, 4.42, 4.97, 5.33], "small_n": true, "excluded": false, "color": "#bfef45"}, {"name": "Torre Baró", "districte": "Nou Barris", "n": 2, "ist15": 72.7, "ist24": 75.35, "d_mean": 2.65, "sigma15": 5.5, "sigma24": 4.45, "d_sigma": -1.05, "means": [72.7, 72.1, 71.9, 72.95, 73.9, 74.0, 74.95, 73.55, 74.7, 75.35], "sigmas": [5.5, 5.8, 5.2, 5.55, 4.1, 5.9, 6.05, 5.75, 5.4, 4.45], "small_n": true, "excluded": false, "color": "#bfef45"}, {"name": "Ciutat Meridiana", "districte": "Nou Barris", "n": 6, "ist15": 67.05, "ist24": 68.35, "d_mean": 1.3, "sigma15": 2.11, "sigma24": 4.23, "d_sigma": 2.12, "means": [67.05, 67.3, 66.35, 66.48, 66.65, 66.2, 65.73, 66.65, 68.42, 68.35], "sigmas": [2.11, 2.23, 3.26, 3.31, 3.51, 3.44, 4.11, 4.14, 4.65, 4.23], "small_n": true, "excluded": false, "color": "#bfef45"}, {"name": "la Trinitat Vella", "districte": "Sant Andreu", "n": 5, "ist15": 75.14, "ist24": 77.72, "d_mean": 2.58, "sigma15": 14.26, "sigma24": 10.89, "d_sigma": -3.37, "means": [75.14, 75.28, 74.94, 74.64, 74.92, 74.76, 75.38, 76.24, 77.0, 77.72], "sigmas": [14.26, 13.85, 12.39, 11.87, 11.56, 12.02, 11.69, 11.11, 11.27, 10.89], "small_n": true, "excluded": false, "color": "#fabed4"}, {"name": "Baró de Viver", "districte": "Sant Andreu", "n": 2, "ist15": 75.5, "ist24": 77.85, "d_mean": 2.35, "sigma15": 3.6, "sigma24": 0.95, "d_sigma": -2.65, "means": [75.5, 74.75, 74.3, 75.8, 76.3, 77.1, 77.1, 77.5, 78.05, 77.85], "sigmas": [3.6, 2.85, 0.7, 0.6, 0.6, 0.0, 1.2, 1.8, 2.65, 0.95], "small_n": true, "excluded": false, "color": "#fabed4"}, {"name": "el Bon Pastor", "districte": "Sant Andreu", "n": 7, "ist15": 91.36, "ist24": 89.27, "d_mean": -2.09, "sigma15": 16.79, "sigma24": 18.58, "d_sigma": 1.79, "means": [91.36, 90.86, 90.53, 89.73, 89.27, 88.2, 89.4, 89.36, 89.57, 89.27], "sigmas": [16.79, 16.96, 17.08, 17.2, 17.82, 19.08, 18.15, 18.32, 18.57, 18.58], "small_n": true, "excluded": false, "color": "#fabed4"}, {"name": "Sant Andreu", "districte": "Sant Andreu", "n": 39, "ist15": 113.59, "ist24": 112.16, "d_mean": -1.43, "sigma15": 4.86, "sigma24": 5.82, "d_sigma": 0.96, "means": [113.59, 113.53, 113.27, 113.06, 112.96, 112.51, 112.58, 112.14, 112.13, 112.16], "sigmas": [4.86, 4.94, 5.52, 5.68, 5.62, 6.1, 5.7, 6.3, 6.05, 5.82], "small_n": false, "excluded": false, "color": "#fabed4"}, {"name": "la Sagrera", "districte": "Sant Andreu", "n": 20, "ist15": 108.02, "ist24": 106.47, "d_mean": -1.55, "sigma15": 6.9, "sigma24": 6.88, "d_sigma": -0.02, "means": [108.02, 108.46, 108.29, 108.11, 107.81, 108.16, 107.62, 107.25, 106.67, 106.47], "sigmas": [6.9, 6.78, 6.91, 6.63, 6.53, 6.36, 6.85, 6.88, 6.94, 6.88], "small_n": false, "excluded": false, "color": "#fabed4"}, {"name": "el Congrés i els Indians", "districte": "Sant Andreu", "n": 9, "ist15": 107.42, "ist24": 107.6, "d_mean": 0.18, "sigma15": 2.68, "sigma24": 2.21, "d_sigma": -0.47, "means": [107.42, 107.48, 107.27, 107.3, 107.12, 106.66, 106.7, 107.6, 107.47, 107.6], "sigmas": [2.68, 2.2, 2.72, 2.78, 2.98, 2.95, 2.66, 2.48, 2.68, 2.21], "small_n": true, "excluded": false, "color": "#fabed4"}, {"name": "Navas", "districte": "Sant Andreu", "n": 13, "ist15": 108.9, "ist24": 109.97, "d_mean": 1.07, "sigma15": 3.13, "sigma24": 3.37, "d_sigma": 0.24, "means": [108.9, 108.78, 108.79, 109.07, 109.05, 109.05, 109.39, 109.98, 109.88, 109.97], "sigmas": [3.13, 3.38, 3.25, 3.28, 3.36, 2.72, 2.85, 2.92, 3.01, 3.37], "small_n": false, "excluded": false, "color": "#fabed4"}, {"name": "el Camp de l'Arpa del Clot", "districte": "Sant Martí", "n": 25, "ist15": 110.48, "ist24": 110.29, "d_mean": -0.19, "sigma15": 4.14, "sigma24": 4.02, "d_sigma": -0.12, "means": [110.48, 110.56, 110.46, 110.76, 110.36, 110.0, 110.24, 111.02, 110.71, 110.29], "sigmas": [4.14, 4.5, 4.47, 4.23, 4.4, 4.36, 4.21, 4.25, 4.14, 4.02], "small_n": false, "excluded": false, "color": "#469990"}, {"name": "el Clot", "districte": "Sant Martí", "n": 17, "ist15": 110.02, "ist24": 111.46, "d_mean": 1.44, "sigma15": 5.5, "sigma24": 4.62, "d_sigma": -0.88, "means": [110.02, 110.18, 110.04, 110.47, 110.21, 109.82, 110.97, 111.46, 111.36, 111.46], "sigmas": [5.5, 4.82, 4.87, 5.23, 5.23, 5.33, 5.62, 5.02, 4.55, 4.62], "small_n": false, "excluded": false, "color": "#469990"}, {"name": "el Parc i la Llacuna del Poblenou", "districte": "Sant Martí", "n": 9, "ist15": 112.12, "ist24": 112.57, "d_mean": 0.45, "sigma15": 5.86, "sigma24": 3.41, "d_sigma": -2.45, "means": [112.12, 112.11, 112.17, 111.53, 111.89, 112.16, 112.83, 113.08, 112.93, 112.57], "sigmas": [5.86, 5.15, 5.11, 4.58, 3.74, 3.32, 2.67, 2.76, 2.71, 3.41], "small_n": true, "excluded": false, "color": "#469990"}, {"name": "la Vila Olímpica del Poblenou", "districte": "Sant Martí", "n": 5, "ist15": 128.88, "ist24": 124.98, "d_mean": -3.9, "sigma15": 4.26, "sigma24": 4.95, "d_sigma": 0.69, "means": [128.88, 128.1, 127.96, 126.76, 126.66, 125.5, 124.88, 125.18, 125.0, 124.98], "sigmas": [4.26, 4.37, 4.34, 4.45, 4.42, 4.1, 4.43, 4.72, 5.29, 4.95], "small_n": true, "excluded": false, "color": "#469990"}, {"name": "el Poblenou", "districte": "Sant Martí", "n": 20, "ist15": 112.89, "ist24": 114.75, "d_mean": 1.86, "sigma15": 6.98, "sigma24": 4.85, "d_sigma": -2.13, "means": [112.89, 112.92, 113.24, 113.44, 114.07, 113.94, 114.39, 114.83, 115.02, 114.75], "sigmas": [6.98, 7.09, 6.25, 6.18, 5.77, 5.65, 5.47, 4.97, 4.95, 4.85], "small_n": false, "excluded": false, "color": "#469990"}, {"name": "Diagonal Mar i el Front Marítim del Poblenou", "districte": "Sant Martí", "n": 7, "ist15": 117.24, "ist24": 113.36, "d_mean": -3.88, "sigma15": 11.68, "sigma24": 10.61, "d_sigma": -1.07, "means": [117.24, 117.14, 116.14, 114.74, 114.86, 114.96, 114.87, 114.27, 113.61, 113.36], "sigmas": [11.68, 11.06, 10.09, 11.42, 11.94, 11.55, 10.19, 10.34, 10.3, 10.61], "small_n": true, "excluded": false, "color": "#469990"}, {"name": "el Besòs i el Maresme", "districte": "Sant Martí", "n": 13, "ist15": 80.32, "ist24": 80.15, "d_mean": -0.17, "sigma15": 17.21, "sigma24": 16.26, "d_sigma": -0.95, "means": [80.32, 80.1, 79.79, 79.5, 78.69, 78.17, 79.28, 79.54, 80.25, 80.15], "sigmas": [17.21, 16.75, 16.72, 17.52, 17.75, 19.1, 18.03, 17.34, 16.66, 16.26], "small_n": false, "excluded": false, "color": "#469990"}, {"name": "Provençals del Poblenou", "districte": "Sant Martí", "n": 12, "ist15": 106.15, "ist24": 106.3, "d_mean": 0.15, "sigma15": 9.22, "sigma24": 8.02, "d_sigma": -1.2, "means": [106.15, 105.98, 106.04, 106.39, 106.57, 106.16, 106.58, 106.71, 106.53, 106.3], "sigmas": [9.22, 8.73, 8.64, 8.58, 8.42, 8.68, 8.97, 8.32, 8.11, 8.02], "small_n": false, "excluded": false, "color": "#469990"}, {"name": "Sant Martí de Provençals", "districte": "Sant Martí", "n": 18, "ist15": 104.05, "ist24": 103.17, "d_mean": -0.88, "sigma15": 7.8, "sigma24": 7.33, "d_sigma": -0.47, "means": [104.05, 103.96, 103.39, 103.32, 103.42, 103.01, 103.54, 103.72, 103.74, 103.17], "sigmas": [7.8, 8.1, 8.18, 7.83, 7.85, 7.71, 7.54, 7.34, 7.27, 7.33], "small_n": false, "excluded": false, "color": "#469990"}, {"name": "la Verneda i la Pau", "districte": "Sant Martí", "n": 21, "ist15": 98.46, "ist24": 97.28, "d_mean": -1.18, "sigma15": 9.72, "sigma24": 9.03, "d_sigma": -0.69, "means": [98.46, 98.04, 97.87, 97.32, 97.23, 97.22, 97.76, 97.78, 97.44, 97.28], "sigmas": [9.72, 9.65, 9.34, 9.37, 9.14, 9.31, 9.03, 8.95, 8.9, 9.03], "small_n": false, "excluded": false, "color": "#469990"}];
+const PALETTE = {"Ciutat Vella": "#e6194b", "L'Eixample": "#3cb44b", "Sants-Montjuïc": "#4363d8", "Les Corts": "#f58231", "Sarrià-Sant Gervasi": "#911eb4", "Gràcia": "#42d4f4", "Horta-Guinardó": "#f032e6", "Nou Barris": "#bfef45", "Sant Andreu": "#fabed4", "Sant Martí": "#469990"};
+const REFS = {"muni": {"name": "66 municipis (mitjana)", "n": 1892, "d_mean": -0.26, "d_sigma": -0.17}, "bcn": {"name": "Barcelona ciutat (mitjana 10 districtes)", "n": 1068, "d_mean": -1.14, "d_sigma": -0.6}};
+const YEARS = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+let showLabels = true;
+
+const VW=820,VH=520,PAD={l:52,r:24,t:20,b:44};
+const PW=VW-PAD.l-PAD.r, PH=VH-PAD.t-PAD.b;
+const refPts=[REFS.muni,REFS.bcn];
+const allDm=[...DATA.map(d=>d.d_mean),...refPts.map(d=>d.d_mean)];
+const allDs=[...DATA.map(d=>d.d_sigma),...refPts.map(d=>d.d_sigma)];
+const xMin=Math.min(...allDm)-0.6, xMax=Math.max(...allDm)+0.6;
+const yMin=Math.min(...allDs)-0.35, yMax=Math.max(...allDs)+0.35;
+function cx(v){return PAD.l+(v-xMin)/(xMax-xMin)*PW;}
+function cy(v){return PAD.t+PH-(v-yMin)/(yMax-yMin)*PH;}
+function dotR(n){return Math.max(4,Math.min(14,3+Math.sqrt(n)*0.7));}
+function qCol(dm,ds,a=1){
+  if(ds<0&&dm>=0) return `rgba(59,130,246,${a})`;
+  if(ds<0&&dm<0)  return `rgba(168,85,247,${a})`;
+  if(ds>0&&dm<0)  return `rgba(239,68,68,${a})`;
+  return `rgba(245,158,11,${a})`;
+}
+function el(tag,attrs,text){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);
+  if(text!==undefined)e.textContent=text;
+  return e;
+}
+
+const x0=cx(0),y0=cy(0);
+
+// Quadrant backgrounds
+const qg=document.getElementById('quadrants');
+[[x0,PAD.t,VW-PAD.r-x0,y0-PAD.t,'rgba(245,158,11,0.04)'],[PAD.l,PAD.t,x0-PAD.l,y0-PAD.t,'rgba(239,68,68,0.05)'],[PAD.l,y0,x0-PAD.l,VH-PAD.b-y0,'rgba(139,92,246,0.04)'],[x0,y0,VW-PAD.r-x0,VH-PAD.b-y0,'rgba(99,102,241,0.04)']].forEach(([x,y,w,h,f])=>qg.appendChild(el('rect',{x,y,width:w,height:h,fill:f})));
+[['EMPENTA',x0+6,PAD.t+12,'left'],['CONTRACCIÓ',PAD.l+4,PAD.t+12,'left'],['CONSOLIDACIÓ',x0+6,VH-PAD.b-6,'left'],['REFREDAMENT',PAD.l+4,VH-PAD.b-6,'left']].forEach(([t,x,y,a])=>{
+  const qc={'EMPENTA':'rgba(245,158,11,0.85)','CONTRACCIÓ':'rgba(239,68,68,0.85)','CONSOLIDACIÓ':'rgba(59,130,246,0.85)','REFREDAMENT':'rgba(168,85,247,0.85)'};
+  qg.appendChild(el('text',{x,y,fill:qc[t]||'#9ca3af','font-size':'10','font-weight':'bold','font-family':'Courier New','text-anchor':a},t));
+});
+
+// Grid + axes
+const gg=document.getElementById('grid');
+[-8,-6,-4,-2,2,4].forEach(v=>{gg.appendChild(el('line',{x1:cx(v),y1:PAD.t,x2:cx(v),y2:VH-PAD.b,stroke:'#1f2937','stroke-width':'1'}));gg.appendChild(el('text',{x:cx(v),y:VH-PAD.b+14,fill:'#6b7280','font-size':'10','font-family':'Courier New','text-anchor':'middle'},(v>0?'+':'')+v));});
+[-4,-2,2,4,6].forEach(v=>{gg.appendChild(el('line',{x1:PAD.l,y1:cy(v),x2:VW-PAD.r,y2:cy(v),stroke:'#1f2937','stroke-width':'1'}));gg.appendChild(el('text',{x:PAD.l-6,y:cy(v)+3,fill:'#6b7280','font-size':'10','font-family':'Courier New','text-anchor':'end'},(v>0?'+':'')+v));});
+const ag=document.getElementById('axes');
+ag.appendChild(el('line',{x1:x0,y1:PAD.t,x2:x0,y2:VH-PAD.b,stroke:'#374151','stroke-width':'1.5'}));
+ag.appendChild(el('line',{x1:PAD.l,y1:y0,x2:VW-PAD.r,y2:y0,stroke:'#374151','stroke-width':'1.5'}));
+ag.appendChild(el('text',{x:PAD.l+PW/2,y:VH-4,fill:'#4b5563','font-size':'11','font-family':'Georgia','text-anchor':'middle'},'ΔIST 2015–2024'));
+ag.appendChild(el('text',{x:12,y:PAD.t+PH/2,fill:'#4b5563','font-size':'11','font-family':'Georgia','text-anchor':'middle',transform:`rotate(-90,12,${PAD.t+PH/2})`},'Δσ IST 2015–2024'));
+
+// Dots
+const dg=document.getElementById('dots'),lg=document.getElementById('labels-always'),allg=document.getElementById('labels-all');
+const tooltip=document.getElementById('tooltip');
+
+function showTip(e,d){
+  document.getElementById('tt-name').textContent=d.isRef?'◆ '+d.name:d.name;
+  document.getElementById('tt-districte').textContent=d.districte||'—';
+  document.getElementById('tt-ist').textContent=`${d.ist15} → ${d.ist24}`;
+  document.getElementById('tt-dmean').textContent=(d.d_mean>0?'+':'')+d.d_mean.toFixed(2);
+  document.getElementById('tt-sigma').textContent=(d.sigma15!=null&&d.sigma24!=null)?`${d.sigma15} → ${d.sigma24}`:'—';
+  document.getElementById('tt-dsigma').textContent=(d.d_sigma>0?'+':'')+d.d_sigma.toFixed(2);
+  document.getElementById('tt-n').textContent=d.n;
+  document.getElementById('tt-warn').textContent=d.small_n?'⚠ n<10 seccions, resultat feble':'';
+  tooltip.style.opacity=1;
+  tooltip.style.left=(e.clientX+16)+'px';
+  tooltip.style.top=(e.clientY-10)+'px';
+}
+
+DATA.forEach(d=>{
+  const x=cx(d.d_mean),y=cy(d.d_sigma),r=dotR(d.n);
+  const c=el('circle',{cx:x,cy:y,r,fill:d.small_n?'none':d.color,stroke:d.small_n?d.color:'rgba(255,255,255,0.25)','stroke-width':d.small_n?'2':'0.5',style:'cursor:pointer'});
+  c.addEventListener('mouseenter',e=>showTip(e,d));
+  c.addEventListener('mousemove',e=>{tooltip.style.left=(e.clientX+16)+'px';tooltip.style.top=(e.clientY-10)+'px';});
+  c.addEventListener('mouseleave',()=>tooltip.style.opacity=0);
+  c.addEventListener('click',()=>{
+    if(!d.means)return;
+    document.getElementById('spark-panel').classList.add('visible');
+    document.getElementById('spark-title').textContent=d.name+' ('+d.districte+')';
+    drawSpark('spark-mean',d.means,'#6366f1');
+    drawSpark('spark-sigma',d.sigmas,'#ef4444');
+  });
+  dg.appendChild(c);
+
+  const anchor=d.d_mean>0?'start':'end';
+  const lx=d.d_mean>0?x+r+3:x-r-3;
+  const short=d.name.replace(/^(el|la|els|les|l')\s+/i,'').split(',')[0];
+  allg.appendChild(el('text',{x:lx,y:y+3,fill:d.small_n?'#6b7280':d.color,'font-size':'8.5','font-family':'Courier New','text-anchor':anchor},short));
+});
+
+// Reference markers: square (66 municipis), rhombus (BCN ciutat)
+function drawRef(d,shape,color){
+  const x=cx(d.d_mean),y=cy(d.d_sigma),s=9;
+  let shp;
+  if(shape==='square'){
+    shp=el('rect',{x:x-s,y:y-s,width:s*2,height:s*2,fill:'rgba(52,211,153,0.15)',stroke:color,'stroke-width':'2',style:'cursor:pointer'});
+  } else {
+    const pts=`${x},${y-s*1.3} ${x+s*1.3},${y} ${x},${y+s*1.3} ${x-s*1.3},${y}`;
+    shp=el('polygon',{points:pts,fill:'rgba(251,191,36,0.15)',stroke:color,'stroke-width':'2',style:'cursor:pointer'});
+  }
+  shp.addEventListener('mouseenter',e=>showTip(e,{...d,isRef:true,districte:'—',small_n:false}));
+  shp.addEventListener('mousemove',e=>{tooltip.style.left=(e.clientX+16)+'px';tooltip.style.top=(e.clientY-10)+'px';});
+  shp.addEventListener('mouseleave',()=>tooltip.style.opacity=0);
+  dg.appendChild(shp);
+  lg.appendChild(el('text',{x:x,y:y-s-6,fill:color,'font-size':'9','font-family':'Courier New','font-weight':'bold','text-anchor':'middle'},d.name.split(' (')[0]));
+}
+drawRef(REFS.muni,'square','#34d399');
+drawRef(REFS.bcn,'rhombus','#fbbf24');
+
+// Toggle
+function toggleLabels(){
+  showLabels=!showLabels;
+  document.getElementById('labels-all').setAttribute('visibility',showLabels?'visible':'hidden');
+  document.getElementById('toggle-labels').textContent=showLabels?'Amaga etiquetes':'Mostra etiquetes';
+}
+
+// Pan + zoom
+let vx=0,vy=0,scale=1;
+function applyT(){document.getElementById('zoom-g').setAttribute('transform',`translate(${vx},${vy}) scale(${scale})`);}
+function doZoom(f,mx=VW/2,my=VH/2){vx=mx-f*(mx-vx);vy=my-f*(my-vy);scale*=f;applyT();}
+function resetView(){vx=0;vy=0;scale=1;applyT();}
+let drag=false,lx,ly;
+const wrap=document.getElementById('chart-wrap');
+wrap.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+window.addEventListener('mousemove',e=>{if(!drag)return;vx+=e.clientX-lx;vy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;applyT();});
+window.addEventListener('mouseup',()=>drag=false);
+wrap.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=wrap.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(VW/r.width),my=(e.clientY-r.top)*(VH/r.height);
+  doZoom(e.deltaY<0?1.15:1/1.15,mx,my);
+},{passive:false});
+let ltd=null;
+wrap.addEventListener('touchstart',e=>{if(e.touches.length===2)ltd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);else{lx=e.touches[0].clientX;ly=e.touches[0].clientY;}});
+wrap.addEventListener('touchmove',e=>{e.preventDefault();if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(ltd)doZoom(d/ltd);ltd=d;}else{vx+=e.touches[0].clientX-lx;vy+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;applyT();}},{passive:false});
+wrap.addEventListener('touchend',()=>ltd=null);
+
+// Sparklines
+function drawSpark(id,values,color){
+  const c=document.getElementById(id);
+  const dpr=window.devicePixelRatio||1;
+  const W=c.getBoundingClientRect().width||240,H=60;
+  c.width=W*dpr;c.height=H*dpr;c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const valid=values.filter(v=>v!==null);
+  const mn=Math.min(...valid),mx=Math.max(...valid);
+  const p={l:8,r:8,t:8,b:20},pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const sx=i=>p.l+i/(values.length-1)*pw;
+  const sy=v=>p.t+ph-(v-mn)/(mx-mn||1)*ph;
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.beginPath();values.forEach((v,i)=>{if(v===null)return;i===0?ctx.moveTo(sx(i),sy(v)):ctx.lineTo(sx(i),sy(v));});ctx.stroke();
+  ctx.fillStyle=color.includes('rgb')?color.replace(')',',0.1)').replace('rgb','rgba'):'rgba(99,102,241,0.1)';
+  ctx.lineTo(sx(values.length-1),H-p.b);ctx.lineTo(sx(0),H-p.b);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#4b5563';ctx.font='9px "Courier New"';ctx.textAlign='center';
+  [0,4,9].forEach(i=>ctx.fillText(YEARS[i],sx(i),H-4));
+  ctx.fillStyle=color;ctx.font='bold 9px "Courier New"';
+  ctx.textAlign='left';ctx.fillText(valid[0].toFixed(1),p.l,p.t+8);
+  ctx.textAlign='right';ctx.fillText(valid[valid.length-1].toFixed(1),W-p.r,p.t+8);
+}
+</script>
+</body>
+</html>
