@@ -886,12 +886,18 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
     <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Zones</h2>
     <p>Penalització −0.25 d'utilitat si vas a una escola fora de la teva zona (Z01-Z04). S'aplica igual a públiques i concertades — confirmat pel Decret 11/2021, no és una simplificació nostra. No bloqueja: si sobren places, hi pots entrar igualment.</p>
 
-    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Com fer-lo servir</h2>
+	<h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Com fer-lo servir</h2>
     <p><b style="color:#eee">Casos predefinits</b> (desplegable superior dret) — tria'n un i s'aplica i arrenca sol.<br>
-    <b style="color:#eee">Manual</b> — mou els sliders, activa/desactiva zones, prem ▶ INICIA.<br>
-    Els sliders es bloquegen mentre corre la simulació — prem ↺ per desbloquejar-los i canviar paràmetres.</p>
+    <b style="color:#eee">Manual</b> — mou els sliders, activa/desactiva zones, prem ▶ INICIA.
+	<br> Els sliders es bloquegen mentre corre la simulació — prem ↺ per desbloquejar-los i canviar paràmetres.<br>
+    <b style="color:#eee">Seccions censals</b> — mostra la capa de seccions al mapa i activa un tooltip en passar el ratolí per una secció sense escola a sobre (codi de secció, barri, IST, %estranger 2024).<br>
+    <b style="color:#eee">Mapa de fons</b> — carrega el mapa base (CartoDB) per referència geogràfica. Requereix connexió a internet; sense ella, el simulador funciona igual, només sense el mapa de carrers de fons.</p>
 
-    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Llegenda del mapa</h2>
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Tooltips (passar el ratolí per sobre)</h2>
+    <p><b style="color:#eee">Sobre una escola</b> — naturalesa, zona, línies, capacitat, IST de l'entorn, i un cop feta la simulació: infants assignats i IST mitjà ±desviació dels assignats.<br>
+    <b style="color:#eee">Sobre una secció</b> (amb "Seccions censals" actiu, i sense escola a sobre) — codi de secció, barri, IST, zona i %estranger.</p>
+
+    h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Llegenda del mapa</h2>
     <p><b style="color:#eee">Escoles:</b> cercle blau = pública · quadrat taronja = concertada · anell blanc = CMC.<br>
     <b style="color:#eee">Infants (color per IST):</b> vermell = IST baix · blanc = IST mitjà · blau = IST alt.<br>
     <b style="color:#eee">Zones:</b> vermell coral Z01 · turquesa Z02 · groc Z03 · lila Z04.</p>
