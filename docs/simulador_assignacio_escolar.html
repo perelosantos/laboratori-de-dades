@@ -697,7 +697,7 @@ body{font-family:'Courier New',monospace;background:#0f1117;color:#e0e0e0;height
 input[type=range]{width:100%;accent-color:#7eb8f7;cursor:pointer;height:14px;}
 input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
 /* Equalitzador vertical */
-#eq-wrap{display:flex;gap:10px;justify-content:center;align-items:flex-end;height:130px;margin:6px 0;}
+#eq-wrap{display:flex;gap:10px;justify-content:center;align-items:flex-end;min-height:130px;margin:6px 0;}
 .eq-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
 .eq-col label{font-size:9px;color:#778;text-align:center;line-height:1.3;}
 .eq-col .eq-val{font-size:11px;color:#7eb8f7;font-weight:bold;}
@@ -789,8 +789,8 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
   </div>
   <div class="ctrl-section">
     <div class="ctrl-label">Configuració</div>
-    <div class="toggle-row"><label class="toggle"><input type="checkbox" id="zona-toggle"><span class="tog-sl"></span></label>Zones actives</div>
-    <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-seccions"><span class="tog-sl"></span></label>Seccions censals</div>
+    <div class="toggle-row"><label class="toggle"><input type="checkbox" id="zona-toggle"><span class="tog-sl"></span></label>Zones actives <span class="info-ic" title="Penalització −0.25 utilitat per escola fora de zona (públiques i concertades). Barem real OME Terrassa: 30 pts dins zona vs 10 fora.">ⓘ</span></div>
+    <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-seccions"><span class="tog-sl"></span></label>Seccions censals <span class="info-ic" title="Mostra els contorns de les seccions censals al mapa. Passa el ratolí per una secció sense escola a sobre per veure codi, barri, IST i %estranger (2024).">ⓘ</span></div>
     <div class="toggle-row"><label class="toggle"><input type="checkbox" id="show-map"><span class="tog-sl"></span></label>Mapa de fons (requereix internet)</div>
 
 
@@ -840,10 +840,6 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
     <div class="legend-item"><div class="ld" style="background:rgba(255,230,109,0.2);border:2.5px solid #ffe66d"></div>Z03</div>
     <div class="legend-item"><div class="ld" style="background:rgba(167,139,250,0.2);border:2.5px solid #a78bfa"></div>Z04</div>
     <div id="zona-fora-stats" style="margin-top:10px;font-size:10px;line-height:1.7;color:#ccc;"></div>
-  </div>
-  <div class="ctrl-section">
-    <div class="ctrl-label">Zones actives — què fa</div>
-    <div class="param-note" style="font-size:9.5px">Penalització −0.25 utilitat per escola fora de zona (públiques i concertades). Barem real OME Terrassa: 30 pts dins zona vs 10 fora.</div>
   </div>
 </div>
 <div id="view-mapa" class="view-panel active">
@@ -1123,7 +1119,8 @@ function buildSimulation(){
       if(!demand[j].length) continue;
       const e=ESCOLES[j];
       demand[j].sort((a,b)=>utilitat(AGENTS[b],e,alpha,beta,delta,zonaActiva)-utilitat(AGENTS[a],e,alpha,beta,delta,zonaActiva));
-      for(let k=0;k<Math.min(cap[j],demand[j].length);k++){
+      const lim=Math.min(cap[j],demand[j].length);
+      for(let k=0;k<lim;k++){
         const i=demand[j][k]; assigned[i]=j; cap[j]--; totalAssigned++; accepted.add(i);
       }
     }
