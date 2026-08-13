@@ -14,25 +14,27 @@
 </head>
 <body>
 <div id="wrap">
-  <h1>Quant costa, en minuts, tenir escoles més barrejades</h1>
-  <p class="sub">Cada punt és el mínim de segregació per origen (D_EST) assolible amb un pressupost de temps donat, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia.</p>
+  <h1>Barrejar per origen i barrejar per renda costa el mateix</h1>
+  <p class="sub">Cada punt és el mínim de segregació assolible amb un pressupost de temps donat, per als dos indicadors, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia.</p>
   <canvas id="c" width="1500" height="900"></canvas>
-  <p class="foot">El punt taronja és on cau Terrassa quan les famílies trien lliurement. La corba és el que assoliria una assignació administrativa amb el mateix pressupost de temps. Límit conegut: el càlcul fa servir el % de població estrangera de la secció de residència, no la nacionalitat individual.</p>
+  <p class="foot">El punt taronja és el D_EST de Terrassa quan les famílies trien lliurement. Les dues corbes tenen la mateixa forma i s'anul·len al mateix punt: el que separa les escoles per renda i el que les separa per origen respon igual a la distància. La corba és el que assoliria una assignació administrativa amb el mateix pressupost de temps. Límit conegut: el càlcul fa servir el % de població estrangera de la secció de residència, no la nacionalitat individual.</p>
 </div>
 <script>
-const P=[[7.53,0.2571],[7.60,0.1987],[7.68,0.1750],[7.75,0.1561],[7.83,0.1419],[7.91,0.1298],
+const P=[[7.53,0.2588],[7.60,0.1987],[7.68,0.1750],[7.75,0.1561],[7.83,0.1419],[7.91,0.1298],
          [8.06,0.1105],[8.28,0.0874],[8.66,0.0577],[9.03,0.0360],[9.79,0.0041],[11.29,0.0]];
+const Q=[[7.53,0.3812],[7.60,0.3075],[7.68,0.2726],[7.75,0.2467],[7.83,0.2249],[7.91,0.2069],
+         [8.06,0.1784],[8.28,0.1438],[8.66,0.1001],[9.03,0.0697],[9.79,0.0230],[11.29,0.0]];
 const LLIURE=[8.88,0.239];
 const C=document.getElementById('c'),X=C.getContext('2d');
 const W=C.width,H=C.height,L=125,R=90,T=70,B=115;
 const PW=W-L-R,PH=H-T-B;
-const X0=7.3,X1=11.7,Y0=0,Y1=0.26;
+const X0=7.3,X1=11.7,Y0=0,Y1=0.40;
 const px=v=>L+((v-X0)/(X1-X0))*PW, py=v=>T+PH-((v-Y0)/(Y1-Y0))*PH;
 
 X.fillStyle="#0d1117";X.fillRect(0,0,W,H);
 X.strokeStyle="#21262d";X.lineWidth=2;
 X.fillStyle="#7d8590";X.font="22px -apple-system,Segoe UI,Arial";X.textAlign="right";
-for(let v=0;v<=0.2601;v+=0.05){
+for(let v=0;v<=0.401;v+=0.05){
   X.beginPath();X.moveTo(L,py(v));X.lineTo(L+PW,py(v));X.stroke();
   X.fillText(v.toFixed(2).replace('.',','),L-16,py(v)+8);
 }
@@ -53,14 +55,18 @@ P.forEach(p=>X.lineTo(px(p[0]),py(p[1])));
 X.lineTo(px(P[P.length-1][0]),py(0));X.lineTo(px(P[0][0]),py(0));X.closePath();
 X.fillStyle="rgba(61,90,128,0.16)";X.fill();
 X.fillStyle="#4a5568";X.font="italic 22px -apple-system,Segoe UI,Arial";X.textAlign="left";
-X.fillText("regió inassolible",px(8.3),py(0.028));
 
-// corba
-X.strokeStyle="#7eb8f7";X.lineWidth=6;X.lineJoin="round";
-X.beginPath();P.forEach((p,i)=>{i?X.lineTo(px(p[0]),py(p[1])):X.moveTo(px(p[0]),py(p[1]))});X.stroke();
-P.forEach(p=>{
-  X.fillStyle="#0d1117";X.beginPath();X.arc(px(p[0]),py(p[1]),10,0,7);X.fill();
-  X.fillStyle="#7eb8f7";X.beginPath();X.arc(px(p[0]),py(p[1]),6,0,7);X.fill();
+
+// corbes
+[[Q,"#c98bdb","D_IST — nivell socioeconòmic"],[P,"#7eb8f7","D_EST — origen"]].forEach(([C,col,lab])=>{
+  X.strokeStyle=col;X.lineWidth=6;X.lineJoin="round";
+  X.beginPath();C.forEach((p,i)=>{i?X.lineTo(px(p[0]),py(p[1])):X.moveTo(px(p[0]),py(p[1]))});X.stroke();
+  C.forEach(p=>{
+    X.fillStyle="#0d1117";X.beginPath();X.arc(px(p[0]),py(p[1]),9,0,7);X.fill();
+    X.fillStyle=col;X.beginPath();X.arc(px(p[0]),py(p[1]),5.5,0,7);X.fill();
+  });
+  X.fillStyle=col;X.font="600 23px -apple-system,Segoe UI,Arial";X.textAlign="left";
+  X.fillText(lab,px(C[1][0])+18,py(C[1][1])-14);
 });
 
 // punt de tria lliure
@@ -72,9 +78,9 @@ X.fillText("0,239 amb 8,9 min",px(LLIURE[0])+24,py(LLIURE[1])+24);
 
 // anotacions
 X.fillStyle="#7eb8f7";X.font="600 23px -apple-system,Segoe UI,Arial";X.textAlign="left";
-X.fillText("+9 segons \u2192 un ter\u00e7 menys",px(7.72),py(0.205));
+
 X.fillStyle="#8b949e";X.font="22px -apple-system,Segoe UI,Arial";
-X.fillText("+3,8 min \u2192 pr\u00e0cticament zero",px(9.5),py(0.030));
+X.fillText("amb +3,8 min de mitjana, totes dues s\u0027anul\u00b7len",px(8.9),py(0.045));
 </script>
 </body>
 </html>
