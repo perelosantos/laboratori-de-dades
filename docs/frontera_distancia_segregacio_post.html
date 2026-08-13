@@ -14,32 +14,30 @@
 </head>
 <body>
 <div id="wrap">
-  <h1>Barrejar per origen i barrejar per renda costa el mateix</h1>
-  <p class="sub">Cada punt és el mínim de segregació assolible amb un pressupost de temps donat, per als dos indicadors, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia.</p>
+  <h1>Quant costa, en minuts, tenir escoles més barrejades</h1>
+  <p class="sub">La corba blava és el mínim de segregació per origen (D_EST) assolible amb un pressupost de temps donat, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia.</p>
   <canvas id="c" width="1500" height="900"></canvas>
-  <p class="foot">El punt taronja és el D_EST de Terrassa quan les famílies trien lliurement. Les dues corbes tenen la mateixa forma i s'anul·len al mateix punt: el que separa les escoles per renda i el que les separa per origen respon igual a la distància. La corba és el que assoliria una assignació administrativa amb el mateix pressupost de temps. Límit conegut: el càlcul fa servir el % de població estrangera de la secció de residència, no la nacionalitat individual.</p>
+  <p class="foot">La banda taronja és el recorregut complet del simulador d'agents movent els seus tres paràmetres; la línia vermella, la xifra oficial del Síndic. Cap dels dos surt del racó més segregat de la corba. La corba és el que assoliria una assignació administrativa amb el mateix pressupost de temps. Límit conegut: el càlcul fa servir el % de població estrangera de la secció de residència, no la nacionalitat individual.</p>
 </div>
 <script>
 const P=[[7.53,0.2588],[7.60,0.1987],[7.68,0.1750],[7.75,0.1561],[7.83,0.1419],[7.91,0.1298],
          [8.06,0.1105],[8.28,0.0874],[8.66,0.0577],[9.03,0.0360],[9.79,0.0041],[11.29,0.0]];
-const Q=[[7.53,0.3812],[7.60,0.3075],[7.68,0.2726],[7.75,0.2467],[7.83,0.2249],[7.91,0.2069],
-         [8.06,0.1784],[8.28,0.1438],[8.66,0.1001],[9.03,0.0697],[9.79,0.0230],[11.29,0.0]];
 const LLIURE=[8.88,0.239];
 const C=document.getElementById('c'),X=C.getContext('2d');
 const W=C.width,H=C.height,L=125,R=90,T=70,B=115;
 const PW=W-L-R,PH=H-T-B;
-const X0=7.3,X1=11.7,Y0=0,Y1=0.40;
+const X0=7.3,X1=11.9,Y0=0,Y1=0.29;
 const px=v=>L+((v-X0)/(X1-X0))*PW, py=v=>T+PH-((v-Y0)/(Y1-Y0))*PH;
 
 X.fillStyle="#0d1117";X.fillRect(0,0,W,H);
 X.strokeStyle="#21262d";X.lineWidth=2;
 X.fillStyle="#7d8590";X.font="22px -apple-system,Segoe UI,Arial";X.textAlign="right";
-for(let v=0;v<=0.401;v+=0.05){
+for(let v=0;v<=0.281;v+=0.05){
   X.beginPath();X.moveTo(L,py(v));X.lineTo(L+PW,py(v));X.stroke();
   X.fillText(v.toFixed(2).replace('.',','),L-16,py(v)+8);
 }
 X.textAlign="center";
-for(let v=7.5;v<=11.7;v+=0.5){
+for(let v=7.5;v<=11.9;v+=0.5){
   X.beginPath();X.moveTo(px(v),T+PH);X.lineTo(px(v),T+PH+9);X.stroke();
   X.fillText(v.toFixed(1).replace('.',','),px(v),T+PH+38);
 }
@@ -48,6 +46,19 @@ X.fillStyle="#8b949e";X.font="23px -apple-system,Segoe UI,Arial";
 X.fillText("minuts a peu de mitjana per infant",L+PW/2,T+PH+80);
 X.save();X.translate(36,T+PH/2);X.rotate(-Math.PI/2);X.textAlign="center";
 X.fillText("D_EST — segregació per origen",0,0);X.restore();
+
+// banda de l'ABM (0,223-0,255) i xifra oficial
+X.fillStyle="rgba(244,162,97,0.10)";
+X.fillRect(L,py(0.255),PW,py(0.223)-py(0.255));
+X.setLineDash([7,6]);X.strokeStyle="#8b6a3f";X.lineWidth=2;
+[0.223,0.255].forEach(v=>{X.beginPath();X.moveTo(L,py(v));X.lineTo(L+PW,py(v));X.stroke();});
+X.setLineDash([]);
+X.fillStyle="#a8763e";X.font="21px -apple-system,Segoe UI,Arial";X.textAlign="right";
+X.fillText("simulador d'agents: 0,223 \u2013 0,255",L+PW-8,py(0.240)+7);
+X.strokeStyle="#e06c5a";X.lineWidth=3;X.setLineDash([11,7]);
+X.beginPath();X.moveTo(L,py(0.26));X.lineTo(L+PW,py(0.26));X.stroke();X.setLineDash([]);
+X.fillStyle="#e06c5a";X.font="600 22px -apple-system,Segoe UI,Arial";X.textAlign="left";
+X.fillText("xifra oficial del S\u00edndic 2024/25: 0,26",L+8,py(0.26)-12);
 
 // àrea sota la corba = inassolible
 X.beginPath();X.moveTo(px(P[0][0]),py(P[0][1]));
@@ -58,7 +69,7 @@ X.fillStyle="#4a5568";X.font="italic 22px -apple-system,Segoe UI,Arial";X.textAl
 
 
 // corbes
-[[Q,"#c98bdb","D_IST — nivell socioeconòmic"],[P,"#7eb8f7","D_EST — origen"]].forEach(([C,col,lab])=>{
+[[P,"#7eb8f7",""]].forEach(([C,col,lab])=>{
   X.strokeStyle=col;X.lineWidth=6;X.lineJoin="round";
   X.beginPath();C.forEach((p,i)=>{i?X.lineTo(px(p[0]),py(p[1])):X.moveTo(px(p[0]),py(p[1]))});X.stroke();
   C.forEach(p=>{
@@ -80,7 +91,9 @@ X.fillText("0,239 amb 8,9 min",px(LLIURE[0])+24,py(LLIURE[1])+24);
 X.fillStyle="#7eb8f7";X.font="600 23px -apple-system,Segoe UI,Arial";X.textAlign="left";
 
 X.fillStyle="#8b949e";X.font="22px -apple-system,Segoe UI,Arial";
-X.fillText("amb +3,8 min de mitjana, totes dues s\u0027anul\u00b7len",px(8.9),py(0.045));
+X.fillStyle="#8b949e";X.font="21px -apple-system,Segoe UI,Arial";X.textAlign="left";
+X.fillText("assignaci\u00f3 a l\u0027atzar: 0,047",px(9.7),py(0.047)-14);
+X.setLineDash([5,5]);X.strokeStyle="#4a5568";X.lineWidth=2;X.beginPath();X.moveTo(L,py(0.047));X.lineTo(L+PW,py(0.047));X.stroke();X.setLineDash([]);
 </script>
 </body>
 </html>
