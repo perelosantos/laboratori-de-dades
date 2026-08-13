@@ -15,14 +15,14 @@
 <body>
 <div id="wrap">
   <h1>Quant costa, en minuts, tenir escoles més barrejades</h1>
-  <p class="sub">La corba blava és el mínim de segregació per origen (D_EST) assolible amb un pressupost de temps donat, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia.</p>
+  <p class="sub">La corba blava és el mínim de segregació per origen (D_EST) assolible amb un pressupost de temps donat, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia. El punt taronja és el cas per defecte del simulador d'agents (α=0,70 · β=0,20 · δ=0).</p>
   <canvas id="c" width="1500" height="900"></canvas>
   <p class="foot">La banda taronja és el recorregut complet del simulador d'agents movent els seus tres paràmetres; la línia vermella, la xifra oficial del Síndic. Cap dels dos surt del racó més segregat de la corba. La corba és el que assoliria una assignació administrativa amb el mateix pressupost de temps. Límit conegut: el càlcul fa servir el % de població estrangera de la secció de residència, no la nacionalitat individual.</p>
 </div>
 <script>
 const P=[[7.53,0.2588],[7.60,0.1987],[7.68,0.1750],[7.75,0.1561],[7.83,0.1419],[7.91,0.1298],
          [8.06,0.1105],[8.28,0.0874],[8.66,0.0577],[9.03,0.0360],[9.79,0.0041],[11.29,0.0]];
-const LLIURE=[8.88,0.239];
+const LLIURE=[8.30,0.225];
 const C=document.getElementById('c'),X=C.getContext('2d');
 const W=C.width,H=C.height,L=125,R=90,T=70,B=115;
 const PW=W-L-R,PH=H-T-B;
@@ -85,7 +85,7 @@ X.fillStyle="#f4a261";X.beginPath();X.arc(px(LLIURE[0]),py(LLIURE[1]),13,0,7);X.
 X.fillStyle="#f4a261";X.font="600 24px -apple-system,Segoe UI,Arial";X.textAlign="left";
 X.fillText("tria lliure de les famílies",px(LLIURE[0])+24,py(LLIURE[1])-6);
 X.fillStyle="#a8763e";X.font="21px -apple-system,Segoe UI,Arial";
-X.fillText("0,239 amb 8,9 min",px(LLIURE[0])+24,py(LLIURE[1])+24);
+X.fillText("0,225 amb 8,3 min",px(LLIURE[0])+24,py(LLIURE[1])+24);
 
 // anotacions
 X.fillStyle="#7eb8f7";X.font="600 23px -apple-system,Segoe UI,Arial";X.textAlign="left";
