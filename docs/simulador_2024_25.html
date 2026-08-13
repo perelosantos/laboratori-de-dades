@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
-<title>Simulador Elecció Escolar — Terrassa 2024-25 (v9)</title>
+<title>Simulador Elecció Escolar — Terrassa 2024-25 · v10 · 2026-08-13 · fd7b9fb5</title>
 <style>
 /* required styles */
 
@@ -742,7 +742,7 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
   <select id="municipi-select" style="background:#111827;color:#7eb8f7;border:1px solid #2a3a5a;font-family:inherit;font-size:11px;padding:3px 6px;cursor:pointer;">
     <option value="terrassa">Terrassa</option>
   </select>
-  <span class="sub">Boston Mechanism · curs 2024-25 · 1.888 infants · 53 escoles</span>
+  <span class="sub">Boston Mechanism · curs 2024-25 · 1.888 infants · 53 escoles · <span style="color:#4a5568" title="Versió i empremta de les dades embegudes">v10 · 2026-08-13 · fd7b9fb5</span></span>
   <div id="view-tabs" style="margin-left:auto;display:flex;gap:4px;">
     <button id="tab-mapa" class="view-tab active">Mapa</button>
     <button id="tab-resultats" class="view-tab">Resultats</button>
@@ -910,6 +910,11 @@ input[type=range]:disabled{opacity:0.35;cursor:not-allowed;}
     <b style="color:#eee">σ assignats</b> — dispersió d'IST dins l'escola. Mesura barreja. És ortogonal a Δ i calen totes dues: una escola pot estar desplaçada i ser homogènia (Δ gran, σ petita) o estar al lloc i ser diversa (Δ petit, σ gran).<br>
     <b style="color:#eee">% fora de zona</b> — visible sota la llegenda de zones un cop hi ha simulació, desglossat per Z01-Z04.<br>
     Pestanya <b style="color:#eee">Resultats</b> — taula ordenable de les 53 escoles (clic a la capçalera per ordenar).</p>
+
+    <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Versió</h2>
+    <p><b style="color:#eee">v10 · 2026-08-13 · fd7b9fb5</b><br>
+    L'<b>empremta</b> <code style="color:#7eb8f7">fd7b9fb5</code> és un resum criptogràfic de les dades embegudes (escoles, agents i matriu de distàncies). Si canvia, les dades han canviat; si coincideix, és exactament el mateix fitxer de dades.<br>
+    <span style="color:#8b949e">Novetats d'aquesta versió: coordenades oficials de les 53 escoles del registre del Departament (22 canviaven de secció censal respecte de la versió anterior); infants situats sobre el <b>centroide de població</b> de la seva secció, calculat amb els 33.122 portals del cadastre; i <b>distàncies a peu reals</b> d'OSRM per als 7.473 trajectes secció-escola, en lloc de línia recta. El paràmetre δ arrenca a 0 i es recupera el D_IST com a indicador intern.</span></p>
 
     <h2 style="color:#7eb8f7;font-size:15px;margin:20px 0 4px;">Límits coneguts</h2>
     <p>Població i capacitat són una foto fixa (no varien per any dins d'una mateixa simulació). Les distàncies que fa servir el model són <b>a peu reals</b>, calculades amb OSRM per als 7.473 trajectes secció-escola (les línies del mapa són rectes, però els minuts i els quilòmetres no ho són). De mitjana, caminar és un 24% més llarg que la línia recta, i en algun trajecte concret arriba a doblar-la. Totes les fonts són del curs 2024-25 (IST i %estranger de 2024, oferta CEM 2024-25, designació CMC 2024-25). Els infants es col·loquen escampats al voltant del <b>centroide de població</b> de la seva secció, calculat amb els 33.122 portals del cadastre: se sap la secció de residència, no el domicili. Abans es feia servir el centroide geomètric, que a les seccions grans de la perifèria queia al mig del bosc (fins a 2,3 km de les cases). Modela només la preinscripció i la matrícula fins al tall d'octubre: la matrícula viva per centre queda fora d'abast, i per tant subestima la segregació. Tampoc no incorpora el forçament (els casos en què l'OME assigna un infant fora de zona cas per cas). El D-EST és doblement estimat — usa el %estranger de la secció de residència, no la nacionalitat individual, i cada agent hi aporta una massa fraccionada, cosa que el suavitza cap avall. El model no té cap paràmetre de política activa (reserva de places, contenció d'oferta) — per això sotaestima la millora real de segregació per origen dels darrers anys, i sobreestima la segregació socioeconòmica real (el Programa d'escolarització equilibrada ja en conté bona part).</p>
