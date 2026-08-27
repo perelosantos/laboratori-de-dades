@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mortalitat atribuïble a la calor i anomalia tèrmica. Catalunya, estius 2015-2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    padding: 16px;
+    background: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #222;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 1.05rem; font-weight: 600; margin: 0 0 4px; }
+  p.sub { font-size: 0.82rem; color: #666; margin: 0 0 18px; line-height: 1.45; }
+  .chart-box { position: relative; height: 420px; }
+  p.font { font-size: 0.72rem; color: #888; margin: 14px 0 0; line-height: 1.5; }
+  @media (max-width: 600px) { .chart-box { height: 340px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Calor i mortalitat. Catalunya, estius 2015&ndash;2025</h1>
+  <p class="sub">Barres: excés de defuncions atribuïbles a la calor (juny&ndash;agost), en % sobre les defuncions esperades. Línia: anomalia de la temperatura mitjana d'estiu a l'Observatori Fabra, respecte de la climatologia 1991&ndash;2020.</p>
+  <div class="chart-box"><canvas id="c"></canvas></div>
+  <p class="font">Fonts: MoMo (Centro Nacional de Epidemiología, ISCIII) i Servei Meteorològic de Catalunya (Butlletins Climàtics Estacionals). El 2026 no s'hi inclou: la sèrie recent encara no està consolidada per retard de notificació.</p>
+</div>
+<script>
+const anys = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const momo = [0.87, 0.27, 0.86, 2.42, 0.81, 0.19, 0.38, 3.77, 1.80, 1.44, 4.25];
+const anom = [0.9, 0.4, 0.8, 0.9, 0.8, 0.2, 0.9, 2.9, 1.7, 1.4, 2.9];
+
+new Chart(document.getElementById('c'), {
+  data: {
+    labels: anys,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Excés mortalitat per calor (%)',
+        data: momo,
+        backgroundColor: 'rgba(200, 60, 45, 0.78)',
+        borderColor: 'rgba(200, 60, 45, 1)',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 2
+      },
+      {
+        type: 'line',
+        label: 'Anomalia T mitjana estiu, Fabra (°C)',
+        data: anom,
+        borderColor: 'rgba(35, 85, 145, 1)',
+        backgroundColor: 'rgba(35, 85, 145, 1)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.25,
+        yAxisID: 'y1',
+        order: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 14, font: { size: 12 } } },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const v = ctx.parsed.y;
+            return ctx.dataset.yAxisID === 'y'
+              ? ' Excés mortalitat: ' + v.toFixed(2) + '%'
+              : ' Anomalia: +' + v.toFixed(1) + ' °C';
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        position: 'left',
+        beginAtZero: true,
+        title: { display: true, text: 'Excés mortalitat per calor (%)' },
+        grid: { color: 'rgba(0,0,0,0.06)' },
+        ticks: { callback: v => v + '%' }
+      },
+      y1: {
+        position: 'right',
+        beginAtZero: true,
+        suggestedMax: 3.5,
+        title: { display: true, text: 'Anomalia tèrmica (°C)' },
+        grid: { drawOnChartArea: false },
+        ticks: { callback: v => '+' + v + '°' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
