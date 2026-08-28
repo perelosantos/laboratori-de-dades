@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>Bloc dreta — illa vs. veïnes, 2009-2024</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0d1117; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #wrap { width: 100%; height: 600px; box-sizing: border-box; padding: 8px 12px 4px 4px; }
+  svg { width: 100%; height: 100%; overflow: visible; }
+  .axis-line { stroke: #555; stroke-width: 1; }
+  .grid-line { stroke: #21262d; stroke-width: 1; }
+  .tick-label { font-size: 11px; fill: #9aa4af; }
+  .x-label { font-size: 10.5px; fill: #9aa4af; }
+  .line-illa { fill: none; stroke: #ff6b5b; stroke-width: 2.5; }
+  .line-veines { fill: none; stroke: #58a6ff; stroke-width: 2.5; }
+  .dot-illa { fill: #ff6b5b; }
+  .dot-veines { fill: #58a6ff; }
+  .legend-text { font-size: 12px; fill: #c9d1d9; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: #f0f0f0; color: #111;
+    font-size: 12px; padding: 5px 8px; border-radius: 4px; opacity: 0; transition: opacity 0.1s;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <svg id="chart" viewBox="0 0 980 600" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const data = [
+  {label: "2009 Eur",      illa: 60.3, veines: 20.8},
+  {label: "2011 Mun",      illa: 60.1, veines: 21.5},
+  {label: "2011 Cong",     illa: 57.8, veines: 21.5},
+  {label: "2012 Parl",     illa: 57.7, veines: 26.7},
+  {label: "2014 Eur",      illa: 57.5, veines: 20.8},
+  {label: "2015 Mun",      illa: 54.1, veines: 23.1},
+  {label: "2015 Parl",     illa: 61.3, veines: 30.3},
+  {label: "2015 Cong",     illa: 58.2, veines: 26.6},
+  {label: "2017 Parl",     illa: 60.1, veines: 32.0},
+  {label: "2019 Cong (a)", illa: 51.7, veines: 23.1},
+  {label: "2019 Mun",      illa: 49.8, veines: 20.7},
+  {label: "2019 Eur",      illa: 47.9, veines: 17.9},
+  {label: "2019 Cong (b)", illa: 51.5, veines: 22.1},
+  {label: "2021 Parl",     illa: 48.2, veines: 20.6},
+  {label: "2023 Mun",      illa: 44.8, veines: 18.0},
+  {label: "2023 Cong",     illa: 49.4, veines: 22.3},
+  {label: "2024 Parl",     illa: 49.4, veines: 21.7},
+  {label: "2024 Eur",      illa: 57.3, veines: 22.3}
+];
+
+const svg = document.getElementById("chart");
+const tooltip = document.getElementById("tooltip");
+const NS = "http://www.w3.org/2000/svg";
+
+const margin = {top: 30, right: 30, bottom: 90, left: 45};
+const W = 980, H = 600;
+const plotW = W - margin.left - margin.right;
+const plotH = H - margin.top - margin.bottom;
+
+const yMax = 70, yMin = 0;
+const n = data.length;
+
+function x(i) { return margin.left + (i / (n - 1)) * plotW; }
+function y(v) { return margin.top + plotH - ((v - yMin) / (yMax - yMin)) * plotH; }
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+// grid + y axis
+for (let v = 0; v <= yMax; v += 10) {
+  svg.appendChild(el("line", {x1: margin.left, x2: W - margin.right, y1: y(v), y2: y(v), class: "grid-line"}));
+  const t = el("text", {x: margin.left - 8, y: y(v) + 4, class: "tick-label", "text-anchor": "end"});
+  t.textContent = v + "%";
+  svg.appendChild(t);
+}
+svg.appendChild(el("line", {x1: margin.left, x2: margin.left, y1: margin.top, y2: margin.top + plotH, class: "axis-line"}));
+svg.appendChild(el("line", {x1: margin.left, x2: W - margin.right, y1: margin.top + plotH, y2: margin.top + plotH, class: "axis-line"}));
+
+// x labels (rotated)
+data.forEach((d, i) => {
+  const t = el("text", {
+    x: x(i), y: margin.top + plotH + 16, class: "x-label",
+    "text-anchor": "end", transform: `rotate(-45, ${x(i)}, ${margin.top + plotH + 16})`
+  });
+  t.textContent = d.label;
+  svg.appendChild(t);
+});
+
+// lines
+function buildPath(key) {
+  return data.map((d, i) => (i === 0 ? "M" : "L") + x(i) + "," + y(d[key])).join(" ");
+}
+svg.appendChild(el("path", {d: buildPath("illa"), class: "line-illa"}));
+svg.appendChild(el("path", {d: buildPath("veines"), class: "line-veines"}));
+
+// dots + hover
+data.forEach((d, i) => {
+  [["illa", "dot-illa"], ["veines", "dot-veines"]].forEach(([key, cls]) => {
+    const c = el("circle", {cx: x(i), cy: y(d[key]), r: 4, class: cls});
+    c.addEventListener("mousemove", (ev) => {
+      tooltip.style.opacity = 1;
+      tooltip.style.left = (ev.pageX + 12) + "px";
+      tooltip.style.top = (ev.pageY - 24) + "px";
+      tooltip.innerHTML = `<b>${d.label}</b><br>Illa: ${d.illa}%<br>Veïnes: ${d.veines}%<br>Diferència: ${(d.illa - d.veines).toFixed(1)} pts`;
+    });
+    c.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+    svg.appendChild(c);
+  });
+});
+
+// legend
+const legend = el("g", {transform: `translate(${margin.left}, 10)`});
+legend.appendChild(el("line", {x1: 0, x2: 22, y1: 0, y2: 0, class: "line-illa"}));
+const lt1 = el("text", {x: 28, y: 4, class: "legend-text"}); lt1.textContent = "Secció illa (Sant Martí de Provençals)";
+legend.appendChild(lt1);
+legend.appendChild(el("line", {x1: 300, x2: 322, y1: 0, y2: 0, class: "line-veines"}));
+const lt2 = el("text", {x: 328, y: 4, class: "legend-text"}); lt2.textContent = "Mitjana veïnes queen-contigües";
+legend.appendChild(lt2);
+svg.appendChild(legend);
+</script>
+</body>
+</html>
