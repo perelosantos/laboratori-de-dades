@@ -1,111 +1,94 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-<meta charset="utf-8">
-<title>Frontera distància–segregació</title>
+<meta charset="UTF-8">
+<title>Distància vs. segregació — Terrassa 2024-25</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-  body{margin:0;background:#0d1117;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
-  #wrap{max-width:820px;margin:0 auto;padding:12px 16px 18px;}
-  h1{color:#e6edf3;font-size:17px;font-weight:600;margin:0 0 2px;letter-spacing:-0.01em;}
-  p.sub{color:#7d8590;font-size:12px;margin:0 0 18px;line-height:1.55;}
-  canvas{width:100%;height:auto;display:block;}
-  p.foot{color:#57606a;font-size:11px;margin:14px 0 0;line-height:1.6;}
-  p.note{color:#7d8590;font-size:11.5px;line-height:1.55;margin:12px 0 0;}
+  html,body{margin:0;padding:0;background:#0a0a10;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e6e6e6;}
+  #wrap{max-width:900px;margin:0 auto;padding:22px 20px 30px;}
+  h1{font-size:16px;font-weight:600;color:#eee;margin:0 0 2px;}
+  .sub{font-size:12.5px;color:#8b949e;margin:0 0 18px;}
+  #chart-box{position:relative;height:420px;}
+  .legend-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#8b949e;}
+  .legend-item{display:flex;align-items:center;gap:6px;}
+  .sw{width:14px;height:3px;border-radius:2px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .foot{font-size:11.5px;color:#5b6270;margin-top:16px;line-height:1.5;border-top:1px solid #1e1e2a;padding-top:12px;}
 </style>
 </head>
 <body>
 <div id="wrap">
-  <h1>Quant costa, en minuts, tenir escoles més barrejades</h1>
-  <canvas id="c" width="1500" height="800"></canvas>
-  <p class="note">La corba blava és el mínim de segregació per origen (D_EST) assolible amb un pressupost de temps donat, calculat per programació lineal sobre les 141 seccions censals i les 53 escoles de Terrassa. Distàncies a peu reals (OSRM, coordenades oficials del registre de centres). Sense cap paràmetre de comportament: només capacitat i geografia. El punt taronja és el cas per defecte del simulador d'agents (α=0,70 · β=0,20 · δ=0). La banda taronja és el recorregut complet del simulador d'agents movent els seus tres paràmetres; la línia vermella, la xifra oficial del Síndic. Cap dels dos surt del racó més segregat de la corba. La corba és el que assoliria una assignació administrativa amb el mateix pressupost de temps. Límit conegut: el càlcul fa servir el % de població estrangera de la secció de residència, no la nacionalitat individual.</p>
+  <h1>Distància a peu vs. segregació escolar — Terrassa, curs 2024-25</h1>
+  <p class="sub">Programació lineal · 136 seccions censals · 53 escoles · matrícula real I3→I4 · distàncies OSRM a peu</p>
+  <div id="chart-box"><canvas id="ch"></canvas></div>
+  <div class="legend-row">
+    <div class="legend-item"><span class="sw" style="background:#7eb8f7"></span>Repartiment òptim (LP)</div>
+    <div class="legend-item"><span class="dot" style="background:#f4a261"></span>Tria lliure (ABM, punt taronja)</div>
+    <div class="legend-item"><span class="sw" style="background:#e06c75;opacity:.8;border-top:2px dashed #e06c75;height:0"></span>D_EST oficial Síndic (0,26)</div>
+  </div>
+  <div class="foot">Cada punt blau és la segregació mínima assolible (D_EST) sense superar un pressupost de temps mitjà de caminar. El punt taronja és el que produeix la tria lliure de les famílies al simulador d'agents (α=0,70 · β=0,20 · δ=0 · zones OFF). La línia vermella marca el D_EST oficial 2024-25 del Síndic de Greuges — per damunt de tots els punts de la corba, fins i tot del repartiment més curt possible.</div>
 </div>
+
 <script>
-const P=[[7.53,0.2588],[7.60,0.1987],[7.68,0.1750],[7.75,0.1561],[7.83,0.1419],[7.91,0.1298],
-         [8.06,0.1105],[8.28,0.0874],[8.66,0.0577],[9.03,0.0360],[9.79,0.0041],[11.29,0.0]];
-const LLIURE=[8.30,0.225];
-const C=document.getElementById('c'),X=C.getContext('2d');
-const W=C.width,H=C.height,L=125,R=90,T=34,B=100;
-const PW=W-L-R,PH=H-T-B;
-const X0=7.3,X1=11.9,Y0=0,Y1=0.29;
-const px=v=>L+((v-X0)/(X1-X0))*PW, py=v=>T+PH-((v-Y0)/(Y1-Y0))*PH;
+const corba = [
+  [5.552,0.2518],[5.602,0.2188],[5.652,0.1995],[5.702,0.1857],[5.752,0.1745],
+  [5.802,0.1646],[5.852,0.1560],[5.952,0.1423],[6.052,0.1302],[6.152,0.1193],
+  [6.252,0.1100],[6.352,0.1014],[6.552,0.0859],[6.752,0.0731],[7.052,0.0559]
+];
+const abm = {x:6.111, y:0.2350};
+const sindic = 0.26;
 
-X.fillStyle="#0d1117";X.fillRect(0,0,W,H);
-X.strokeStyle="#21262d";X.lineWidth=2;
-X.fillStyle="#7d8590";X.font="22px -apple-system,Segoe UI,Arial";X.textAlign="right";
-for(let v=0;v<=0.281;v+=0.05){
-  X.beginPath();X.moveTo(L,py(v));X.lineTo(L+PW,py(v));X.stroke();
-  X.fillText(v.toFixed(2).replace('.',','),L-16,py(v)+8);
-}
-X.textAlign="center";
-for(let v=7.5;v<=11.9;v+=0.5){
-  X.beginPath();X.moveTo(px(v),T+PH);X.lineTo(px(v),T+PH+9);X.stroke();
-  X.fillText(v.toFixed(1).replace('.',','),px(v),T+PH+38);
-}
-X.strokeStyle="#30363d";X.beginPath();X.moveTo(L,T+PH);X.lineTo(L+PW,T+PH);X.stroke();
-X.fillStyle="#8b949e";X.font="23px -apple-system,Segoe UI,Arial";
-X.fillText("minuts a peu de mitjana per infant",L+PW/2,T+PH+80);
-X.save();X.translate(36,T+PH/2);X.rotate(-Math.PI/2);X.textAlign="center";
-X.fillText("D_EST — segregació per origen",0,0);X.restore();
-
-// banda de l'ABM (0,223-0,255) i xifra oficial
-X.fillStyle="rgba(244,162,97,0.10)";
-X.fillRect(L,py(0.255),PW,py(0.223)-py(0.255));
-X.setLineDash([7,6]);X.strokeStyle="#8b6a3f";X.lineWidth=2;
-[0.223,0.255].forEach(v=>{X.beginPath();X.moveTo(L,py(v));X.lineTo(L+PW,py(v));X.stroke();});
-X.setLineDash([]);
-X.fillStyle="#a8763e";X.font="21px -apple-system,Segoe UI,Arial";X.textAlign="right";
-X.fillText("simulador d'agents: 0,223 \u2013 0,255",L+PW-8,py(0.2285)+7);
-X.strokeStyle="#e06c5a";X.lineWidth=3;X.setLineDash([11,7]);
-X.beginPath();X.moveTo(L,py(0.26));X.lineTo(L+PW,py(0.26));X.stroke();X.setLineDash([]);
-X.fillStyle="#e06c5a";X.font="600 22px -apple-system,Segoe UI,Arial";X.textAlign="left";
-X.fillText("xifra oficial del S\u00edndic 2024/25: 0,26",L+8,py(0.26)-12);
-
-// àrea sota la corba = inassolible
-X.beginPath();X.moveTo(px(P[0][0]),py(P[0][1]));
-P.forEach(p=>X.lineTo(px(p[0]),py(p[1])));
-X.lineTo(px(P[P.length-1][0]),py(0));X.lineTo(px(P[0][0]),py(0));X.closePath();
-X.fillStyle="rgba(61,90,128,0.16)";X.fill();
-X.fillStyle="#4a5568";X.font="italic 22px -apple-system,Segoe UI,Arial";X.textAlign="left";
-
-
-// corbes
-[[P,"#7eb8f7",""]].forEach(([C,col,lab])=>{
-  X.strokeStyle=col;X.lineWidth=6;X.lineJoin="round";
-  X.beginPath();C.forEach((p,i)=>{i?X.lineTo(px(p[0]),py(p[1])):X.moveTo(px(p[0]),py(p[1]))});X.stroke();
-  C.forEach(p=>{
-    X.fillStyle="#0d1117";X.beginPath();X.arc(px(p[0]),py(p[1]),9,0,7);X.fill();
-    X.fillStyle=col;X.beginPath();X.arc(px(p[0]),py(p[1]),5.5,0,7);X.fill();
-  });
-  X.fillStyle=col;X.font="600 23px -apple-system,Segoe UI,Arial";X.textAlign="left";
-  X.fillText(lab,px(C[1][0])+18,py(C[1][1])-14);
+const ctx = document.getElementById('ch').getContext('2d');
+new Chart(ctx, {
+  type:'scatter',
+  data:{
+    datasets:[
+      {
+        label:'Repartiment òptim (LP)',
+        data: corba.map(p=>({x:p[0],y:p[1]})),
+        showLine:true, tension:0.28, borderColor:'#7eb8f7', borderWidth:2.5,
+        pointRadius:0, backgroundColor:'#7eb8f7'
+      },
+      {
+        label:'Tria lliure (ABM)',
+        data:[abm],
+        pointRadius:7, pointHoverRadius:8,
+        backgroundColor:'#f4a261', borderColor:'#0a0a10', borderWidth:1.5,
+        showLine:false
+      },
+      {
+        label:'D_EST oficial Síndic',
+        data:[{x:5.4,y:sindic},{x:7.2,y:sindic}],
+        showLine:true, borderColor:'#e06c75', borderWidth:1.5, borderDash:[6,4],
+        pointRadius:0
+      }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        callbacks:{
+          label: c => `${c.dataset.label}: ${c.parsed.x.toFixed(2)} min · D_EST ${c.parsed.y.toFixed(3)}`
+        }
+      }
+    },
+    scales:{
+      x:{
+        title:{display:true,text:'Temps mitjà a peu (min)',color:'#8b949e'},
+        min:5.3, max:7.3,
+        ticks:{color:'#8b949e'}, grid:{color:'#1e1e2a'}
+      },
+      y:{
+        title:{display:true,text:'D_EST (dissimilitud per origen)',color:'#8b949e'},
+        min:0, max:0.28,
+        ticks:{color:'#8b949e'}, grid:{color:'#1e1e2a'}
+      }
+    }
+  }
 });
-
-// etiqueta del punt de partida de la corba
-(()=>{
-  const x0=px(P[0][0]), y0=py(P[0][1]), tx=x0+140, ty=py(0.180);
-  X.strokeStyle="#3d5a80";X.lineWidth=2;
-  X.beginPath();X.moveTo(x0+8,y0+6);X.lineTo(tx-14,ty-22);X.stroke();
-  X.fillStyle="#7eb8f7";X.font="600 24px -apple-system,Segoe UI,Arial";X.textAlign="left";
-  X.fillText("0,259",tx,ty-16);
-  X.fillStyle="#6b8fb5";X.font="20px -apple-system,Segoe UI,Arial";
-  X.fillText("proximitat pura: cada infant",tx,ty+8);
-  X.fillText("a l\u0027escola m\u00e9s propera",tx,ty+31);
-})();
-
-// punt de tria lliure
-X.fillStyle="#f4a261";X.beginPath();X.arc(px(LLIURE[0]),py(LLIURE[1]),13,0,7);X.fill();
-X.fillStyle="#f4a261";X.font="600 24px -apple-system,Segoe UI,Arial";X.textAlign="left";
-X.fillText("tria lliure de les famílies",px(LLIURE[0])+26,py(LLIURE[1])+4);
-X.fillStyle="#a8763e";X.font="21px -apple-system,Segoe UI,Arial";
-X.fillText("0,225 amb 8,3 min",px(LLIURE[0])+26,py(LLIURE[1])+28);
-
-// anotacions
-X.fillStyle="#7eb8f7";X.font="600 23px -apple-system,Segoe UI,Arial";X.textAlign="left";
-
-X.fillStyle="#8b949e";X.font="22px -apple-system,Segoe UI,Arial";
-X.fillStyle="#8b949e";X.font="21px -apple-system,Segoe UI,Arial";X.textAlign="left";
-X.fillText("assignaci\u00f3 a l\u0027atzar: 0,047",px(9.7),py(0.047)-14);
-X.setLineDash([5,5]);X.strokeStyle="#4a5568";X.lineWidth=2;X.beginPath();X.moveTo(L,py(0.047));X.lineTo(L+PW,py(0.047));X.stroke();X.setLineDash([]);
 </script>
 </body>
 </html>
