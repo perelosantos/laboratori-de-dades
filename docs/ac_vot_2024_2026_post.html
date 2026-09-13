@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>Aliança Catalana: intenció de vot al Parlament, 2024-2026</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: transparent; }
+  .card { max-width: 640px; margin: 0 auto; padding: 1.25rem 1.5rem; box-sizing: border-box; }
+  h3 { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+  .subtitle { font-size: 12px; color: #666; margin: 0 0 12px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab-btn {
+    font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid #d7d5cd;
+    background: #fff; cursor: pointer; color: #333;
+  }
+  .tab-btn.active { background: #2a78d6; border-color: #2a78d6; color: #fff; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid #eceae3; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: #666; font-weight: 500; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #555; margin-top: 6px; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h3>Aliança Catalana: intenció de vot al Parlament</h3>
+  <p class="subtitle">Maig 2024 – Maig 2026</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="btn-chart" onclick="showPanel('chart')">Gràfic</button>
+    <button class="tab-btn" id="btn-table" onclick="showPanel('table')">Taula</button>
+  </div>
+
+  <div class="panel active" id="panel-chart">
+    <div style="position: relative; height: 280px;">
+      <canvas id="acChart" role="img" aria-label="Evolucio de la intencio de vot declarada i l'estimacio CEO d'Alianca Catalana, de 3.8% el maig 2024 a 13.4% (declarada) i 15.1% (estimacio) el maig 2026">
+        Maig24: 3.8/3.8. Nov24: 3.5/5.0. Mar25: 3.9/6.2. Jul25: 6.5/7.6. Oct25: 11.4/12.4. Maig26: 13.4/15.1.
+      </canvas>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:#2a78d6"></i>Declarada (% del vot decidit)</span>
+      <span><i class="dot" style="background:#d95926"></i>Estimació CEO (ajustada)</span>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-table">
+    <table>
+      <thead>
+        <tr><th>Onada</th><th>Declarada</th><th>Estimació CEO</th><th>IC 95%</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Maig 2024 (resultat real)</td><td>3,8%</td><td>—</td><td>—</td></tr>
+        <tr><td>Novembre 2024</td><td>3,5%</td><td>5,0%</td><td>[4-6]</td></tr>
+        <tr><td>Març 2025</td><td>3,9%</td><td>6,2%</td><td>[5-7]</td></tr>
+        <tr><td>Juliol 2025</td><td>6,5%</td><td>7,6%</td><td>[6-8]</td></tr>
+        <tr><td>Octubre 2025</td><td>11,4%</td><td>12,4%</td><td>[11-14]</td></tr>
+        <tr><td>Maig 2026</td><td>13,4%</td><td>15,1%</td><td>[14-16]</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function showPanel(name) {
+  document.getElementById('panel-chart').classList.toggle('active', name === 'chart');
+  document.getElementById('panel-table').classList.toggle('active', name === 'table');
+  document.getElementById('btn-chart').classList.toggle('active', name === 'chart');
+  document.getElementById('btn-table').classList.toggle('active', name === 'table');
+}
+
+const labels = ["Maig 24", "Nov 24", "Març 25", "Jul 25", "Oct 25", "Maig 26"];
+new Chart(document.getElementById('acChart'), {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Declarada (% del vot decidit)',
+        data: [3.8, 3.5, 3.9, 6.5, 11.4, 13.4],
+        borderColor: '#2a78d6',
+        backgroundColor: '#2a78d6',
+        borderWidth: 2,
+        pointRadius: 4,
+        tension: 0
+      },
+      {
+        label: 'Estimació CEO (ajustada)',
+        data: [3.8, 5.0, 6.2, 7.6, 12.4, 15.1],
+        borderColor: '#d95926',
+        backgroundColor: '#d95926',
+        borderWidth: 2,
+        pointRadius: 4,
+        tension: 0
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 0, max: 17, ticks: { callback: (v) => v + '%' }, grid: { color: '#eceae3' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
