@@ -1,0 +1,19 @@
+<!doctype html><html lang="ca"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Juny a les aules</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>body{margin:0;padding:16px;background:#fff;color:#222;font:15px/1.4 system-ui,sans-serif}
+h3{margin:8px 0 4px;font-size:17px}p.n{margin:2px 0 8px;color:#555;font-size:13px}.w{position:relative;height:360px;max-width:860px}</style></head><body>
+<h3>Un mes de juny a les aules, en horari escolar</h3>
+<p class="n">Temperatura mitjana de cada aula en horari escolar (de 8 a 17 h), només dies laborables. Línia vermella: aula típica (mediana). Línia de punts: 27 °C. Franja: on queden 8 de cada 10 aules (del 10 % més fresc al 10 % més calent). Entre 340 i 546 sensors per dia, sense sensors encallats ni lectures marcades.</p>
+<div class="w"><canvas id="a"></canvas></div>
+<script>
+const f=v=>v.toFixed(1).replace('.',',')+' °C';
+new Chart(a,{type:'line',data:{labels:["dl 01/06", "dt 02/06", "dc 03/06", "dj 04/06", "dv 05/06", "dl 08/06", "dt 09/06", "dc 10/06", "dj 11/06", "dv 12/06", "dl 15/06", "dt 16/06", "dc 17/06", "dj 18/06", "dv 19/06", "dl 22/06", "dt 23/06", "dj 25/06", "dv 26/06", "dl 29/06", "dt 30/06"],datasets:[
+{label:'10 % més calent',data:[30.54, 30.16, 29.33, 29.0, 27.89, 29.01, 28.87, 27.68, 27.74, 28.36, 30.63, 31.11, 31.24, 31.53, 31.46, 33.05, 33.25, 33.73, 33.89, 34.25, 34.51],borderColor:'rgba(192,57,43,0)',backgroundColor:'rgba(192,57,43,.15)',pointRadius:0,fill:'+1'},
+{label:'10 % més fresc',data:[26.6, 26.63, 25.27, 25.19, 23.69, 25.14, 25.35, 24.26, 24.39, 25.02, 26.94, 26.98, 27.43, 27.31, 27.58, 28.49, 28.85, 29.21, 29.19, 29.69, 29.58],borderColor:'rgba(192,57,43,0)',pointRadius:0,fill:false},
+{label:'Aula (mediana)',data:[28.31, 28.31, 27.15, 27.06, 25.69, 26.91, 26.97, 25.92, 25.94, 26.56, 28.69, 28.97, 29.22, 29.19, 29.32, 30.68, 30.93, 31.46, 31.58, 32.04, 32.09],borderColor:'#c0392b',backgroundColor:'#c0392b',pointRadius:2,borderWidth:2.5,tension:.25},
+{label:'27 °C',data:Array(21).fill(27),borderColor:'#888',borderDash:[2,3],borderWidth:1,pointRadius:0}]},
+options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+scales:{y:{title:{display:true,text:'°C'},min:22,max:36,grid:{color:'#e5e5e5'}},x:{grid:{display:false},ticks:{maxTicksLimit:21,autoSkip:true}}},
+plugins:{legend:{labels:{filter:i=>!i.text.startsWith('10 %')}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+f(c.parsed.y)}}}}});
+</script></body></html>
