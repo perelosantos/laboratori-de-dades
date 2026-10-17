@@ -1,0 +1,19 @@
+<!doctype html><html lang="ca"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La nit que no arriba</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>body{margin:0;padding:16px;background:#fff;color:#222;font:15px/1.4 system-ui,sans-serif}
+h3{margin:24px 0 4px;font-size:17px}h4{margin:12px 0 2px;font-size:15px;color:#444}p.n{margin:2px 0 8px;color:#555;font-size:13px}.w{position:relative;height:300px;max-width:820px}</style></head><body>
+<h3>Fora es refresca. L'aula, no</h3>
+<p class="n">Temperatura mitjana per hora del dia, tots els dies del mes i tots els sensors. Aula: sensors AQC (DHT11, ±2 °C), sense sensors encallats ni lectures marcades. Exterior: ERA5-Land (~9 km) a la ubicació de cada centre. L'ombrejat marca la diferència.</p>
+<h4>Juny 2026</h4><div class="w"><canvas id="a1"></canvas></div>
+<h4>Setembre 2026</h4><div class="w"><canvas id="a2"></canvas></div>
+<script>
+const hrs=[...Array(24).keys()].map(h=>h+':00');const grid={color:'#e5e5e5'};
+const f=(v,u)=>v.toFixed(1).replace('.',',')+u;
+const prof=(id,i,e)=>new Chart(id,{type:'line',data:{labels:hrs,datasets:[
+{label:'Aula',data:i,borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,.12)',fill:'+1',pointRadius:0,borderWidth:2.5,tension:.3},
+{label:'Exterior',data:e,borderColor:'#2c6fbb',backgroundColor:'#2c6fbb',pointRadius:0,borderWidth:2.5,tension:.3}]},
+options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{y:{title:{display:true,text:'°C'},grid,min:14,max:32},x:{grid:{display:false},ticks:{maxTicksLimit:12}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+f(c.parsed.y,' °C')}}}}});
+prof(a1,[28.85, 28.75, 28.55, 28.45, 28.35, 28.26, 28.17, 28.14, 28.2, 28.41, 28.65, 28.87, 29.07, 29.2, 29.25, 29.33, 29.41, 29.47, 29.49, 29.46, 29.37, 29.55, 29.48, 28.96],[22.23, 21.58, 20.85, 20.39, 20.02, 19.75, 19.47, 19.4, 21.03, 23.59, 25.22, 26.45, 27.35, 28.02, 28.44, 28.57, 28.52, 28.22, 27.7, 27.02, 26.17, 25.36, 24.37, 23.02]);
+prof(a2,[28.74, 28.64, 28.57, 28.47, 28.37, 28.28, 28.19, 28.06, 27.93, 28.09, 28.43, 28.7, 28.98, 29.18, 29.32, 29.48, 29.54, 29.45, 29.48, 29.54, 29.39, 29.09, 28.95, 28.83],[22.13, 21.59, 21.21, 20.85, 20.49, 20.24, 20.01, 19.84, 19.74, 21.19, 23.62, 25.24, 26.46, 27.28, 27.71, 27.92, 27.78, 27.15, 26.72, 26.25, 25.2, 23.96, 23.21, 22.7]);
+</script></body></html>
