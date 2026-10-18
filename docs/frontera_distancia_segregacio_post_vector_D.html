@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<title>Distància vs. segregació — Terrassa 2024-25</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  html,body{margin:0;padding:0;background:#0a0a10;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e6e6e6;}
+  #wrap{max-width:900px;margin:0 auto;padding:22px 20px 30px;}
+  h1{font-size:16px;font-weight:600;color:#eee;margin:0 0 2px;}
+  .sub{font-size:12.5px;color:#8b949e;margin:0 0 18px;}
+  #chart-box{position:relative;height:420px;}
+  .legend-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#8b949e;}
+  .legend-item{display:flex;align-items:center;gap:6px;}
+  .sw{width:14px;height:3px;border-radius:2px;}
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .foot{font-size:11.5px;color:#5b6270;margin-top:16px;line-height:1.5;border-top:1px solid #1e1e2a;padding-top:12px;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>Distància a peu vs. segregació escolar — Terrassa, curs 2024-25</h1>
+  <p class="sub">Programació lineal · 136 seccions censals · 53 escoles · 1.659 infants d'I3 · distàncies OSRM a peu · composició 0-4 anys estimada (vector D)</p>
+  <div id="chart-box"><canvas id="ch"></canvas></div>
+  <div class="legend-row">
+    <div class="legend-item"><span class="sw" style="background:#7eb8f7"></span>Repartiment òptim per pressupost (mediana i IC95)</div>
+    <div class="legend-item"><span class="sw" style="background:#c9a7f5;height:8px;opacity:.5"></span>Terra de permutació (barris barrejats a l'atzar)</div>
+    <div class="legend-item"><span class="sw" style="background:#5b6270;border-top:2px dotted #8b949e;height:0"></span>Terra de soroll</div>
+    <div class="legend-item"><span class="dot" style="background:#f4a261"></span>Tria lliure (simulador d'agents)</div>
+  </div>
+  <div class="foot">Cada punt és la segregació mínima assolible (D_EST) sense superar un pressupost de temps mitjà de caminar, comptant infants sencers: mediana i interval del 95% sobre 50 sortejos de quins infants de cada secció són d'origen estranger. El punt de partida (5,55 min) és el repartiment per pura proximitat. La clau de l'esquerra el descompon com al post «De què està feta la segregació escolar»: soroll, diferències entre barris i agrupació (ara amb la composició 0-4 anys corregida). La banda lila és el terra de permutació: la segregació que quedaria si es mantingués la mateixa diversitat entre seccions però es barregessin a l'atzar els barris (mediana 0,23, IC95 0,19–0,27). La línia de punts és el terra de soroll: el que donaria l'atzar si totes les seccions tinguessin la mateixa composició (0,06). El punt taronja és el que produeix la tria lliure de les famílies al simulador d'agents (mecanisme de Boston, α=0,70 · β=0,20 · δ=0 · zones OFF): 0,32 amb 6,14 minuts de mitjana. Sense preferències de composició (β=0) dona el mateix valor. La composició per secció (vector D) és una estimació: la proporció d'infants d'origen estranger de 0 a 4 anys es deriva de la de tota la secció amb la relació observada al Cens 2021.</div>
+</div>
+
+<script>
+// Vector D, granular, 50 sortejos aparellats (XIFRES_CANONIQUES.md §3bis, 18/10/2026).
+// [pressupost, mediana, IC95 baix, IC95 alt]. 5.552 = proximitat pura.
+const corba = [
+  [5.552,0.335,0.324,0.349],[5.602,0.305,0.294,0.315],[5.652,0.280,0.268,0.297],
+  [5.702,0.267,0.258,0.281],[5.752,0.256,0.243,0.268],[5.802,0.247,0.233,0.264],
+  [5.852,0.240,0.224,0.256],[5.952,0.221,0.211,0.241],[6.052,0.213,0.199,0.231],
+  [6.137,0.202,0.187,0.225],[6.252,0.194,0.180,0.218],[6.352,0.181,0.164,0.202],
+  [6.552,0.164,0.146,0.176],[6.752,0.151,0.134,0.167],[7.052,0.136,0.117,0.158]
+];
+const terra = {med:0.230, lo:0.188, hi:0.269};
+const soroll = 0.059;
+const X0 = 5.0, X1 = 7.15;
+// Descomposició a proximitat pura (2026029, ara en vector D): soroll · diferències entre barris · agrupació
+const capes = [
+  {lo:0, hi:soroll, c:'#8b949e', t:['soroll', '0,06']},
+  {lo:soroll, hi:terra.med, c:'#c9a7f5', t:['diferències', 'entre barris', '0,17']},
+  {lo:terra.med, hi:0.335, c:'#7eb8f7', t:['agrupació', '0,10']}
+];
+const marques = [{x:5.702,y:0.267,t:'nou segons'},{x:6.052,y:0.213,t:'mig minut'}];
+// ABM real (v13 f8aee175), recomptat en vector D, 50 sortejos: mediana i IC95. abm_D.py
+const abm = {x:6.14, y:0.315, lo:0.303, hi:0.328};
+
+const ctx = document.getElementById('ch').getContext('2d');
+new Chart(ctx, {
+  type:'scatter',
+  data:{
+    datasets:[
+      { // 0: terra, límit superior
+        label:'Terra de permutació (IC95 alt)',
+        data:[{x:X0,y:terra.hi},{x:X1,y:terra.hi}],
+        showLine:true, borderWidth:0, pointRadius:0, borderColor:'transparent'
+      },
+      { // 1: terra, límit inferior, omple fins al 0
+        label:'Terra de permutació (IC95 baix)',
+        data:[{x:X0,y:terra.lo},{x:X1,y:terra.lo}],
+        showLine:true, borderWidth:0, pointRadius:0, borderColor:'transparent',
+        fill:'-1', backgroundColor:'rgba(201,167,245,0.14)'
+      },
+      { // 2: terra, mediana
+        label:'Terra de permutació',
+        data:[{x:X0,y:terra.med},{x:X1,y:terra.med}],
+        showLine:true, borderColor:'rgba(201,167,245,0.7)', borderWidth:1.2, pointRadius:0
+      },
+      { // 3: soroll
+        label:'Terra de soroll',
+        data:[{x:X0,y:soroll},{x:X1,y:soroll}],
+        showLine:true, borderColor:'#8b949e', borderWidth:1.2, borderDash:[2,4], pointRadius:0
+      },
+      { // 4: IC95 alt de la corba
+        label:'IC95 alt',
+        data: corba.map(p=>({x:p[0],y:p[3]})),
+        showLine:true, tension:0.28, borderWidth:0, pointRadius:0, borderColor:'transparent'
+      },
+      { // 5: IC95 baix, omple fins a l'alt
+        label:'IC95 baix',
+        data: corba.map(p=>({x:p[0],y:p[2]})),
+        showLine:true, tension:0.28, borderWidth:0, pointRadius:0, borderColor:'transparent',
+        fill:'-1', backgroundColor:'rgba(126,184,247,0.18)'
+      },
+      { // 6: corba
+        label:'Repartiment òptim',
+        data: corba.map(p=>({x:p[0],y:p[1]})),
+        showLine:true, tension:0.28, borderColor:'#7eb8f7', borderWidth:2.5,
+        pointRadius:2.5, pointHoverRadius:5, backgroundColor:'#7eb8f7'
+      },
+      { // 7: marques
+        label:'Marca',
+        data: marques.map(m=>({x:m.x,y:m.y})),
+        pointRadius:6, pointHoverRadius:7, backgroundColor:'#7eb8f7',
+        borderColor:'#0a0a10', borderWidth:2, showLine:false
+      },
+      { // 8: ABM, barra d'IC95
+        label:'Tria lliure IC95',
+        data:[{x:abm.x,y:abm.lo},{x:abm.x,y:abm.hi}],
+        showLine:true, borderColor:'rgba(244,162,97,0.6)', borderWidth:2, pointRadius:0
+      },
+      { // 9: ABM
+        label:'Tria lliure (ABM)',
+        data:[{x:abm.x,y:abm.y}],
+        pointRadius:7, pointHoverRadius:8,
+        backgroundColor:'#f4a261', borderColor:'#0a0a10', borderWidth:1.5, showLine:false
+      }
+    ]
+  },
+  plugins:[{
+    id:'etiquetes',
+    afterDatasetsDraw(chart){
+      const {ctx, scales:{x,y}} = chart;
+      ctx.save();
+      ctx.font = '12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+      ctx.fillStyle = '#c9d1d9';
+      marques.forEach(m => ctx.fillText(m.t, x.getPixelForValue(m.x) + 9, y.getPixelForValue(m.y) - 8));
+      ctx.fillStyle = '#f4a261';
+      ctx.fillText('tria lliure', x.getPixelForValue(abm.x) + 11, y.getPixelForValue(abm.y) + 4);
+      ctx.fillStyle = 'rgba(201,167,245,0.9)';
+      const xr = chart.chartArea.right - 6;
+      ctx.textAlign = 'right';
+      ctx.fillText('terra de permutació', xr, y.getPixelForValue((terra.med + terra.lo) / 2) + 4);
+      ctx.textAlign = 'left';
+      // clau de la descomposició, a l'esquerra
+      const bx = x.getPixelForValue(5.06);
+      capes.forEach(k => {
+        const y0 = y.getPixelForValue(k.lo), y1 = y.getPixelForValue(k.hi);
+        ctx.strokeStyle = k.c; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(bx, y0 - 2); ctx.lineTo(bx, y1 + 2); ctx.stroke();
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(bx - 4, y1 + 1); ctx.lineTo(bx + 4, y1 + 1); ctx.stroke();
+        ctx.fillStyle = k.c;
+        const ym = (y0 + y1) / 2 - (k.t.length - 1) * 7 + 4;
+        k.t.forEach((s, i) => ctx.fillText(s, bx + 9, ym + i * 14));
+      });
+      ctx.setLineDash([2, 3]); ctx.strokeStyle = 'rgba(126,184,247,0.4)';
+      ctx.beginPath(); ctx.moveTo(bx + 4, y.getPixelForValue(0.335)); ctx.lineTo(x.getPixelForValue(5.552) - 5, y.getPixelForValue(0.335)); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#8b949e';
+      ctx.textAlign = 'right';
+      ctx.fillText('terra de soroll', xr, y.getPixelForValue(soroll) - 6);
+      ctx.textAlign = 'left';
+      ctx.restore();
+    }
+  }],
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        filter: c => c.datasetIndex === 6 || c.datasetIndex === 9,
+        callbacks:{
+          label: c => {
+            if (c.datasetIndex === 9)
+              return `Tria lliure: ${abm.x.toFixed(2)} min · D_EST ${abm.y.toFixed(2)} (IC95 ${abm.lo.toFixed(2)}–${abm.hi.toFixed(2)})`;
+            const p = corba[c.dataIndex];
+            return `${p[0].toFixed(2)} min · D_EST ${p[1].toFixed(2)} (IC95 ${p[2].toFixed(2)}–${p[3].toFixed(2)})`;
+          }
+        }
+      }
+    },
+    scales:{
+      x:{
+        title:{display:true,text:'Temps mitjà a peu (min)',color:'#8b949e'},
+        min:X0, max:X1,
+        ticks:{color:'#8b949e'}, grid:{color:'#1e1e2a'}
+      },
+      y:{
+        title:{display:true,text:'D_EST (dissimilitud per origen)',color:'#8b949e'},
+        min:0, max:0.36,
+        ticks:{color:'#8b949e'}, grid:{color:'#1e1e2a'}
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
