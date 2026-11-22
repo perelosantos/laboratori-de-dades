@@ -60,5 +60,14 @@
     "geojson": "garrotxa.geojson",
     "seccions": 44,
     "any_dades": 2024
+  },
+  {
+    "nom": "Olot",
+    "codi": "17114",
+    "tipus": "municipi",
+    "file": "olot_v1.json",
+    "geojson": "olot.geojson",
+    "seccions": 21,
+    "any_dades": 2024
   }
 ]
