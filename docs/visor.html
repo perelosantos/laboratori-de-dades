@@ -293,9 +293,19 @@ let muniIndex = [];
 let geoLayer = null, selectedLayer = null;
 
 // ── MAP INIT ─────────────────────────────────────────────────────────────────
-const map = L.map('map', { zoomControl: true, attributionControl: false });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  maxZoom: 19
+const map = L.map('map', { zoomControl: true, attributionControl: true });
+map.attributionControl.setPrefix(false);
+// Base fosca Esri (sense API key). CARTO dark_all va passar a exigir API key (nov 2026).
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+L.tileLayer(ESRI + 'World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  maxNativeZoom: 16, maxZoom: 19, attribution: 'Base: Esri, HERE, Garmin, © OpenStreetMap'
+}).addTo(map);
+// Etiquetes (noms de lloc) per sobre de les seccions
+map.createPane('labels');
+map.getPane('labels').style.zIndex = 650;
+map.getPane('labels').style.pointerEvents = 'none';
+L.tileLayer(ESRI + 'World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+  maxNativeZoom: 16, maxZoom: 19, pane: 'labels'
 }).addTo(map);
 map.setView([41.7, 1.9], 8);
 
