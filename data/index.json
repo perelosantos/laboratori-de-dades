@@ -45,11 +45,20 @@
     "any_dades": 2024
   },
   {
-  "nom": "Barcelona",
-  "codi": "08019",
-  "file": "barcelona_v1.json",
-  "geojson": "barcelona.geojson",
-  "seccions": 1068,
-  "any_dades": 2024
-}
+    "nom": "Barcelona",
+    "codi": "08019",
+    "file": "barcelona_v1.json",
+    "geojson": "barcelona.geojson",
+    "seccions": 1068,
+    "any_dades": 2024
+  },
+  {
+    "nom": "Garrotxa (comarca)",
+    "codi": "C19",
+    "tipus": "comarca",
+    "file": "garrotxa_v1.json",
+    "geojson": "garrotxa.geojson",
+    "seccions": 44,
+    "any_dades": 2024
+  }
 ]
